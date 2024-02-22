@@ -1,5 +1,5 @@
-name: 'Attest Build Provenance'
-description: 'Generate provenance attestations for build artifacts'
+name: 'Generate Build Provenance Statement'
+description: 'Generate provenance statement for build artifacts'
 author: 'GitHub'
 
 inputs:
@@ -32,28 +32,12 @@ inputs:
     default: false
     required: false
 outputs:
-  bundle-path:
-    description: 'The path to the file containing the attestation bundle(s).'
-    value: ${{ steps.attest.outputs.bundle-path }}
-
+  predicate:
+    description: >
+      The JSON-serialized of the attestation predicate.
+  predicate-type:
+    description: >
+      URI identifying the type of the predicate.
 runs:
-  using: 'composite'
-  steps:
-    - uses: ./generate-build-provenance-statement
-      id: generate-build-provenance-statement
-      with:
-        github-token: ${{ inputs.github-token }}
-        subject-path: ${{ inputs.subject-path }}
-        subject-digest: ${{ inputs.subject-digest }}
-        subject-name: ${{ inputs.subject-name }}
-        push-to-registry: ${{ inputs.push-to-registry }}
-    - uses: actions/attest
-      id: attest
-      with:
-        github-token: ${{ inputs.github-token }}
-        subject-path: ${{ inputs.subject-path }}
-        subject-digest: ${{ inputs.subject-digest }}
-        subject-name: ${{ inputs.subject-name }}
-        push-to-registry: ${{ inputs.push-to-registry }}
-        predicate-type: ${{ steps.generate-build-provenance-statement.outputs.predicate-type }}
-        predicate: ${{ steps.generate-build-provenance-statement.outputs.predicate }}
+  using: node20
+  main: ../dist/index.js

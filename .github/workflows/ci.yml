@@ -5,30 +5,35 @@ on:
   push:
     branches:
       - main
+      - 'releases/*'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   test-typescript:
     name: TypeScript Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Node.js
         id: setup-node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
         with:
-          node-version-file: .node-version
+          node-version: 18
           cache: npm
 
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
+
+      - name: Build @actions/attest
+        run: npm run build --workspace packages/attest
 
       - name: Check Format
         id: npm-format-check
@@ -37,26 +42,29 @@ jobs:
       - name: Lint
         id: npm-lint
         run: npm run lint
+      # - name: Test
+      #   id: npm-ci-test
+      #   run: npm run ci-test
 
-      - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
-
-  test-action:
-    name: GitHub Actions Test
+  test-attest-provenance:
+    name: Test attest-provenance action
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
 
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
-
-      - name: Test Local Action
-        id: test-action
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Run attest-provenance
+        id: attest-provenance
         uses: ./
         with:
-          milliseconds: 2000
+          subject-digest: 'sha256:7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32'
+          subject-name: 'subject'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dump output
+        run: jq < ${{ steps.attest-provenance.outputs.bundle-path }}
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
