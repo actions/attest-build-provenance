@@ -47,7 +47,7 @@ runs:
         subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
         push-to-registry: ${{ inputs.push-to-registry }}
-    - uses: actions/attest
+    - uses: actions/attest@main
       id: attest
       with:
         github-token: ${{ inputs.github-token }}
