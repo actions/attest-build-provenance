@@ -39,6 +39,9 @@ jobs:
         id: install
         run: npm ci
 
+      - name: Build @actions/attest
+        run: npm run build --workspace packages/attest
+
       - name: Build dist/ Directory
         id: build
         run: npm run bundle
