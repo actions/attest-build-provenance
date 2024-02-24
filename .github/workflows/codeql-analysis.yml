@@ -10,6 +10,8 @@ on:
   schedule:
     - cron: '31 7 * * 3'
 
+permissions: {}
+
 jobs:
   analyze:
     name: Analyze
