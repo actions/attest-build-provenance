@@ -1,4 +1,4 @@
-import { generateProvenancePredicate } from '@actions/attest'
+import { buildSLSAProvenancePredicate } from '@actions/attest'
 import * as core from '@actions/core'
 
 /**
@@ -8,7 +8,7 @@ import * as core from '@actions/core'
 export async function run(): Promise<void> {
   try {
     // Calculate subject from inputs and generate provenance
-    const predicate = generateProvenancePredicate(process.env)
+    const predicate = buildSLSAProvenancePredicate(process.env)
 
     core.setOutput('predicate', predicate.params)
     core.setOutput('predicate-type', predicate.type)
