@@ -39,7 +39,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: ./generate-build-provenance-statement
+    - uses: actions/generate-build-provenance-statement@main
       id: generate-build-provenance-statement
       with:
         github-token: ${{ inputs.github-token }}
