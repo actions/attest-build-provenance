@@ -101,5 +101,3 @@ __tests__/runner/*
 .idea
 .vscode
 *.code-workspace
-
-packages/attest/dist

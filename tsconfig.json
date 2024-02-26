@@ -15,9 +15,5 @@
     "skipLibCheck": true,
     "newLine": "lf"
   },
-  "include": [ "/src/*" ],
-  "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"],
-  "references": [
-    { "path": "./packages/attest" }
-  ]
+  "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
 }

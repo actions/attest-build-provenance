@@ -25,7 +25,6 @@
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",
-    "prepackage": "npm run build --workspace packages/attest",
     "ci-test": "jest",
     "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "prettier --write **/*.ts",
@@ -67,6 +66,7 @@
     ]
   },
   "dependencies": {
+    "@actions/attest": "^1.0.0",
     "@actions/core": "^1.10.1"
   },
   "devDependencies": {
@@ -86,8 +86,5 @@
     "prettier-eslint": "^16.3.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3"
-  },
-  "workspaces": [
-    "./packages/*"
-  ]
+  }
 }
