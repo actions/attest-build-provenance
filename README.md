@@ -1,231 +1,285 @@
-# Create a GitHub Action Using TypeScript
+# attest-build-provenance
 
-[![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
-[![Check dist/](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml)
-[![CodeQL](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml)
-[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
-
-Use this template to bootstrap the creation of a TypeScript action. :rocket:
-
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
-
-If you are new, there's also a simpler introduction in the
-[Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
-
-## Create Your Own Action
-
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
-
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
-
-> [!IMPORTANT]
->
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
-> details on how to use this file, see
-> [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
-
-## Initial Setup
-
-After you've cloned the repository to your local machine or codespace, you'll
-need to perform some initial setup steps before you can develop your action.
-
-> [!NOTE]
->
-> You'll need to have a reasonably modern version of
-> [Node.js](https://nodejs.org) handy (20.x or later should work!). If you are
-> using a version manager like [`nodenv`](https://github.com/nodenv/nodenv) or
-> [`nvm`](https://github.com/nvm-sh/nvm), this template has a `.node-version`
-> file at the root of the repository that will be used to automatically switch
-> to the correct version when you `cd` into the repository. Additionally, this
-> `.node-version` file is used by GitHub Actions in any `actions/setup-node`
-> actions.
-
-1. :hammer_and_wrench: Install the dependencies
-
-   ```bash
-   npm install
-   ```
-
-1. :building_construction: Package the TypeScript for distribution
-
-   ```bash
-   npm run bundle
-   ```
-
-1. :white_check_mark: Run the tests
-
-   ```bash
-   $ npm test
-
-   PASS  ./index.test.js
-     ✓ throws invalid number (3ms)
-     ✓ wait 500 ms (504ms)
-     ✓ test runs (95ms)
-
-   ...
-   ```
-
-## Update the Action Metadata
-
-The [`action.yml`](action.yml) file defines metadata about your action, such as
-input(s) and output(s). For details about this file, see
-[Metadata syntax for GitHub Actions](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions).
-
-When you copy this repository, update `action.yml` with the name, description,
-inputs, and outputs for your action.
-
-## Update the Action Code
-
-The [`src/`](./src/) directory is the heart of your action! This contains the
-source code that will be run when your action is invoked. You can replace the
-contents of this directory with your own code.
-
-There are a few things to keep in mind when writing your action code:
-
-- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously.
-  In `main.ts`, you will see that the action is run in an `async` function.
-
-  ```javascript
-  import * as core from '@actions/core'
-  //...
-
-  async function run() {
-    try {
-      //...
-    } catch (error) {
-      core.setFailed(error.message)
-    }
-  }
-  ```
-
-  For more information about the GitHub Actions toolkit, see the
-  [documentation](https://github.com/actions/toolkit/blob/master/README.md).
-
-So, what are you waiting for? Go ahead and start customizing your action!
-
-1. Create a new branch
-
-   ```bash
-   git checkout -b releases/v1
-   ```
-
-1. Replace the contents of `src/` with your action code
-1. Add tests to `__tests__/` for your source code
-1. Format, test, and build the action
-
-   ```bash
-   npm run all
-   ```
-
-   > [!WARNING]
-   >
-   > This step is important! It will run [`ncc`](https://github.com/vercel/ncc)
-   > to build the final JavaScript action code with all dependencies included.
-   > If you do not run this step, your action will not work correctly when it is
-   > used in a workflow. This step also includes the `--license` option for
-   > `ncc`, which will create a license file for all of the production node
-   > modules used in your project.
-
-1. Commit your changes
-
-   ```bash
-   git add .
-   git commit -m "My first action is ready!"
-   ```
-
-1. Push them to your repository
-
-   ```bash
-   git push -u origin releases/v1
-   ```
-
-1. Create a pull request and get feedback on your action
-1. Merge the pull request into the `main` branch
-
-Your action is now published! :rocket:
-
-For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-## Validate the Action
-
-You can now validate the action by referencing it in a workflow file. For
-example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
-action in the same repository.
-
-```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
-
-  - name: Test Local Action
-    id: test-action
-    uses: ./
-    with:
-      milliseconds: 1000
-
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
-```
-
-For example workflow runs, check out the
-[Actions tab](https://github.com/actions/typescript-action/actions)! :rocket:
+GitHub Action to create, sign and upload a build provenance attestation for
+artifacts built as part of a workflow.
 
 ## Usage
 
-After testing, you can create version tag(s) that developers can use to
-reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
+Within the GitHub Actions workflow which builds some artifact you would like to
+attest,
 
-To include the action in a workflow in another repository, you can use the
-`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
-hash.
+1. Ensure that the following permissions are set:
 
-```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
+   ```yaml
+   permissions:
+     id-token: write
+     contents: write
+   ```
 
-  - name: Test Local Action
-    id: test-action
-    uses: actions/typescript-action@v1 # Commit with the `v1` tag
-    with:
-      milliseconds: 1000
+   The `id-token` permission gives the action the ability to mint the OIDC token
+   necessary to request a Sigstore signing certificate. The `contents`
+   permission is necessary to persist the attestation.
 
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+   > **NOTE**: The set of required permissions will be refined in a future
+   > release.
+
+1. After your artifact build step, add the following:
+
+   ```yaml
+   - uses: actions/attest-build-provenance@main
+     with:
+       subject-path: '${{ github.workspace }}/PATH_TO_FILE'
+   ```
+
+   The `subject-path` parameter should identity the artifact for which you want
+   to generate an attestation.
+
+### What is being attested?
+
+The generated attestation is a [SLSA provenance][2] document which captures
+non-falsifiable information about the GitHub Actions run in which the subject
+artifact was created:
+
+```json
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "some-app",
+      "digest": {
+        "sha256": "7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+      "externalParameters": {
+        "workflow": {
+          "ref": "refs/heads/main",
+          "repository": "https://github.com/user/app",
+          "path": ".github/workflows/build.yml"
+        }
+      },
+      "internalParameters": {
+        "github": {
+          "event_name": "push",
+          "repository_id": "706279790",
+          "repository_owner_id": "19792534"
+        }
+      },
+      "resolvedDependencies": [
+        {
+          "uri": "git+https://github.com/user/app@refs/heads/main",
+          "digest": {
+            "gitCommit": "c607ef44660b66df4d10b0dd6b01f56ec98f293f"
+          }
+        }
+      ]
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://github.com/actions/runner/github-hosted"
+      },
+      "metadata": {
+        "invocationId": "https://github.com/user/app/actions/runs/1880241037/attempts/1"
+      }
+    }
+  }
+}
 ```
 
-## Publishing a New Release
+The provenance statement is signed with a short-lived, [Sigstore][1]-issued
+certificate.
 
-This project includes a helper script, [`script/release`](./script/release)
-designed to streamline the process of tagging and pushing new releases for
-GitHub Actions.
+If the repository initiating the GitHub Actions workflow is public, the public
+instance of Sigstore will be used to generate the attestation signature. If the
+repository is private, it will use the GitHub private Sigstore instance.
 
-GitHub Actions allows users to select a specific version of the action to use,
-based on release tags. This script simplifies this process by performing the
-following steps:
+### Where does the attestation go?
 
-1. **Retrieving the latest release tag:** The script starts by fetching the most
-   recent release tag by looking at the local data available in your repository.
-1. **Prompting for a new release tag:** The user is then prompted to enter a new
-   release tag. To assist with this, the script displays the latest release tag
-   and provides a regular expression to validate the format of the new tag.
-1. **Tagging the new release:** Once a valid new tag is entered, the script tags
-   the new release.
-1. **Pushing the new tag to the remote:** Finally, the script pushes the new tag
-   to the remote repository. From here, you will need to create a new release in
-   GitHub and users can easily reference the new tag in their workflows.
+On the actions summary page for a repository you'll see an "Attestations" link
+which will take you to a list of all the attestations generated by workflows in
+that repository.
+
+![Actions summary view](./.github/attestations.png)
+
+### How are attestations verified?
+
+Attestations can be verified using the [gh-attestation][3] extension for the
+[GitHub CLI][4].
+
+## Customization
+
+See [action.yml](action.yml)
+
+### Inputs
+
+- `subject-path` - Path to the artifact for which the provenance will be
+  generated.
+
+  Must specify exactly one of `subject-path` or `subject-digest`. Wildcards can
+  be used to identify more than one artifact.
+
+- `subject-digest` - Digest of the subject for which the provenance will be
+  generated.
+
+  Only SHA-256 digests are accepted and the supplied value must be in the form
+  "sha256:\<hex-encoded-digest\>". Must specify exactly one of `subject-path` or
+  `subject-digest`.
+
+- `subject-name` - Subject name as it should appear in the provenance statement.
+
+  Required when the subject is identified by the `subject-digest` parameter.
+  When attesting container images, the name should be the fully qualified image
+  name.
+
+- `push-to-registry` - If true, the signed attestation is pushed to the
+  container registry identified by the `subject-name`. Default: `false`.
+
+- `github-token` - Token used to make authenticated requests to the GitHub API.
+  Default: `${{ github.token }}`.
+
+  The supplied token must have the permissions necessary to write attestations
+  to the repository.
+
+### Outputs
+
+- `bundle-path` - The file path of JSON-serialized [Sigstore bundle][5] containing the attestation
+  and related verification material.
+
+## Sample Workflows
+
+### Identify Artifact by Path
+
+For the basic use case, simply add the `generate-build-provenance` action to
+your workflow and supply the path to the artifact for which you want to generate
+build provenance.
+
+```yaml
+name: build-with-provenance
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build artifact
+        run: make some-app
+      - name: Attest artifact
+        uses: actions/attest-build-provenance@main
+        with:
+          subject-path: '${{ github.workspace }}/some-app'
+```
+
+### Identify Artifacts by Wildcard
+
+If you are generating multiple artifacts, you can generate build provenance for
+each artifact by using a wildcard in the `subject-path` input.
+
+```yaml
+name: build-wildcard-with-provenance
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attest artifact
+        uses: actions/attest-build-provenance@main
+        with:
+          subject-path: 'dist/**/my-bin-*'
+```
+
+For supported wildcards along with behavior and documentation, see
+[@actions/glob][6] which is used internally to search for files.
+
+### Container Image
+
+When working with container images you may not have a `subject-path` value you
+can supply. In this case you can invoke the action with the `subject-name` and
+`subject-digest` inputs.
+
+If you want to publish the attestation to the container registry with the
+`push-to-registry` option, it is important that the `subject-name` specify the
+fully-qualified image name (e.g. "ghcr.io/user/app" or
+"acme.azurecr.io/user/app"). Do NOT include a tag as part of the image name --
+the specific image being attested is identified by the supplied digest.
+
+> **NOTE**: When pushing to Docker Hub, please use "index.docker.io" as the
+> registry portion of the image name.
+
+```yaml
+name: build-image-with-provenance
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+      contents: write
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        id: push
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Attest image
+        uses: actions/attest-build-provenance@main
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+```
+
+[1]: https://www.sigstore.dev/
+[2]: https://slsa.dev/spec/v1.0/provenance
+[3]: https://github.com/github-early-access/gh-attestation
+[4]: https://cli.github.com/
+[5]:
+  https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto
+[6]: https://github.com/actions/toolkit/tree/main/packages/glob#patterns
