@@ -153,7 +153,7 @@ See [action.yml](action.yml)
 
 ### Identify Artifact by Path
 
-For the basic use case, simply add the `generate-build-provenance` action to
+For the basic use case, simply add the `attest-build-provenance` action to
 your workflow and supply the path to the artifact for which you want to generate
 build provenance.
 
