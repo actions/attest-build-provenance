@@ -146,8 +146,8 @@ See [action.yml](action.yml)
 
 ### Outputs
 
-- `bundle-path` - The file path of JSON-serialized [Sigstore bundle][5] containing the attestation
-  and related verification material.
+- `bundle-path` - The file path of JSON-serialized [Sigstore bundle][5] containing
+  the attestation and related verification material.
 
 ## Sample Workflows
 
