@@ -39,7 +39,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/generate-build-provenance-predicate@input-refactor
+    - uses: actions/attest-build-provenance/generate-build-provenance-predicate@main
       id: generate-build-provenance-predicate
     - uses: actions/attest@main
       id: attest
