@@ -46,6 +46,9 @@
       "js",
       "ts"
     ],
+    "setupFilesAfterEnv": [
+      "./jest.setup.js"
+    ],
     "testMatch": [
       "**/*.test.ts"
     ],
