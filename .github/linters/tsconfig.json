@@ -5,8 +5,5 @@
     "noEmit": true
   },
   "include": ["../../__tests__/**/*", "../../src/**/*"],
-  "exclude": ["../../dist", "../../node_modules", "../../coverage", "*.json"],
-  "references": [
-    { "path": "./packages/attest" }
-  ]
+  "exclude": ["../../dist", "../../node_modules", "../../coverage", "*.json"]
 }

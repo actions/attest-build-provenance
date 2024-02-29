@@ -3,11 +3,6 @@ description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 
 inputs:
-  github-token:
-    description: >
-      The GitHub token used to make authenticated API requests.
-    default: ${{ github.token }}
-    required: false
   subject-path:
     description: >
       Path to the artifact for which provenance will be generated. Must specify
@@ -30,6 +25,11 @@ inputs:
       that the "subject-name" parameter specify the fully-qualified image name
       and that the "subject-digest" parameter be specified. Defaults to false.
     default: false
+    required: false
+  github-token:
+    description: >
+      The GitHub token used to make authenticated API requests.
+    default: ${{ github.token }}
     required: false
 outputs:
   bundle-path:
