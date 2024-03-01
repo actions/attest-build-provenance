@@ -39,14 +39,8 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/generate-build-provenance-statement@main
-      id: generate-build-provenance-statement
-      with:
-        github-token: ${{ inputs.github-token }}
-        subject-path: ${{ inputs.subject-path }}
-        subject-digest: ${{ inputs.subject-digest }}
-        subject-name: ${{ inputs.subject-name }}
-        push-to-registry: ${{ inputs.push-to-registry }}
+    - uses: actions/attest-build-provenance/generate-build-provenance-predicate@main
+      id: generate-build-provenance-predicate
     - uses: actions/attest@main
       id: attest
       with:
@@ -55,5 +49,5 @@ runs:
         subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
         push-to-registry: ${{ inputs.push-to-registry }}
-        predicate-type: ${{ steps.generate-build-provenance-statement.outputs.predicate-type }}
-        predicate: ${{ steps.generate-build-provenance-statement.outputs.predicate }}
+        predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
+        predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
