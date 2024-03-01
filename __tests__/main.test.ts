@@ -9,7 +9,7 @@ const setFailedMock = jest.spyOn(core, 'setFailed')
 // Ensure that setFailed doesn't set an exit code during tests
 setFailedMock.mockImplementation(() => {})
 
-describe('main action', () => {
+describe('main', () => {
   let outputs = {} as Record<string, string>
 
   beforeEach(() => {
@@ -46,51 +46,8 @@ describe('main action', () => {
     // Verify that outputs were set correctly
     expect(setOutputMock).toHaveBeenCalledTimes(2)
 
-    // Define the expected object
-    const expectedObject = {
-      buildDefinition: {
-        buildType:
-          'https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1',
-        externalParameters: {
-          workflow: {
-            path: '.github/workflows/main.yml',
-            ref: 'main',
-            repository: 'https://github.com/owner/repo'
-          }
-        },
-        internalParameters: {
-          github: {
-            event_name: 'push',
-            repository_id: 'repo-id',
-            repository_owner_id: 'owner-id'
-          }
-        },
-        resolvedDependencies: [
-          {
-            digest: {
-              gitCommit: 'babca52ab0c93ae16539e5923cb0d7403b9a093b'
-            },
-            uri: 'git+https://github.com/owner/repo@refs/heads/main'
-          }
-        ]
-      },
-      runDetails: {
-        builder: {
-          id: 'https://github.com/actions/runner/github-hosted'
-        },
-        metadata: {
-          invocationId:
-            'https://github.com/owner/repo/actions/runs/run-id/attempts/run-attempt'
-        }
-      }
-    }
-
     // Use the expected object in the test assertion
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'predicate',
-      expectedObject
-    )
+    expect(outputs['predicate']).toMatchSnapshot()
 
     expect(setOutputMock).toHaveBeenNthCalledWith(
       2,
