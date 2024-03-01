@@ -41,9 +41,10 @@ jobs:
       - name: Lint
         id: npm-lint
         run: npm run lint
-      # - name: Test
-      #   id: npm-ci-test
-      #   run: npm run ci-test
+
+      - name: Test
+        id: npm-ci-test
+        run: npm run ci-test
 
   test-attest-provenance:
     name: Test attest-provenance action
