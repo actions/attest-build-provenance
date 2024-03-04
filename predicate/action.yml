@@ -1,0 +1,14 @@
+name: 'Build Provenance Predicate'
+description: 'Generate predicate for build provenance attestations'
+author: 'GitHub'
+
+outputs:
+  predicate:
+    description: >
+      The JSON-serialized of the attestation predicate.
+  predicate-type:
+    description: >
+      URI identifying the type of the predicate.
+runs:
+  using: node20
+  main: ../dist/index.js
