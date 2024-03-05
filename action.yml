@@ -31,6 +31,7 @@ inputs:
       The GitHub token used to make authenticated API requests.
     default: ${{ github.token }}
     required: false
+
 outputs:
   bundle-path:
     description: 'The path to the file containing the attestation bundle(s).'
@@ -39,15 +40,15 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/predicate@main
+    - uses: actions/attest-build-provenance/predicate@56a361a16034268025aa760d300531128e298f1c # predicate@0.1.0
       id: generate-build-provenance-predicate
     - uses: actions/attest@main
       id: attest
       with:
-        github-token: ${{ inputs.github-token }}
         subject-path: ${{ inputs.subject-path }}
         subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
-        push-to-registry: ${{ inputs.push-to-registry }}
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
+        push-to-registry: ${{ inputs.push-to-registry }}
+        github-token: ${{ inputs.github-token }}
