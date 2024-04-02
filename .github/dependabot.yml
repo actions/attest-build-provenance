@@ -9,6 +9,8 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: "actions/attest-build-provenance"
 
   - package-ecosystem: npm
     directory: /
