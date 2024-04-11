@@ -50,7 +50,7 @@ jobs:
     name: Test attest-provenance action
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      attestations: write
       id-token: write
 
     steps:
