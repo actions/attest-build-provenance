@@ -29,11 +29,11 @@ attest:
    ```yaml
    permissions:
      id-token: write
-     contents: write # TODO: Update this
+     attestations: write
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
-   permission is necessary to persist the attestation. The `contents` permission
+   permission is necessary to persist the attestation. The `attestations` permission
    is necessary to persist the attestation.
 
 1. Add the following to your workflow after your artifact has been built:
@@ -112,7 +112,8 @@ jobs:
   build:
     permissions:
       id-token: write
-      contents: write
+      contents: read
+      attestations: write
 
     steps:
       - name: Checkout
@@ -166,7 +167,8 @@ jobs:
     permissions:
       id-token: write
       packages: write
-      contents: write
+      contents: read
+      attestations: write
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
