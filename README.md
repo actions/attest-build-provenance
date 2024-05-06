@@ -61,7 +61,7 @@ See [action.yml](action.yml)
     # specify exactly one of "subject-path" or "subject-digest".
     subject-path:
 
-    # SHA256 digest of the subject for for the attestation. Must be in the form
+    # SHA256 digest of the subject for the attestation. Must be in the form
     # "sha256:hex_digest" (e.g. "sha256:abc123..."). Must specify exactly one
     # of "subject-path" or "subject-digest".
     subject-digest:
