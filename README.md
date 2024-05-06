@@ -19,8 +19,8 @@ initiated.
 Attestations can be verified using the [`attestation` command in the GitHub
 CLI][5].
 
-See [Using artifact attestations to establish provenance for builds][9]
-for more information on artifact attestations.
+See [Using artifact attestations to establish provenance for builds][9] for more
+information on artifact attestations.
 
 ## Usage
 
@@ -36,8 +36,8 @@ attest:
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
-   permission is necessary to persist the attestation. The `attestations` permission
-   is necessary to persist the attestation.
+   permission is necessary to persist the attestation. The `attestations`
+   permission is necessary to persist the attestation.
 
 1. Add the following to your workflow after your artifact has been built:
 
@@ -154,6 +154,9 @@ fully-qualified image name (e.g. "ghcr.io/user/app" or
 "acme.azurecr.io/user/app"). Do NOT include a tag as part of the image name --
 the specific image being attested is identified by the supplied digest.
 
+Attestation bundles are stored in the OCI registry according to the [Cosign
+Bundle Specification][10].
+
 > **NOTE**: When pushing to Docker Hub, please use "index.docker.io" as the
 > registry portion of the image name.
 
@@ -210,4 +213,6 @@ jobs:
   https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto
 [7]: https://jsonlines.org/
 [8]: https://github.com/actions/toolkit/tree/main/packages/glob#patterns
-[9]: https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
+[9]:
+  https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
+[10]: https://github.com/sigstore/cosign/blob/main/specs/BUNDLE_SPEC.md
