@@ -1,6 +1,6 @@
 # `actions/attest-build-provenance`
 
-Generate signed build provenace attestations for workflow artifacts. Internally
+Generate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
 Attestations bind some subject (a named artifact along with its digest) to a
@@ -47,7 +47,7 @@ attest:
        subject-path: '<PATH TO ARTIFACT>'
    ```
 
-   The `subject-path` parameter should identity the artifact for which you want
+   The `subject-path` parameter should identify the artifact for which you want
    to generate an attestation.
 
 ### Inputs
