@@ -1,6 +1,6 @@
 # `actions/attest-build-provenance`
 
-Generate signed build provenace attestations for workflow artifacts. Internally
+Generate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
 Attestations bind some subject (a named artifact along with its digest) to a
@@ -47,7 +47,7 @@ attest:
        subject-path: '<PATH TO ARTIFACT>'
    ```
 
-   The `subject-path` parameter should identity the artifact for which you want
+   The `subject-path` parameter should identify the artifact for which you want
    to generate an attestation.
 
 ### Inputs
@@ -61,7 +61,7 @@ See [action.yml](action.yml)
     # specify exactly one of "subject-path" or "subject-digest".
     subject-path:
 
-    # SHA256 digest of the subject for for the attestation. Must be in the form
+    # SHA256 digest of the subject for the attestation. Must be in the form
     # "sha256:hex_digest" (e.g. "sha256:abc123..."). Must specify exactly one
     # of "subject-path" or "subject-digest".
     subject-digest:
