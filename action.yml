@@ -45,7 +45,7 @@ runs:
   steps:
     - uses: actions/attest-build-provenance/predicate@db1dde0f270afe12073070ac7aa802958ae3ec04 # predicate@1.0.0
       id: generate-build-provenance-predicate
-    - uses: actions/attest@d442d85e120905fa5821e76edb1e07a75b94ee7a # v1.1.0
+    - uses: actions/attest@32f49af6653ef9b7d1a40182d53fc9ebd53447d8 # v1.1.1
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
