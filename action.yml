@@ -54,7 +54,6 @@ runs:
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
-        github-token: ${{ inputs.github-token }}
-              - name: Attest Build Provenance
-                uses: actions/attest-build-provenance@v1.1.1
-            
+        github-token: ${{ inputs.github-token }}v
+        stone
+        
