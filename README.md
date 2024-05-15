@@ -1,5 +1,5 @@
 # `actions/attest-build-provenance`
-
+ok
 Generate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
