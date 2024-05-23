@@ -1,6 +1,6 @@
 name: 'Attest Build Provenance'
 description: 'Generate provenance attestations for build artifacts'
-author: 'GitHub'
+author: 'Jonathan Tyler Combs'
 branding:
   color: 'blue'
   icon: 'lock'
