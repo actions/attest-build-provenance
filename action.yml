@@ -10,13 +10,13 @@ inputs:
     description: >
       Path to the artifact for which provenance will be generated. Must specify
       exactly one of "subject-path" or "subject-digest".
-    required: false
+    required: true
   subject-digest:
     description: >
       Digest of the subject for which provenance will be generated. Must be in
       the form "algorithm:hex_digest" (e.g. "sha256:abc123..."). Must specify
       exactly one of "subject-path" or "subject-digest".
-    required: false
+    required: true
   subject-name:
     description: >
       Subject name as it should appear in the provenance statement. Required
@@ -27,14 +27,13 @@ inputs:
       Whether to push the provenance statement to the image registry. Requires
       that the "subject-name" parameter specify the fully-qualified image name
       and that the "subject-digest" parameter be specified. Defaults to false.
-    default: false
-    required: false
+    default: 
+    required: true
   github-token:
     description: >
       The GitHub token used to make authenticated API requests.
     default: ${{ github.token }}
-    required: false
-
+    required: true
 outputs:
   bundle-path:
     description: 'The path to the file containing the attestation bundle(s).'
