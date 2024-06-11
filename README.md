@@ -36,7 +36,7 @@ attest:
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
-   permission is necessary to persist the attestation. The `attestations`
+   permission, which is necessary to persist the attestation. The `attestations`
    permission is necessary to persist the attestation.
 
 1. Add the following to your workflow after your artifact has been built:
