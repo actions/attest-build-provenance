@@ -44,9 +44,9 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/predicate@db1dde0f270afe12073070ac7aa802958ae3ec04 # predicate@1.0.0
+    - uses: actions/attest-build-provenance/predicate@46e4ff8b824dc6ae13c8f92c8ba69907e2d39b4e # predicate@1.1.0
       id: generate-build-provenance-predicate
-    - uses: actions/attest@32795ed9174327efe1734fa6d09c9223658ef225 # v1.2.0
+    - uses: actions/attest@b24527d9cbfd6c27196c10f8dccbacaa2a1c53f2 # v1.3.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
