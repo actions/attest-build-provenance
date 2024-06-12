@@ -25,6 +25,7 @@ describe('main', () => {
     ref: 'refs/heads/main',
     sha: 'babca52ab0c93ae16539e5923cb0d7403b9a093b',
     workflow_ref: 'owner/repo/.github/workflows/main.yml@main',
+    job_workflow_ref: 'owner/shared/.github/workflows/build.yml@main',
     event_name: 'push',
     repository_id: 'repo-id',
     repository_owner_id: 'owner-id',
