@@ -3,7 +3,7 @@
 exports[`main successfully run main 1`] = `
 {
   "buildDefinition": {
-    "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+    "buildType": "https://actions.github.io/buildtypes/workflow/v1",
     "externalParameters": {
       "workflow": {
         "path": ".github/workflows/main.yml",
@@ -16,6 +16,7 @@ exports[`main successfully run main 1`] = `
         "event_name": "push",
         "repository_id": "repo-id",
         "repository_owner_id": "owner-id",
+        "runner_environment": "github-hosted",
       },
     },
     "resolvedDependencies": [
@@ -29,7 +30,7 @@ exports[`main successfully run main 1`] = `
   },
   "runDetails": {
     "builder": {
-      "id": "https://github.com/actions/runner/github-hosted",
+      "id": "https://github.com/owner/shared/.github/workflows/build.yml@main",
     },
     "metadata": {
       "invocationId": "https://github.com/owner/repo/actions/runs/run-id/attempts/run-attempt",
