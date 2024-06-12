@@ -1,0 +1,4 @@
+              - název: Atest Build Provenance 
+               použití: actions/attest-build-provenance@v1.2.0 
+            run: OS Aplet
+run: build
