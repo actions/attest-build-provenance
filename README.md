@@ -36,7 +36,7 @@ attest:
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
-   permission is necessary to persist the attestation. The `attestations`
+   necessary to request a Sigstore signing certificate. The `attestations`
    permission is necessary to persist the attestation.
 
 1. Add the following to your workflow after your artifact has been built:
