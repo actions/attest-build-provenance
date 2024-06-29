@@ -1,4 +1,4 @@
-name: 'Attest Build Provenance'
+name: 'Build Attest with GH'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 branding:
