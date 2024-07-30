@@ -44,7 +44,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/predicate@46e4ff8b824dc6ae13c8f92c8ba69907e2d39b4e # predicate@1.1.0
+    - uses: actions/attest-build-provenance/predicate@9ff3713ef183e028b07415e8a740b634c054a663 # predicate@1.1.1
       id: generate-build-provenance-predicate
     - uses: actions/attest@7305951e905fb742188aa16c1d23409b13565e26 # v1.3.3
       id: attest
