@@ -30,6 +30,12 @@ inputs:
       and that the "subject-digest" parameter be specified. Defaults to false.
     default: false
     required: false
+  show-summary:
+    description: >
+      Whether to attach a list of generated attestations to the workflow run
+      summary page. Defaults to true.
+    default: true
+    required: false
   github-token:
     description: >
       The GitHub token used to make authenticated API requests.
@@ -46,7 +52,7 @@ runs:
   steps:
     - uses: actions/attest-build-provenance/predicate@9ff3713ef183e028b07415e8a740b634c054a663 # predicate@1.1.1
       id: generate-build-provenance-predicate
-    - uses: actions/attest@7305951e905fb742188aa16c1d23409b13565e26 # v1.3.3
+    - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
@@ -55,4 +61,5 @@ runs:
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
+        show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}

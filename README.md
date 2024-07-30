@@ -77,6 +77,10 @@ See [action.yml](action.yml)
     # the "subject-digest" parameter be specified. Defaults to false.
     push-to-registry:
 
+    # Whether to attach a list of generated attestations to the workflow run
+    # summary page. Defaults to true.
+    show-summary:
+
     # The GitHub token used to make authenticated API requests. Default is
     # ${{ github.token }}
     github-token:
