@@ -20,7 +20,7 @@ Attestations can be verified using the [`attestation` command in the GitHub
 CLI][5].
 
 See [Using artifact attestations to establish provenance for builds][9] for more
-information on artifact attestations.
+information on artifact attestations.[![Build](https://github.com/jupyterlab/jupyterlab_pygments/actions/workflows/build.yml/badge.svg?branch=changelog-b9dddd20b70b11ec8e28352fd21ecca8&event=workflow_run)](https://github.com/jupyterlab/jupyterlab_pygments/actions/workflows/build.yml)
 
 ## Usage
 
