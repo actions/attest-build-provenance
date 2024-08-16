@@ -1,4 +1,4 @@
-name: CodeQL
+name: sehan1235
 
 on:
   pull_request:
