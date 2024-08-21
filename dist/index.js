@@ -24992,7 +24992,7 @@ exports.possibleElisions = possibleElisions;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cryptoRuntime = exports.base64url = exports.generateSecret = exports.generateKeyPair = exports.errors = exports.decodeJwt = exports.decodeProtectedHeader = exports.importJWK = exports.importX509 = exports.importPKCS8 = exports.importSPKI = exports.exportJWK = exports.exportSPKI = exports.exportPKCS8 = exports.UnsecuredJWT = exports.experimental_jwksCache = exports.createRemoteJWKSet = exports.createLocalJWKSet = exports.EmbeddedJWK = exports.calculateJwkThumbprintUri = exports.calculateJwkThumbprint = exports.EncryptJWT = exports.SignJWT = exports.GeneralSign = exports.FlattenedSign = exports.CompactSign = exports.FlattenedEncrypt = exports.CompactEncrypt = exports.jwtDecrypt = exports.jwtVerify = exports.generalVerify = exports.flattenedVerify = exports.compactVerify = exports.GeneralEncrypt = exports.generalDecrypt = exports.flattenedDecrypt = exports.compactDecrypt = void 0;
+exports.cryptoRuntime = exports.base64url = exports.generateSecret = exports.generateKeyPair = exports.errors = exports.decodeJwt = exports.decodeProtectedHeader = exports.importJWK = exports.importX509 = exports.importPKCS8 = exports.importSPKI = exports.exportJWK = exports.exportSPKI = exports.exportPKCS8 = exports.UnsecuredJWT = exports.experimental_jwksCache = exports.jwksCache = exports.createRemoteJWKSet = exports.createLocalJWKSet = exports.EmbeddedJWK = exports.calculateJwkThumbprintUri = exports.calculateJwkThumbprint = exports.EncryptJWT = exports.SignJWT = exports.GeneralSign = exports.FlattenedSign = exports.CompactSign = exports.FlattenedEncrypt = exports.CompactEncrypt = exports.jwtDecrypt = exports.jwtVerify = exports.generalVerify = exports.flattenedVerify = exports.compactVerify = exports.GeneralEncrypt = exports.generalDecrypt = exports.flattenedDecrypt = exports.compactDecrypt = void 0;
 var decrypt_js_1 = __nccwpck_require__(27651);
 Object.defineProperty(exports, "compactDecrypt", ({ enumerable: true, get: function () { return decrypt_js_1.compactDecrypt; } }));
 var decrypt_js_2 = __nccwpck_require__(7566);
@@ -25034,6 +25034,7 @@ var local_js_1 = __nccwpck_require__(29970);
 Object.defineProperty(exports, "createLocalJWKSet", ({ enumerable: true, get: function () { return local_js_1.createLocalJWKSet; } }));
 var remote_js_1 = __nccwpck_require__(79035);
 Object.defineProperty(exports, "createRemoteJWKSet", ({ enumerable: true, get: function () { return remote_js_1.createRemoteJWKSet; } }));
+Object.defineProperty(exports, "jwksCache", ({ enumerable: true, get: function () { return remote_js_1.jwksCache; } }));
 Object.defineProperty(exports, "experimental_jwksCache", ({ enumerable: true, get: function () { return remote_js_1.experimental_jwksCache; } }));
 var unsecured_js_1 = __nccwpck_require__(88568);
 Object.defineProperty(exports, "UnsecuredJWT", ({ enumerable: true, get: function () { return unsecured_js_1.UnsecuredJWT; } }));
@@ -25958,7 +25959,7 @@ exports.createLocalJWKSet = createLocalJWKSet;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createRemoteJWKSet = exports.experimental_jwksCache = void 0;
+exports.experimental_jwksCache = exports.createRemoteJWKSet = exports.jwksCache = void 0;
 const fetch_jwks_js_1 = __nccwpck_require__(43650);
 const errors_js_1 = __nccwpck_require__(94419);
 const local_js_1 = __nccwpck_require__(29970);
@@ -25971,10 +25972,10 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.6.3';
+    const VERSION = 'v5.7.0';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
-exports.experimental_jwksCache = Symbol();
+exports.jwksCache = Symbol();
 function isFreshJwksCache(input, cacheMaxAge) {
     if (typeof input !== 'object' || input === null) {
         return false;
@@ -26011,9 +26012,9 @@ class RemoteJWKSet {
         this._cooldownDuration =
             typeof options?.cooldownDuration === 'number' ? options?.cooldownDuration : 30000;
         this._cacheMaxAge = typeof options?.cacheMaxAge === 'number' ? options?.cacheMaxAge : 600000;
-        if (options?.[exports.experimental_jwksCache] !== undefined) {
-            this._cache = options?.[exports.experimental_jwksCache];
-            if (isFreshJwksCache(options?.[exports.experimental_jwksCache], this._cacheMaxAge)) {
+        if (options?.[exports.jwksCache] !== undefined) {
+            this._cache = options?.[exports.jwksCache];
+            if (isFreshJwksCache(options?.[exports.jwksCache], this._cacheMaxAge)) {
                 this._jwksTimestamp = this._cache.uat;
                 this._local = (0, local_js_1.createLocalJWKSet)(this._cache.jwks);
             }
@@ -26107,6 +26108,7 @@ function createRemoteJWKSet(url, options) {
     return remoteJWKSet;
 }
 exports.createRemoteJWKSet = createRemoteJWKSet;
+exports.experimental_jwksCache = exports.jwksCache;
 
 
 /***/ }),
