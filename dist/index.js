@@ -52,7 +52,7 @@ function attest(options) {
         // Store the attestation
         let attestationID;
         if (options.skipWrite !== true) {
-            attestationID = yield (0, store_1.writeAttestation)((0, bundle_1.bundleToJSON)(bundle), options.token);
+            attestationID = yield (0, store_1.writeAttestation)((0, bundle_1.bundleToJSON)(bundle), options.token, { headers: options.headers });
         }
         return toAttestation(bundle, attestationID);
     });
@@ -249,6 +249,10 @@ const core_1 = __nccwpck_require__(42186);
 const http_client_1 = __nccwpck_require__(96255);
 const jose = __importStar(__nccwpck_require__(34061));
 const OIDC_AUDIENCE = 'nobody';
+const VALID_SERVER_URLS = [
+    'https://github.com',
+    new RegExp('^https://[a-z0-9-]+\\.ghe\\.com$')
+];
 const REQUIRED_CLAIMS = [
     'iss',
     'ref',
@@ -264,6 +268,7 @@ const REQUIRED_CLAIMS = [
     'run_attempt'
 ];
 const getIDTokenClaims = (issuer) => __awaiter(void 0, void 0, void 0, function* () {
+    issuer = issuer || getIssuer();
     try {
         const token = yield (0, core_1.getIDToken)(OIDC_AUDIENCE);
         const claims = yield decodeOIDCToken(token, issuer);
@@ -307,6 +312,19 @@ function assertClaimSet(claims) {
         throw new Error(`Missing claims: ${missingClaims.join(', ')}`);
     }
 }
+// Derive the current OIDC issuer based on the server URL
+function getIssuer() {
+    const serverURL = process.env.GITHUB_SERVER_URL || 'https://github.com';
+    // Ensure the server URL is a valid GitHub server URL
+    if (!VALID_SERVER_URLS.some(valid_url => serverURL.match(valid_url))) {
+        throw new Error(`Invalid server URL: ${serverURL}`);
+    }
+    let host = new URL(serverURL).hostname;
+    if (host === 'github.com') {
+        host = 'githubusercontent.com';
+    }
+    return `https://token.actions.${host}`;
+}
 //# sourceMappingURL=oidc.js.map
 
 /***/ }),
@@ -331,7 +349,6 @@ const attest_1 = __nccwpck_require__(46373);
 const oidc_1 = __nccwpck_require__(95847);
 const SLSA_PREDICATE_V1_TYPE = 'https://slsa.dev/provenance/v1';
 const GITHUB_BUILD_TYPE = 'https://actions.github.io/buildtypes/workflow/v1';
-const DEFAULT_ISSUER = 'https://token.actions.githubusercontent.com';
 /**
  * Builds an SLSA (Supply Chain Levels for Software Artifacts) provenance
  * predicate using the GitHub Actions Workflow build type.
@@ -341,7 +358,7 @@ const DEFAULT_ISSUER = 'https://token.actions.githubusercontent.com';
  * issuer.
  * @returns The SLSA provenance predicate.
  */
-const buildSLSAProvenancePredicate = (issuer = DEFAULT_ISSUER) => __awaiter(void 0, void 0, void 0, function* () {
+const buildSLSAProvenancePredicate = (issuer) => __awaiter(void 0, void 0, void 0, function* () {
     const serverURL = process.env.GITHUB_SERVER_URL;
     const claims = yield (0, oidc_1.getIDTokenClaims)(issuer);
     // Split just the path and ref from the workflow string.
@@ -540,6 +557,7 @@ const writeAttestation = (attestation, token, options = {}) => __awaiter(void 0,
         const response = yield octokit.request(CREATE_ATTESTATION_REQUEST, {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
+            headers: options.headers,
             data: { bundle: attestation }
         });
         const data = typeof response.data == 'string'
@@ -2458,7 +2476,7 @@ class HttpClient {
         }
         const usingSsl = parsedUrl.protocol === 'https:';
         proxyAgent = new undici_1.ProxyAgent(Object.assign({ uri: proxyUrl.href, pipelining: !this._keepAlive ? 0 : 1 }, ((proxyUrl.username || proxyUrl.password) && {
-            token: `${proxyUrl.username}:${proxyUrl.password}`
+            token: `Basic ${Buffer.from(`${proxyUrl.username}:${proxyUrl.password}`).toString('base64')}`
         })));
         this._proxyAgentDispatcher = proxyAgent;
         if (usingSsl && this._ignoreSslError) {
@@ -2572,11 +2590,11 @@ function getProxyUrl(reqUrl) {
     })();
     if (proxyVar) {
         try {
-            return new URL(proxyVar);
+            return new DecodedURL(proxyVar);
         }
         catch (_a) {
             if (!proxyVar.startsWith('http://') && !proxyVar.startsWith('https://'))
-                return new URL(`http://${proxyVar}`);
+                return new DecodedURL(`http://${proxyVar}`);
         }
     }
     else {
@@ -2634,6 +2652,19 @@ function isLoopbackAddress(host) {
         hostLower.startsWith('127.') ||
         hostLower.startsWith('[::1]') ||
         hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
+class DecodedURL extends URL {
+    constructor(url, base) {
+        super(url, base);
+        this._decodedUsername = decodeURIComponent(super.username);
+        this._decodedPassword = decodeURIComponent(super.password);
+    }
+    get username() {
+        return this._decodedUsername;
+    }
+    get password() {
+        return this._decodedPassword;
+    }
 }
 //# sourceMappingURL=proxy.js.map
 
