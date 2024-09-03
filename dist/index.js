@@ -25351,15 +25351,15 @@ exports.flattenedDecrypt = flattenedDecrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FlattenedEncrypt = exports.unprotected = void 0;
+exports.FlattenedEncrypt = void 0;
 const base64url_js_1 = __nccwpck_require__(80518);
+const private_symbols_js_1 = __nccwpck_require__(78863);
 const encrypt_js_1 = __nccwpck_require__(76476);
 const encrypt_key_management_js_1 = __nccwpck_require__(33286);
 const errors_js_1 = __nccwpck_require__(94419);
 const is_disjoint_js_1 = __nccwpck_require__(6063);
 const buffer_utils_js_1 = __nccwpck_require__(1691);
 const validate_crit_js_1 = __nccwpck_require__(50863);
-exports.unprotected = Symbol();
 class FlattenedEncrypt {
     _plaintext;
     _protectedHeader;
@@ -25453,7 +25453,7 @@ class FlattenedEncrypt {
             let parameters;
             ({ cek, encryptedKey, parameters } = await (0, encrypt_key_management_js_1.default)(alg, enc, key, this._cek, this._keyManagementParameters));
             if (parameters) {
-                if (options && exports.unprotected in options) {
+                if (options && private_symbols_js_1.unprotected in options) {
                     if (!this._unprotectedHeader) {
                         this.setUnprotectedHeader(parameters);
                     }
@@ -25569,6 +25569,7 @@ exports.generalDecrypt = generalDecrypt;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GeneralEncrypt = void 0;
 const encrypt_js_1 = __nccwpck_require__(81555);
+const private_symbols_js_1 = __nccwpck_require__(78863);
 const errors_js_1 = __nccwpck_require__(94419);
 const cek_js_1 = __nccwpck_require__(43987);
 const is_disjoint_js_1 = __nccwpck_require__(6063);
@@ -25723,7 +25724,7 @@ class GeneralEncrypt {
                     .setKeyManagementParameters({ p2c })
                     .encrypt(recipient.key, {
                     ...recipient.options,
-                    [encrypt_js_1.unprotected]: true,
+                    [private_symbols_js_1.unprotected]: true,
                 });
                 jwe.ciphertext = flattened.ciphertext;
                 jwe.iv = flattened.iv;
@@ -25855,7 +25856,7 @@ exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createLocalJWKSet = exports.LocalJWKSet = void 0;
+exports.createLocalJWKSet = void 0;
 const import_js_1 = __nccwpck_require__(74230);
 const errors_js_1 = __nccwpck_require__(94419);
 const is_object_js_1 = __nccwpck_require__(39127);
@@ -25954,7 +25955,6 @@ class LocalJWKSet {
         return importWithAlgCache(this._cached, jwk, alg);
     }
 }
-exports.LocalJWKSet = LocalJWKSet;
 async function importWithAlgCache(cache, jwk, alg) {
     const cached = cache.get(jwk) || cache.set(jwk, {}).get(jwk);
     if (cached[alg] === undefined) {
@@ -26003,7 +26003,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.7.0';
+    const VERSION = 'v5.8.0';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -27858,6 +27858,18 @@ exports["default"] = (protectedHeader, encodedPayload, options = {}) => {
     }
     return payload;
 };
+
+
+/***/ }),
+
+/***/ 78863:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.unprotected = void 0;
+exports.unprotected = Symbol();
 
 
 /***/ }),
