@@ -58,7 +58,7 @@ jobs:
               tags:
                 - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
                 - "service:${{ secrets.CATALOG_SERVICE }}"
-                - "deployed_to:production"
+                - "stamp:${{ secrets.STAMP }}"
                 - "env:production"
                 - "repo:${{ github.repository }}"
                 - "team:${{ secrets.TEAM }}"
@@ -77,7 +77,7 @@ jobs:
               tags:
                 - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
                 - "service:${{ secrets.CATALOG_SERVICE }}"
-                - "deployed_to:production"
+                - "stamp:${{ secrets.STAMP }}"
                 - "env:production"
                 - "repo:${{ github.repository }}"
                 - "team:${{ secrets.TEAM }}"
