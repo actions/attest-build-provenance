@@ -284,9 +284,16 @@ const decodeOIDCToken = (token, issuer) => __awaiter(void 0, void 0, void 0, fun
     // Verify and decode token
     const jwks = jose.createLocalJWKSet(yield getJWKS(issuer));
     const { payload } = yield jose.jwtVerify(token, jwks, {
-        audience: OIDC_AUDIENCE,
-        issuer
+        audience: OIDC_AUDIENCE
     });
+    if (!payload.iss) {
+        throw new Error('Missing "iss" claim');
+    }
+    // Check that the issuer STARTS WITH the expected issuer URL to account for
+    // the fact that the value may include an enterprise-specific slug
+    if (!payload.iss.startsWith(issuer)) {
+        throw new Error(`Unexpected "iss" claim: ${payload.iss}`);
+    }
     return payload;
 });
 const getJWKS = (issuer) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68177,19 +68184,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const attest_1 = __nccwpck_require__(74113);
 const core = __importStar(__nccwpck_require__(42186));
-const VALID_SERVER_URLS = [
-    'https://github.com',
-    new RegExp('^https://[a-z0-9-]+\\.ghe\\.com$')
-];
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
     try {
-        const issuer = getIssuer();
         // Calculate subject from inputs and generate provenance
-        const predicate = await (0, attest_1.buildSLSAProvenancePredicate)(issuer);
+        const predicate = await (0, attest_1.buildSLSAProvenancePredicate)();
         core.setOutput('predicate', predicate.params);
         core.setOutput('predicate-type', predicate.type);
     }
@@ -68198,19 +68200,6 @@ async function run() {
         // Fail the workflow run if an error occurs
         core.setFailed(error.message);
     }
-}
-// Derive the current OIDC issuer based on the server URL
-function getIssuer() {
-    const serverURL = process.env.GITHUB_SERVER_URL || 'https://github.com';
-    // Ensure the server URL is a valid GitHub server URL
-    if (!VALID_SERVER_URLS.some(valid_url => serverURL.match(valid_url))) {
-        throw new Error(`Invalid server URL: ${serverURL}`);
-    }
-    let host = new URL(serverURL).hostname;
-    if (host === 'github.com') {
-        host = 'githubusercontent.com';
-    }
-    return `https://token.actions.${host}`;
 }
 
 
