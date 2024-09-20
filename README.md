@@ -1,5 +1,8 @@
 # `actions/attest-build-provenance`
 
+[![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
+[![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
+
 Generate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
