@@ -1,3 +1,4 @@
+#sudo su 
 # `actions/attest-build-provenance`
 
 Generate signed build provenance attestations for workflow artifacts. Internally
