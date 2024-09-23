@@ -26010,7 +26010,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.9.2';
+    const VERSION = 'v5.9.3';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -27877,7 +27877,8 @@ exports["default"] = (protectedHeader, encodedPayload, options = {}) => {
             throw new errors_js_1.JWTClaimValidationFailed(`missing required "${claim}" claim`, payload, claim, 'missing');
         }
     }
-    if (issuer && !(Array.isArray(issuer) ? issuer : [issuer]).includes(payload.iss)) {
+    if (issuer &&
+        !(Array.isArray(issuer) ? issuer : [issuer]).includes(payload.iss)) {
         throw new errors_js_1.JWTClaimValidationFailed('unexpected "iss" claim value', payload, 'iss', 'check_failed');
     }
     if (subject && payload.sub !== subject) {
