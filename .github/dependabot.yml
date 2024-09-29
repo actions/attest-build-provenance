@@ -10,7 +10,7 @@ updates:
           - minor
           - patch
     ignore:
-      - dependency-name: "actions/attest-build-provenance"
+      - dependency-name: 'actions/attest-build-provenance'
 
   - package-ecosystem: npm
     directory: /

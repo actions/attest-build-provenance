@@ -1,5 +1,8 @@
 # `actions/attest-build-provenance`
 
+[![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
+[![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
+
 Generate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
@@ -76,6 +79,10 @@ See [action.yml](action.yml)
     # "subject-name" parameter specify the fully-qualified image name and that
     # the "subject-digest" parameter be specified. Defaults to false.
     push-to-registry:
+
+    # Whether to attach a list of generated attestations to the workflow run
+    # summary page. Defaults to true.
+    show-summary:
 
     # The GitHub token used to make authenticated API requests. Default is
     # ${{ github.token }}

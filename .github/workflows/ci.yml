@@ -69,4 +69,3 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Dump output
         run: jq < ${{ steps.attest-provenance.outputs.bundle-path }}
-
