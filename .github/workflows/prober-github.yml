@@ -8,7 +8,7 @@ on:
 
 jobs:
   prober:
-    if: github.repository_owner == 'actions'
+    if: github.repository_owner == 'fhar28'
     permissions:
       attestations: write
       id-token: write
