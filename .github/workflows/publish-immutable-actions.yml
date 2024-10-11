@@ -4,6 +4,8 @@ on:
   release:
     types: [published]
 
+permissions: {}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
