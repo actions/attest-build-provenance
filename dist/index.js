@@ -27362,7 +27362,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.9.3';
+    const VERSION = 'v5.9.4';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -30895,27 +30895,23 @@ exports.decodeProtectedHeader = decodeProtectedHeader;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JWSSignatureVerificationFailed = exports.JWKSTimeout = exports.JWKSMultipleMatchingKeys = exports.JWKSNoMatchingKey = exports.JWKSInvalid = exports.JWKInvalid = exports.JWTInvalid = exports.JWSInvalid = exports.JWEInvalid = exports.JWEDecryptionFailed = exports.JOSENotSupported = exports.JOSEAlgNotAllowed = exports.JWTExpired = exports.JWTClaimValidationFailed = exports.JOSEError = void 0;
 class JOSEError extends Error {
-    static get code() {
-        return 'ERR_JOSE_GENERIC';
-    }
+    static code = 'ERR_JOSE_GENERIC';
     code = 'ERR_JOSE_GENERIC';
-    constructor(message) {
-        super(message);
+    constructor(message, options) {
+        super(message, options);
         this.name = this.constructor.name;
         Error.captureStackTrace?.(this, this.constructor);
     }
 }
 exports.JOSEError = JOSEError;
 class JWTClaimValidationFailed extends JOSEError {
-    static get code() {
-        return 'ERR_JWT_CLAIM_VALIDATION_FAILED';
-    }
+    static code = 'ERR_JWT_CLAIM_VALIDATION_FAILED';
     code = 'ERR_JWT_CLAIM_VALIDATION_FAILED';
     claim;
     reason;
     payload;
     constructor(message, payload, claim = 'unspecified', reason = 'unspecified') {
-        super(message);
+        super(message, { cause: { claim, reason, payload } });
         this.claim = claim;
         this.reason = reason;
         this.payload = payload;
@@ -30923,15 +30919,13 @@ class JWTClaimValidationFailed extends JOSEError {
 }
 exports.JWTClaimValidationFailed = JWTClaimValidationFailed;
 class JWTExpired extends JOSEError {
-    static get code() {
-        return 'ERR_JWT_EXPIRED';
-    }
+    static code = 'ERR_JWT_EXPIRED';
     code = 'ERR_JWT_EXPIRED';
     claim;
     reason;
     payload;
     constructor(message, payload, claim = 'unspecified', reason = 'unspecified') {
-        super(message);
+        super(message, { cause: { claim, reason, payload } });
         this.claim = claim;
         this.reason = reason;
         this.payload = payload;
@@ -30939,93 +30933,79 @@ class JWTExpired extends JOSEError {
 }
 exports.JWTExpired = JWTExpired;
 class JOSEAlgNotAllowed extends JOSEError {
-    static get code() {
-        return 'ERR_JOSE_ALG_NOT_ALLOWED';
-    }
+    static code = 'ERR_JOSE_ALG_NOT_ALLOWED';
     code = 'ERR_JOSE_ALG_NOT_ALLOWED';
 }
 exports.JOSEAlgNotAllowed = JOSEAlgNotAllowed;
 class JOSENotSupported extends JOSEError {
-    static get code() {
-        return 'ERR_JOSE_NOT_SUPPORTED';
-    }
+    static code = 'ERR_JOSE_NOT_SUPPORTED';
     code = 'ERR_JOSE_NOT_SUPPORTED';
 }
 exports.JOSENotSupported = JOSENotSupported;
 class JWEDecryptionFailed extends JOSEError {
-    static get code() {
-        return 'ERR_JWE_DECRYPTION_FAILED';
-    }
+    static code = 'ERR_JWE_DECRYPTION_FAILED';
     code = 'ERR_JWE_DECRYPTION_FAILED';
-    message = 'decryption operation failed';
+    constructor(message = 'decryption operation failed', options) {
+        super(message, options);
+    }
 }
 exports.JWEDecryptionFailed = JWEDecryptionFailed;
 class JWEInvalid extends JOSEError {
-    static get code() {
-        return 'ERR_JWE_INVALID';
-    }
+    static code = 'ERR_JWE_INVALID';
     code = 'ERR_JWE_INVALID';
 }
 exports.JWEInvalid = JWEInvalid;
 class JWSInvalid extends JOSEError {
-    static get code() {
-        return 'ERR_JWS_INVALID';
-    }
+    static code = 'ERR_JWS_INVALID';
     code = 'ERR_JWS_INVALID';
 }
 exports.JWSInvalid = JWSInvalid;
 class JWTInvalid extends JOSEError {
-    static get code() {
-        return 'ERR_JWT_INVALID';
-    }
+    static code = 'ERR_JWT_INVALID';
     code = 'ERR_JWT_INVALID';
 }
 exports.JWTInvalid = JWTInvalid;
 class JWKInvalid extends JOSEError {
-    static get code() {
-        return 'ERR_JWK_INVALID';
-    }
+    static code = 'ERR_JWK_INVALID';
     code = 'ERR_JWK_INVALID';
 }
 exports.JWKInvalid = JWKInvalid;
 class JWKSInvalid extends JOSEError {
-    static get code() {
-        return 'ERR_JWKS_INVALID';
-    }
+    static code = 'ERR_JWKS_INVALID';
     code = 'ERR_JWKS_INVALID';
 }
 exports.JWKSInvalid = JWKSInvalid;
 class JWKSNoMatchingKey extends JOSEError {
-    static get code() {
-        return 'ERR_JWKS_NO_MATCHING_KEY';
-    }
+    static code = 'ERR_JWKS_NO_MATCHING_KEY';
     code = 'ERR_JWKS_NO_MATCHING_KEY';
-    message = 'no applicable key found in the JSON Web Key Set';
+    constructor(message = 'no applicable key found in the JSON Web Key Set', options) {
+        super(message, options);
+    }
 }
 exports.JWKSNoMatchingKey = JWKSNoMatchingKey;
 class JWKSMultipleMatchingKeys extends JOSEError {
     [Symbol.asyncIterator];
-    static get code() {
-        return 'ERR_JWKS_MULTIPLE_MATCHING_KEYS';
-    }
+    static code = 'ERR_JWKS_MULTIPLE_MATCHING_KEYS';
     code = 'ERR_JWKS_MULTIPLE_MATCHING_KEYS';
-    message = 'multiple matching keys found in the JSON Web Key Set';
+    constructor(message = 'multiple matching keys found in the JSON Web Key Set', options) {
+        super(message, options);
+    }
 }
 exports.JWKSMultipleMatchingKeys = JWKSMultipleMatchingKeys;
 class JWKSTimeout extends JOSEError {
-    static get code() {
-        return 'ERR_JWKS_TIMEOUT';
-    }
+    static code = 'ERR_JWKS_TIMEOUT';
     code = 'ERR_JWKS_TIMEOUT';
-    message = 'request timed out';
+    constructor(message = 'request timed out', options) {
+        super(message, options);
+    }
 }
 exports.JWKSTimeout = JWKSTimeout;
 class JWSSignatureVerificationFailed extends JOSEError {
-    static get code() {
-        return 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED';
-    }
+    static code = 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED';
     code = 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED';
-    message = 'signature verification failed';
+    constructor(message = 'signature verification failed', options) {
+        super(message, options);
+    }
 }
 exports.JWSSignatureVerificationFailed = JWSSignatureVerificationFailed;
 
