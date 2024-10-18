@@ -41,11 +41,19 @@ inputs:
       The GitHub token used to make authenticated API requests.
     default: ${{ github.token }}
     required: false
+  suppress-summary:
+    description: >
+      Flag to suppress the generation of the built-in job summary. Defaults to false.
+    default: false
+    required: false
 
 outputs:
   bundle-path:
     description: 'The path to the file containing the attestation bundle(s).'
     value: ${{ steps.attest.outputs.bundle-path }}
+  attestation-url:
+    description: 'The URL of the generated attestation(s).'
+    value: ${{ steps.attest.outputs.attestation-url }}
 
 runs:
   using: 'composite'
@@ -63,3 +71,4 @@ runs:
         push-to-registry: ${{ inputs.push-to-registry }}
         show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}
+        suppress-summary: ${{ inputs.suppress-summary }}

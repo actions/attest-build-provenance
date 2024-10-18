@@ -84,10 +84,59 @@ describe('main', () => {
       await main.run()
 
       // Verify that outputs were set correctly
-      expect(setOutputMock).toHaveBeenCalledTimes(2)
+      expect(setOutputMock).toHaveBeenCalledTimes(3)
 
       expect(outputs['predicate']).toMatchSnapshot()
       expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
+      expect(outputs['attestation-url']).toBe('https://example.com/attestation-url')
+    })
+
+    it('suppresses summary when suppress-summary input is true', async () => {
+      process.env['INPUT_SUPPRESS-SUMMARY'] = 'true'
+
+      // Run the main function
+      await main.run()
+
+      // Verify that outputs were set correctly
+      expect(setOutputMock).toHaveBeenCalledTimes(3)
+
+      expect(outputs['predicate']).toMatchSnapshot()
+      expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
+      expect(outputs['attestation-url']).toBe('https://example.com/attestation-url')
+    })
+
+    it('generates JSON output for multiple attestations', async () => {
+      const predicate = {
+        params: {
+          subjects: [
+            {
+              name: 'subject1',
+              digest: 'sha256:123456',
+              attestationId: 'attestation1',
+              attestationUrl: 'https://example.com/attestation1'
+            },
+            {
+              name: 'subject2',
+              digest: 'sha256:789012',
+              attestationId: 'attestation2',
+              attestationUrl: 'https://example.com/attestation2'
+            }
+          ]
+        },
+        type: 'https://slsa.dev/provenance/v1'
+      }
+
+      jest.spyOn(main, 'generateAttestationUrl').mockReturnValueOnce(JSON.stringify(predicate.params.subjects))
+
+      // Run the main function
+      await main.run()
+
+      // Verify that outputs were set correctly
+      expect(setOutputMock).toHaveBeenCalledTimes(3)
+
+      expect(outputs['predicate']).toMatchSnapshot()
+      expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
+      expect(outputs['attestation-url']).toBe(JSON.stringify(predicate.params.subjects))
     })
   })
 
@@ -148,10 +197,11 @@ describe('main', () => {
       await main.run()
 
       // Verify that outputs were set correctly
-      expect(setOutputMock).toHaveBeenCalledTimes(2)
+      expect(setOutputMock).toHaveBeenCalledTimes(3)
 
       expect(outputs['predicate']).toMatchSnapshot()
       expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
+      expect(outputs['attestation-url']).toBe('https://example.com/attestation-url')
     })
   })
 })
