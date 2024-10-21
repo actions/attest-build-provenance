@@ -1,9 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`main successfully run main 1`] = `
+exports[`main when a non-default OIDC issuer is used successfully run main 1`] = `
 {
   "buildDefinition": {
-    "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+    "buildType": "https://actions.github.io/buildtypes/workflow/v1",
+    "externalParameters": {
+      "workflow": {
+        "path": ".github/workflows/main.yml",
+        "ref": "main",
+        "repository": "https://example-01.ghe.com/owner/repo",
+      },
+    },
+    "internalParameters": {
+      "github": {
+        "event_name": "push",
+        "repository_id": "repo-id",
+        "repository_owner_id": "owner-id",
+        "runner_environment": "github-hosted",
+      },
+    },
+    "resolvedDependencies": [
+      {
+        "digest": {
+          "gitCommit": "babca52ab0c93ae16539e5923cb0d7403b9a093b",
+        },
+        "uri": "git+https://example-01.ghe.com/owner/repo@refs/heads/main",
+      },
+    ],
+  },
+  "runDetails": {
+    "builder": {
+      "id": "https://example-01.ghe.com/owner/shared/.github/workflows/build.yml@main",
+    },
+    "metadata": {
+      "invocationId": "https://example-01.ghe.com/owner/repo/actions/runs/run-id/attempts/run-attempt",
+    },
+  },
+}
+`;
+
+exports[`main when the default OIDC issuer is used successfully run main 1`] = `
+{
+  "buildDefinition": {
+    "buildType": "https://actions.github.io/buildtypes/workflow/v1",
     "externalParameters": {
       "workflow": {
         "path": ".github/workflows/main.yml",
@@ -16,6 +55,7 @@ exports[`main successfully run main 1`] = `
         "event_name": "push",
         "repository_id": "repo-id",
         "repository_owner_id": "owner-id",
+        "runner_environment": "github-hosted",
       },
     },
     "resolvedDependencies": [
@@ -29,7 +69,7 @@ exports[`main successfully run main 1`] = `
   },
   "runDetails": {
     "builder": {
-      "id": "https://github.com/actions/runner/github-hosted",
+      "id": "https://github.com/owner/shared/.github/workflows/build.yml@main",
     },
     "metadata": {
       "invocationId": "https://github.com/owner/repo/actions/runs/run-id/attempts/run-attempt",

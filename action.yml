@@ -8,8 +8,9 @@ branding:
 inputs:
   subject-path:
     description: >
-      Path to the artifact for which provenance will be generated. Must specify
-      exactly one of "subject-path" or "subject-digest".
+      Path to the artifact serving as the subject of the attestation. Must
+      specify exactly one of "subject-path" or "subject-digest". May contain a
+      glob pattern or list of paths (total subject count cannot exceed 2500).
     required: false
   subject-digest:
     description: >
@@ -29,6 +30,12 @@ inputs:
       and that the "subject-digest" parameter be specified. Defaults to false.
     default: false
     required: false
+  show-summary:
+    description: >
+      Whether to attach a list of generated attestations to the workflow run
+      summary page. Defaults to true.
+    default: true
+    required: false
   github-token:
     description: >
       The GitHub token used to make authenticated API requests.
@@ -43,9 +50,9 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/predicate@db1dde0f270afe12073070ac7aa802958ae3ec04 # predicate@1.0.0
+    - uses: actions/attest-build-provenance/predicate@d58ddf9f241cd8163408934540d01c3335864d64 # predicate@1.1.2
       id: generate-build-provenance-predicate
-    - uses: actions/attest@12c083815ed46d5d78222e3824f4a26c42c234d3 # v1.1.2
+    - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
@@ -54,4 +61,5 @@ runs:
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
+        show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}
