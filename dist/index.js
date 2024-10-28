@@ -26459,7 +26459,7 @@ Object.defineProperty(exports, "cryptoRuntime", ({ enumerable: true, get: functi
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compactDecrypt = void 0;
+exports.compactDecrypt = compactDecrypt;
 const decrypt_js_1 = __nccwpck_require__(59344);
 const errors_js_1 = __nccwpck_require__(15974);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
@@ -26487,7 +26487,6 @@ async function compactDecrypt(jwe, key, options) {
     }
     return result;
 }
-exports.compactDecrypt = compactDecrypt;
 
 
 /***/ }),
@@ -26537,7 +26536,7 @@ exports.CompactEncrypt = CompactEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.flattenedDecrypt = void 0;
+exports.flattenedDecrypt = flattenedDecrypt;
 const base64url_js_1 = __nccwpck_require__(12635);
 const decrypt_js_1 = __nccwpck_require__(52806);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -26699,7 +26698,6 @@ async function flattenedDecrypt(jwe, key, options) {
     }
     return result;
 }
-exports.flattenedDecrypt = flattenedDecrypt;
 
 
 /***/ }),
@@ -26883,7 +26881,7 @@ exports.FlattenedEncrypt = FlattenedEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generalDecrypt = void 0;
+exports.generalDecrypt = generalDecrypt;
 const decrypt_js_1 = __nccwpck_require__(59344);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -26915,7 +26913,6 @@ async function generalDecrypt(jwe, key, options) {
     }
     throw new errors_js_1.JWEDecryptionFailed();
 }
-exports.generalDecrypt = generalDecrypt;
 
 
 /***/ }),
@@ -27120,7 +27117,7 @@ exports.GeneralEncrypt = GeneralEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EmbeddedJWK = void 0;
+exports.EmbeddedJWK = EmbeddedJWK;
 const import_js_1 = __nccwpck_require__(45647);
 const is_object_js_1 = __nccwpck_require__(92242);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27138,7 +27135,6 @@ async function EmbeddedJWK(protectedHeader, token) {
     }
     return key;
 }
-exports.EmbeddedJWK = EmbeddedJWK;
 
 
 /***/ }),
@@ -27149,7 +27145,8 @@ exports.EmbeddedJWK = EmbeddedJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.calculateJwkThumbprintUri = exports.calculateJwkThumbprint = void 0;
+exports.calculateJwkThumbprint = calculateJwkThumbprint;
+exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 const digest_js_1 = __nccwpck_require__(12931);
 const base64url_js_1 = __nccwpck_require__(12635);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27198,13 +27195,11 @@ async function calculateJwkThumbprint(jwk, digestAlgorithm) {
     const data = buffer_utils_js_1.encoder.encode(JSON.stringify(components));
     return (0, base64url_js_1.encode)(await (0, digest_js_1.default)(digestAlgorithm, data));
 }
-exports.calculateJwkThumbprint = calculateJwkThumbprint;
 async function calculateJwkThumbprintUri(jwk, digestAlgorithm) {
     digestAlgorithm ??= 'sha256';
     const thumbprint = await calculateJwkThumbprint(jwk, digestAlgorithm);
     return `urn:ietf:params:oauth:jwk-thumbprint:sha-${digestAlgorithm.slice(-3)}:${thumbprint}`;
 }
-exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 
 
 /***/ }),
@@ -27215,7 +27210,7 @@ exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createLocalJWKSet = void 0;
+exports.createLocalJWKSet = createLocalJWKSet;
 const import_js_1 = __nccwpck_require__(45647);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -27338,7 +27333,6 @@ function createLocalJWKSet(jwks) {
     });
     return localJWKSet;
 }
-exports.createLocalJWKSet = createLocalJWKSet;
 
 
 /***/ }),
@@ -27349,7 +27343,8 @@ exports.createLocalJWKSet = createLocalJWKSet;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.experimental_jwksCache = exports.createRemoteJWKSet = exports.jwksCache = void 0;
+exports.experimental_jwksCache = exports.jwksCache = void 0;
+exports.createRemoteJWKSet = createRemoteJWKSet;
 const fetch_jwks_js_1 = __nccwpck_require__(20311);
 const errors_js_1 = __nccwpck_require__(15974);
 const local_js_1 = __nccwpck_require__(25275);
@@ -27362,7 +27357,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.9.4';
+    const VERSION = 'v5.9.6';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -27497,7 +27492,6 @@ function createRemoteJWKSet(url, options) {
     });
     return remoteJWKSet;
 }
-exports.createRemoteJWKSet = createRemoteJWKSet;
 exports.experimental_jwksCache = exports.jwksCache;
 
 
@@ -27539,7 +27533,7 @@ exports.CompactSign = CompactSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compactVerify = void 0;
+exports.compactVerify = compactVerify;
 const verify_js_1 = __nccwpck_require__(56358);
 const errors_js_1 = __nccwpck_require__(15974);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
@@ -27561,7 +27555,6 @@ async function compactVerify(jws, key, options) {
     }
     return result;
 }
-exports.compactVerify = compactVerify;
 
 
 /***/ }),
@@ -27668,7 +27661,7 @@ exports.FlattenedSign = FlattenedSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.flattenedVerify = void 0;
+exports.flattenedVerify = flattenedVerify;
 const base64url_js_1 = __nccwpck_require__(12635);
 const verify_js_1 = __nccwpck_require__(11242);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27791,7 +27784,6 @@ async function flattenedVerify(jws, key, options) {
     }
     return result;
 }
-exports.flattenedVerify = flattenedVerify;
 
 
 /***/ }),
@@ -27887,7 +27879,7 @@ exports.GeneralSign = GeneralSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generalVerify = void 0;
+exports.generalVerify = generalVerify;
 const verify_js_1 = __nccwpck_require__(56358);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -27912,7 +27904,6 @@ async function generalVerify(jws, key, options) {
     }
     throw new errors_js_1.JWSSignatureVerificationFailed();
 }
-exports.generalVerify = generalVerify;
 
 
 /***/ }),
@@ -27923,7 +27914,7 @@ exports.generalVerify = generalVerify;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.jwtDecrypt = void 0;
+exports.jwtDecrypt = jwtDecrypt;
 const decrypt_js_1 = __nccwpck_require__(14298);
 const jwt_claims_set_js_1 = __nccwpck_require__(13354);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27947,7 +27938,6 @@ async function jwtDecrypt(jwt, key, options) {
     }
     return result;
 }
-exports.jwtDecrypt = jwtDecrypt;
 
 
 /***/ }),
@@ -28210,7 +28200,7 @@ exports.UnsecuredJWT = UnsecuredJWT;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.jwtVerify = void 0;
+exports.jwtVerify = jwtVerify;
 const verify_js_1 = __nccwpck_require__(94212);
 const jwt_claims_set_js_1 = __nccwpck_require__(13354);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -28226,7 +28216,6 @@ async function jwtVerify(jwt, key, options) {
     }
     return result;
 }
-exports.jwtVerify = jwtVerify;
 
 
 /***/ }),
@@ -28237,22 +28226,21 @@ exports.jwtVerify = jwtVerify;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.exportJWK = exports.exportPKCS8 = exports.exportSPKI = void 0;
+exports.exportSPKI = exportSPKI;
+exports.exportPKCS8 = exportPKCS8;
+exports.exportJWK = exportJWK;
 const asn1_js_1 = __nccwpck_require__(12774);
 const asn1_js_2 = __nccwpck_require__(12774);
 const key_to_jwk_js_1 = __nccwpck_require__(9041);
 async function exportSPKI(key) {
     return (0, asn1_js_1.toSPKI)(key);
 }
-exports.exportSPKI = exportSPKI;
 async function exportPKCS8(key) {
     return (0, asn1_js_2.toPKCS8)(key);
 }
-exports.exportPKCS8 = exportPKCS8;
 async function exportJWK(key) {
     return (0, key_to_jwk_js_1.default)(key);
 }
-exports.exportJWK = exportJWK;
 
 
 /***/ }),
@@ -28263,12 +28251,11 @@ exports.exportJWK = exportJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateKeyPair = void 0;
+exports.generateKeyPair = generateKeyPair;
 const generate_js_1 = __nccwpck_require__(10088);
 async function generateKeyPair(alg, options) {
     return (0, generate_js_1.generateKeyPair)(alg, options);
 }
-exports.generateKeyPair = generateKeyPair;
 
 
 /***/ }),
@@ -28279,12 +28266,11 @@ exports.generateKeyPair = generateKeyPair;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateSecret = void 0;
+exports.generateSecret = generateSecret;
 const generate_js_1 = __nccwpck_require__(10088);
 async function generateSecret(alg, options) {
     return (0, generate_js_1.generateSecret)(alg, options);
 }
-exports.generateSecret = generateSecret;
 
 
 /***/ }),
@@ -28295,7 +28281,10 @@ exports.generateSecret = generateSecret;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.importJWK = exports.importPKCS8 = exports.importX509 = exports.importSPKI = void 0;
+exports.importSPKI = importSPKI;
+exports.importX509 = importX509;
+exports.importPKCS8 = importPKCS8;
+exports.importJWK = importJWK;
 const base64url_js_1 = __nccwpck_require__(12635);
 const asn1_js_1 = __nccwpck_require__(12774);
 const jwk_to_key_js_1 = __nccwpck_require__(80939);
@@ -28307,21 +28296,18 @@ async function importSPKI(spki, alg, options) {
     }
     return (0, asn1_js_1.fromSPKI)(spki, alg, options);
 }
-exports.importSPKI = importSPKI;
 async function importX509(x509, alg, options) {
     if (typeof x509 !== 'string' || x509.indexOf('-----BEGIN CERTIFICATE-----') !== 0) {
         throw new TypeError('"x509" must be X.509 formatted string');
     }
     return (0, asn1_js_1.fromX509)(x509, alg, options);
 }
-exports.importX509 = importX509;
 async function importPKCS8(pkcs8, alg, options) {
     if (typeof pkcs8 !== 'string' || pkcs8.indexOf('-----BEGIN PRIVATE KEY-----') !== 0) {
         throw new TypeError('"pkcs8" must be PKCS#8 formatted string');
     }
     return (0, asn1_js_1.fromPKCS8)(pkcs8, alg, options);
 }
-exports.importPKCS8 = importPKCS8;
 async function importJWK(jwk, alg) {
     if (!(0, is_object_js_1.default)(jwk)) {
         throw new TypeError('JWK must be an object');
@@ -28344,7 +28330,6 @@ async function importJWK(jwk, alg) {
             throw new errors_js_1.JOSENotSupported('Unsupported "kty" (Key Type) Parameter value');
     }
 }
-exports.importJWK = importJWK;
 
 
 /***/ }),
@@ -28355,7 +28340,8 @@ exports.importJWK = importJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unwrap = exports.wrap = void 0;
+exports.wrap = wrap;
+exports.unwrap = unwrap;
 const encrypt_js_1 = __nccwpck_require__(36286);
 const decrypt_js_1 = __nccwpck_require__(52806);
 const base64url_js_1 = __nccwpck_require__(12635);
@@ -28368,12 +28354,10 @@ async function wrap(alg, key, cek, iv) {
         tag: (0, base64url_js_1.encode)(wrapped.tag),
     };
 }
-exports.wrap = wrap;
 async function unwrap(alg, key, encryptedKey, iv, tag) {
     const jweAlgorithm = alg.slice(0, 7);
     return (0, decrypt_js_1.default)(jweAlgorithm, key, encryptedKey, iv, tag, new Uint8Array(0));
 }
-exports.unwrap = unwrap;
 
 
 /***/ }),
@@ -28384,7 +28368,13 @@ exports.unwrap = unwrap;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.concatKdf = exports.lengthAndInput = exports.uint32be = exports.uint64be = exports.p2s = exports.concat = exports.decoder = exports.encoder = void 0;
+exports.decoder = exports.encoder = void 0;
+exports.concat = concat;
+exports.p2s = p2s;
+exports.uint64be = uint64be;
+exports.uint32be = uint32be;
+exports.lengthAndInput = lengthAndInput;
+exports.concatKdf = concatKdf;
 const digest_js_1 = __nccwpck_require__(12931);
 exports.encoder = new TextEncoder();
 exports.decoder = new TextDecoder();
@@ -28399,11 +28389,9 @@ function concat(...buffers) {
     }
     return buf;
 }
-exports.concat = concat;
 function p2s(alg, p2sInput) {
     return concat(exports.encoder.encode(alg), new Uint8Array([0]), p2sInput);
 }
-exports.p2s = p2s;
 function writeUInt32BE(buf, value, offset) {
     if (value < 0 || value >= MAX_INT32) {
         throw new RangeError(`value must be >= 0 and <= ${MAX_INT32 - 1}. Received ${value}`);
@@ -28418,17 +28406,14 @@ function uint64be(value) {
     writeUInt32BE(buf, low, 4);
     return buf;
 }
-exports.uint64be = uint64be;
 function uint32be(value) {
     const buf = new Uint8Array(4);
     writeUInt32BE(buf, value);
     return buf;
 }
-exports.uint32be = uint32be;
 function lengthAndInput(input) {
     return concat(uint32be(input.length), input);
 }
-exports.lengthAndInput = lengthAndInput;
 async function concatKdf(secret, bits, value) {
     const iterations = Math.ceil((bits >> 3) / 32);
     const res = new Uint8Array(iterations * 32);
@@ -28441,7 +28426,6 @@ async function concatKdf(secret, bits, value) {
     }
     return res.slice(0, bits >> 3);
 }
-exports.concatKdf = concatKdf;
 
 
 /***/ }),
@@ -28452,7 +28436,7 @@ exports.concatKdf = concatKdf;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bitLength = void 0;
+exports.bitLength = bitLength;
 const errors_js_1 = __nccwpck_require__(15974);
 const random_js_1 = __nccwpck_require__(23376);
 function bitLength(alg) {
@@ -28472,7 +28456,6 @@ function bitLength(alg) {
             throw new errors_js_1.JOSENotSupported(`Unsupported JWE Algorithm: ${alg}`);
     }
 }
-exports.bitLength = bitLength;
 exports["default"] = (alg) => (0, random_js_1.default)(new Uint8Array(bitLength(alg) >> 3));
 
 
@@ -28590,13 +28573,13 @@ exports.checkKeyTypeWithJwk = checkKeyType.bind(undefined, true);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = checkP2s;
 const errors_js_1 = __nccwpck_require__(15974);
 function checkP2s(p2s) {
     if (!(p2s instanceof Uint8Array) || p2s.length < 8) {
         throw new errors_js_1.JWEInvalid('PBES2 Salt Input must be 8 or more octets');
     }
 }
-exports["default"] = checkP2s;
 
 
 /***/ }),
@@ -28607,7 +28590,8 @@ exports["default"] = checkP2s;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.checkEncCryptoKey = exports.checkSigCryptoKey = void 0;
+exports.checkSigCryptoKey = checkSigCryptoKey;
+exports.checkEncCryptoKey = checkEncCryptoKey;
 function unusable(name, prop = 'algorithm.name') {
     return new TypeError(`CryptoKey does not support this operation, its ${prop} must be ${name}`);
 }
@@ -28702,7 +28686,6 @@ function checkSigCryptoKey(key, alg, ...usages) {
     }
     checkUsage(key, usages);
 }
-exports.checkSigCryptoKey = checkSigCryptoKey;
 function checkEncCryptoKey(key, alg, ...usages) {
     switch (alg) {
         case 'A128GCM':
@@ -28761,7 +28744,6 @@ function checkEncCryptoKey(key, alg, ...usages) {
     }
     checkUsage(key, usages);
 }
-exports.checkEncCryptoKey = checkEncCryptoKey;
 
 
 /***/ }),
@@ -29021,7 +29003,7 @@ exports["default"] = (date) => Math.floor(date.getTime() / 1000);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.withAlg = void 0;
+exports.withAlg = withAlg;
 function message(msg, actual, ...types) {
     types = types.filter(Boolean);
     if (types.length > 2) {
@@ -29053,7 +29035,6 @@ exports["default"] = (actual, ...types) => {
 function withAlg(alg, actual, ...types) {
     return message(`Key for the ${alg} algorithm must be `, actual, ...types);
 }
-exports.withAlg = withAlg;
 
 
 /***/ }),
@@ -29096,24 +29077,23 @@ exports["default"] = isDisjoint;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isSecretJWK = exports.isPublicJWK = exports.isPrivateJWK = exports.isJWK = void 0;
+exports.isJWK = isJWK;
+exports.isPrivateJWK = isPrivateJWK;
+exports.isPublicJWK = isPublicJWK;
+exports.isSecretJWK = isSecretJWK;
 const is_object_js_1 = __nccwpck_require__(92242);
 function isJWK(key) {
     return (0, is_object_js_1.default)(key) && typeof key.kty === 'string';
 }
-exports.isJWK = isJWK;
 function isPrivateJWK(key) {
     return key.kty !== 'oct' && typeof key.d === 'string';
 }
-exports.isPrivateJWK = isPrivateJWK;
 function isPublicJWK(key) {
     return key.kty !== 'oct' && typeof key.d === 'undefined';
 }
-exports.isPublicJWK = isPublicJWK;
 function isSecretJWK(key) {
     return isJWK(key) && key.kty === 'oct' && typeof key.k === 'string';
 }
-exports.isSecretJWK = isSecretJWK;
 
 
 /***/ }),
@@ -29124,6 +29104,7 @@ exports.isSecretJWK = isSecretJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = isObject;
 function isObjectLike(value) {
     return typeof value === 'object' && value !== null;
 }
@@ -29140,7 +29121,6 @@ function isObject(input) {
     }
     return Object.getPrototypeOf(input) === proto;
 }
-exports["default"] = isObject;
 
 
 /***/ }),
@@ -29151,7 +29131,7 @@ exports["default"] = isObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bitLength = void 0;
+exports.bitLength = bitLength;
 const errors_js_1 = __nccwpck_require__(15974);
 const random_js_1 = __nccwpck_require__(23376);
 function bitLength(alg) {
@@ -29171,7 +29151,6 @@ function bitLength(alg) {
             throw new errors_js_1.JOSENotSupported(`Unsupported JWE Algorithm: ${alg}`);
     }
 }
-exports.bitLength = bitLength;
 exports["default"] = (alg) => (0, random_js_1.default)(new Uint8Array(bitLength(alg) >> 3));
 
 
@@ -29592,6 +29571,7 @@ exports.decode = decode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = cbcTag;
 const node_crypto_1 = __nccwpck_require__(77598);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 function cbcTag(aad, iv, ciphertext, macSize, macKey, keySize) {
@@ -29600,7 +29580,6 @@ function cbcTag(aad, iv, ciphertext, macSize, macKey, keySize) {
     hmac.update(macData);
     return hmac.digest().slice(0, keySize >> 3);
 }
-exports["default"] = cbcTag;
 
 
 /***/ }),
@@ -29822,6 +29801,7 @@ exports["default"] = digest;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = dsaDigest;
 const errors_js_1 = __nccwpck_require__(15974);
 function dsaDigest(alg) {
     switch (alg) {
@@ -29844,7 +29824,6 @@ function dsaDigest(alg) {
             throw new errors_js_1.JOSENotSupported(`alg ${alg} is not supported either by JOSE or your javascript runtime`);
     }
 }
-exports["default"] = dsaDigest;
 
 
 /***/ }),
@@ -29855,7 +29834,9 @@ exports["default"] = dsaDigest;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ecdhAllowed = exports.generateEpk = exports.deriveKey = void 0;
+exports.ecdhAllowed = void 0;
+exports.deriveKey = deriveKey;
+exports.generateEpk = generateEpk;
 const node_crypto_1 = __nccwpck_require__(77598);
 const node_util_1 = __nccwpck_require__(57975);
 const get_named_curve_js_1 = __nccwpck_require__(65661);
@@ -29894,7 +29875,6 @@ async function deriveKey(publicKee, privateKee, algorithm, keyLength, apu = new 
     const sharedSecret = (0, node_crypto_1.diffieHellman)({ privateKey, publicKey });
     return (0, buffer_utils_js_1.concatKdf)(sharedSecret, keyLength, value);
 }
-exports.deriveKey = deriveKey;
 async function generateEpk(kee) {
     let key;
     if ((0, webcrypto_js_1.isCryptoKey)(kee)) {
@@ -29920,7 +29900,6 @@ async function generateEpk(kee) {
             throw new errors_js_1.JOSENotSupported('Invalid or unsupported EPK');
     }
 }
-exports.generateEpk = generateEpk;
 const ecdhAllowed = (key) => ['P-256', 'P-384', 'P-521', 'X25519', 'X448'].includes((0, get_named_curve_js_1.default)(key));
 exports.ecdhAllowed = ecdhAllowed;
 
@@ -30074,7 +30053,8 @@ exports["default"] = fetchJwks;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateKeyPair = exports.generateSecret = void 0;
+exports.generateSecret = generateSecret;
+exports.generateKeyPair = generateKeyPair;
 const node_crypto_1 = __nccwpck_require__(77598);
 const node_util_1 = __nccwpck_require__(57975);
 const random_js_1 = __nccwpck_require__(23376);
@@ -30107,7 +30087,6 @@ async function generateSecret(alg, options) {
     }
     return (0, node_crypto_1.createSecretKey)((0, random_js_1.default)(new Uint8Array(length >> 3)));
 }
-exports.generateSecret = generateSecret;
 async function generateKeyPair(alg, options) {
     switch (alg) {
         case 'RS256':
@@ -30173,7 +30152,6 @@ async function generateKeyPair(alg, options) {
             throw new errors_js_1.JOSENotSupported('Invalid or unsupported JWK "alg" (Algorithm) Parameter value');
     }
 }
-exports.generateKeyPair = generateKeyPair;
 
 
 /***/ }),
@@ -30253,6 +30231,7 @@ exports["default"] = getNamedCurve;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = getSignVerifyKey;
 const node_crypto_1 = __nccwpck_require__(77598);
 const webcrypto_js_1 = __nccwpck_require__(59044);
 const crypto_key_js_1 = __nccwpck_require__(26319);
@@ -30281,7 +30260,6 @@ function getSignVerifyKey(alg, key, usage) {
     }
     throw new TypeError((0, invalid_key_input_js_1.default)(key, ...is_key_like_js_1.types, 'Uint8Array', 'JSON Web Key'));
 }
-exports["default"] = getSignVerifyKey;
 
 
 /***/ }),
@@ -30292,6 +30270,7 @@ exports["default"] = getSignVerifyKey;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = hmacDigest;
 const errors_js_1 = __nccwpck_require__(15974);
 function hmacDigest(alg) {
     switch (alg) {
@@ -30305,7 +30284,6 @@ function hmacDigest(alg) {
             throw new errors_js_1.JOSENotSupported(`alg ${alg} is not supported either by JOSE or your javascript runtime`);
     }
 }
-exports["default"] = hmacDigest;
 
 
 /***/ }),
@@ -30409,6 +30387,7 @@ exports["default"] = keyToJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = keyForCrypto;
 const node_crypto_1 = __nccwpck_require__(77598);
 const get_named_curve_js_1 = __nccwpck_require__(65661);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -30512,7 +30491,6 @@ function keyForCrypto(alg, key) {
     }
     return options ? { ...options, key } : key;
 }
-exports["default"] = keyForCrypto;
 
 
 /***/ }),
@@ -30803,7 +30781,7 @@ exports.decode = base64url.decode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decodeJwt = void 0;
+exports.decodeJwt = decodeJwt;
 const base64url_js_1 = __nccwpck_require__(78305);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -30836,7 +30814,6 @@ function decodeJwt(jwt) {
         throw new errors_js_1.JWTInvalid('Invalid JWT Claims Set');
     return result;
 }
-exports.decodeJwt = decodeJwt;
 
 
 /***/ }),
@@ -30847,7 +30824,7 @@ exports.decodeJwt = decodeJwt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decodeProtectedHeader = void 0;
+exports.decodeProtectedHeader = decodeProtectedHeader;
 const base64url_js_1 = __nccwpck_require__(78305);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -30882,7 +30859,6 @@ function decodeProtectedHeader(token) {
         throw new TypeError('Invalid Token or Protected Header formatting');
     }
 }
-exports.decodeProtectedHeader = decodeProtectedHeader;
 
 
 /***/ }),
