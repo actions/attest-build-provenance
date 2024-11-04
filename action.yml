@@ -1,4 +1,4 @@
-name: 'Attest Build Provenance'
+name: 'Attestiions Build Provenance'
 description: 'Generate provenance attestations for build artifacts'
 author: 'bysommer'
 branding:
