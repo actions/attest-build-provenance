@@ -1,13 +1,13 @@
 name: Public-Good Sigstore Prober
 
-on:
+on:hasanjp7598@gmail.com
   workflow_dispatch:
   schedule:
     # run every 5 minutes, as often as Github Actions allows
     - cron: '*/5 * * * *'
 
-jobs:
-  prober:
+jobs:hasan
+  prober: the other 
     if: github.repository_owner == 'actions'
     permissions:
       attestations: write
