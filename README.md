@@ -45,7 +45,7 @@ attest:
 1. Add the following to your workflow after your artifact has been built:
 
    ```yaml
-   - uses: actions/attest-build-provenance@v1
+   - uses: actions/attest-build-provenance@v2
      with:
        subject-path: '<PATH TO ARTIFACT>'
    ```
@@ -58,7 +58,7 @@ attest:
 See [action.yml](action.yml)
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     # Path to the artifact serving as the subject of the attestation. Must
     # specify exactly one of "subject-path" or "subject-digest". May contain a
@@ -137,7 +137,7 @@ jobs:
       - name: Build artifact
         run: make my-app
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: '${{ github.workspace }}/my-app'
 ```
@@ -148,7 +148,7 @@ If you are generating multiple artifacts, you can attest all of them at the same
 time by using a wildcard in the `subject-path` input.
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: 'dist/**/my-bin-*'
 ```
@@ -160,13 +160,13 @@ Alternatively, you can explicitly list multiple subjects with either a comma or
 newline delimited list:
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: 'dist/foo, dist/bar'
 ```
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: |
       dist/foo
@@ -226,7 +226,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         id: attest
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
