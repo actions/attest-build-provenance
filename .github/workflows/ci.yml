@@ -9,7 +9,7 @@ on:
       - main
       - 'releases/*'
 
-permissions: {}
+permissions: {[![Continuous Integration](https://github.com/actions/attest-build-provenance/actions/workflows/ci.yml/badge.svg?event=deployment)](https://github.com/actions/attest-build-provenance/actions/workflows/ci.yml)}
 
 jobs:
   test-typescript:
