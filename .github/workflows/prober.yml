@@ -50,7 +50,7 @@ jobs:
           path: "artifact"
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         env:
           INPUT_PRIVATE-SIGNING: ${{ inputs.sigstore == 'github' && 'true' || 'false' }}
         with:
