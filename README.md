@@ -25,6 +25,16 @@ CLI][5].
 See [Using artifact attestations to establish provenance for builds][9] for more
 information on artifact attestations.
 
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> Artifact attestations are available in public repositories for all
+> current GitHub plans. They are not available on legacy plans, such as Bronze,
+> Silver, or Gold. If you are on a GitHub Free, GitHub Pro, or GitHub Team plan,
+> artifact attestations are only available for public repositories. To use
+> artifact attestations in private or internal repositories, you must be on a
+> GitHub Enterprise Cloud plan.
+<!-- prettier-ignore-end -->
+
 ## Usage
 
 Within the GitHub Actions workflow which builds some artifact you would like to
