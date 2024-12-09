@@ -46,13 +46,19 @@ outputs:
   bundle-path:
     description: 'The path to the file containing the attestation bundle.'
     value: ${{ steps.attest.outputs.bundle-path }}
+  attestation-id:
+    description: 'The ID of the attestation.'
+    value: ${{ steps.attest.outputs.attestation-id }}
+  attestation-url:
+    description: 'The URL for the attestation summary.'
+    value: ${{ steps.attest.outputs.attestation-url }}
 
 runs:
   using: 'composite'
   steps:
     - uses: actions/attest-build-provenance/predicate@36fa7d009e22618ca7cd599486979b8150596c74 # predicate@1.1.4
       id: generate-build-provenance-predicate
-    - uses: actions/attest@v2.0.1
+    - uses: actions/attest@v2.1.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
