@@ -1,4 +1,4 @@
-name: 'Attest Build Provenance'
+name: 'Declaration of Provenance'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 branding:
