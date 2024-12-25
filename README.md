@@ -25,6 +25,16 @@ CLI][5].
 See [Using artifact attestations to establish provenance for builds][9] for more
 information on artifact attestations.
 
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> Artifact attestations are available in public repositories for all
+> current GitHub plans. They are not available on legacy plans, such as Bronze,
+> Silver, or Gold. If you are on a GitHub Free, GitHub Pro, or GitHub Team plan,
+> artifact attestations are only available for public repositories. To use
+> artifact attestations in private or internal repositories, you must be on a
+> GitHub Enterprise Cloud plan.
+<!-- prettier-ignore-end -->
+
 ## Usage
 
 Within the GitHub Actions workflow which builds some artifact you would like to
@@ -45,7 +55,7 @@ attest:
 1. Add the following to your workflow after your artifact has been built:
 
    ```yaml
-   - uses: actions/attest-build-provenance@v1
+   - uses: actions/attest-build-provenance@v2
      with:
        subject-path: '<PATH TO ARTIFACT>'
    ```
@@ -58,11 +68,11 @@ attest:
 See [action.yml](action.yml)
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     # Path to the artifact serving as the subject of the attestation. Must
     # specify exactly one of "subject-path" or "subject-digest". May contain a
-    # glob pattern or list of paths (total subject count cannot exceed 2500).
+    # glob pattern or list of paths (total subject count cannot exceed 1024).
     subject-path:
 
     # SHA256 digest of the subject for the attestation. Must be in the form
@@ -93,26 +103,24 @@ See [action.yml](action.yml)
 
 <!-- markdownlint-disable MD013 -->
 
-| Name          | Description                                                    | Example                  |
-| ------------- | -------------------------------------------------------------- | ------------------------ |
-| `bundle-path` | Absolute path to the file containing the generated attestation | `/tmp/attestation.jsonl` |
+| Name              | Description                                                    | Example                                          |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------ |
+| `attestation-id`  | GitHub ID for the attestation                                  | `123456`                                         |
+| `attestation-url` | URL for the attestation summary                                | `https://github.com/foo/bar/attestations/123456` |
+| `bundle-path`     | Absolute path to the file containing the generated attestation | `/tmp/attestation.json`                          |
 
 <!-- markdownlint-enable MD013 -->
 
 Attestations are saved in the JSON-serialized [Sigstore bundle][6] format.
 
-If multiple subjects are being attested at the same time, each attestation will
-be written to the output file on a separate line (using the [JSON Lines][7]
-format).
+If multiple subjects are being attested at the same time, a single attestation
+will be created with references to each of the supplied subjects.
 
 ## Attestation Limits
 
 ### Subject Limits
 
-No more than 2500 subjects can be attested at the same time. Subjects will be
-processed in batches 50. After the initial group of 50, each subsequent batch
-will incur an exponentially increasing amount of delay (capped at 1 minute of
-delay per batch) to avoid overwhelming the attestation API.
+No more than 1024 subjects can be attested at the same time.
 
 ## Examples
 
@@ -130,6 +138,7 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
@@ -141,18 +150,18 @@ jobs:
       - name: Build artifact
         run: make my-app
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: '${{ github.workspace }}/my-app'
 ```
 
 ### Identify Multiple Subjects
 
-If you are generating multiple artifacts, you can generate a provenance
-attestation for each by using a wildcard in the `subject-path` input.
+If you are generating multiple artifacts, you can attest all of them at the same
+time by using a wildcard in the `subject-path` input.
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: 'dist/**/my-bin-*'
 ```
@@ -164,13 +173,13 @@ Alternatively, you can explicitly list multiple subjects with either a comma or
 newline delimited list:
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: 'dist/foo, dist/bar'
 ```
 
 ```yaml
-- uses: actions/attest-build-provenance@v1
+- uses: actions/attest-build-provenance@v2
   with:
     subject-path: |
       dist/foo
@@ -230,7 +239,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         id: attest
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -245,7 +254,6 @@ jobs:
 [5]: https://cli.github.com/manual/gh_attestation_verify
 [6]:
   https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto
-[7]: https://jsonlines.org/
 [8]: https://github.com/actions/toolkit/tree/main/packages/glob#patterns
 [9]:
   https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds

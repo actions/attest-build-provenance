@@ -10,7 +10,7 @@ inputs:
     description: >
       Path to the artifact serving as the subject of the attestation. Must
       specify exactly one of "subject-path" or "subject-digest". May contain a
-      glob pattern or list of paths (total subject count cannot exceed 2500).
+      glob pattern or list of paths (total subject count cannot exceed 1024).
     required: false
   subject-digest:
     description: >
@@ -44,15 +44,21 @@ inputs:
 
 outputs:
   bundle-path:
-    description: 'The path to the file containing the attestation bundle(s).'
+    description: 'The path to the file containing the attestation bundle.'
     value: ${{ steps.attest.outputs.bundle-path }}
+  attestation-id:
+    description: 'The ID of the attestation.'
+    value: ${{ steps.attest.outputs.attestation-id }}
+  attestation-url:
+    description: 'The URL for the attestation summary.'
+    value: ${{ steps.attest.outputs.attestation-url }}
 
 runs:
   using: 'composite'
   steps:
     - uses: actions/attest-build-provenance/predicate@36fa7d009e22618ca7cd599486979b8150596c74 # predicate@1.1.4
       id: generate-build-provenance-predicate
-    - uses: actions/attest@67422f5511b7ff725f4dbd6fb9bd2cd925c65a8d # v1.4.1
+    - uses: actions/attest@v2.1.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
