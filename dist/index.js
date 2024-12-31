@@ -33,15 +33,21 @@ const INTOTO_PAYLOAD_TYPE = 'application/vnd.in-toto+json';
  */
 function attest(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const subject = {
-            name: options.subjectName,
-            digest: options.subjectDigest
-        };
+        let subjects;
+        if (options.subjects) {
+            subjects = options.subjects;
+        }
+        else if (options.subjectName && options.subjectDigest) {
+            subjects = [{ name: options.subjectName, digest: options.subjectDigest }];
+        }
+        else {
+            throw new Error('Must provide either subjectName and subjectDigest or subjects');
+        }
         const predicate = {
             type: options.predicateType,
             params: options.predicate
         };
-        const statement = (0, intoto_1.buildIntotoStatement)(subject, predicate);
+        const statement = (0, intoto_1.buildIntotoStatement)(subjects, predicate);
         // Sign the provenance statement
         const payload = {
             body: Buffer.from(JSON.stringify(statement)),
@@ -193,10 +199,10 @@ const INTOTO_STATEMENT_V1_TYPE = 'https://in-toto.io/Statement/v1';
  * @param predicate - The predicate of the statement.
  * @returns The constructed in-toto statement.
  */
-const buildIntotoStatement = (subject, predicate) => {
+const buildIntotoStatement = (subjects, predicate) => {
     return {
         _type: INTOTO_STATEMENT_V1_TYPE,
-        subject: [subject],
+        subject: subjects,
         predicateType: predicate.type,
         predicate: predicate.params
     };
@@ -371,9 +377,11 @@ const buildSLSAProvenancePredicate = (issuer) => __awaiter(void 0, void 0, void 
     // Split just the path and ref from the workflow string.
     // owner/repo/.github/workflows/main.yml@main =>
     //   .github/workflows/main.yml, main
-    const [workflowPath, workflowRef] = claims.workflow_ref
+    const [workflowPath, ...workflowRefChunks] = claims.workflow_ref
         .replace(`${claims.repository}/`, '')
         .split('@');
+    // Handle case where tag contains `@` (e.g: when using changesets in a monorepo context),
+    const workflowRef = workflowRefChunks.join('@');
     return {
         type: SLSA_PREDICATE_V1_TYPE,
         params: {
@@ -485,7 +493,6 @@ const initBundleBuilder = (opts) => {
     if (opts.rekorURL) {
         witnesses.push(new sign_1.RekorWitness({
             rekorBaseURL: opts.rekorURL,
-            entryType: 'dsse',
             fetchOnConflict: true,
             timeout,
             retry
@@ -500,7 +507,7 @@ const initBundleBuilder = (opts) => {
     }
     // Build the bundle with the singleCertificate option which will
     // trigger the creation of v0.3 DSSE bundles
-    return new sign_1.DSSEBundleBuilder({ signer, witnesses, singleCertificate: true });
+    return new sign_1.DSSEBundleBuilder({ signer, witnesses });
 };
 //# sourceMappingURL=sign.js.map
 
@@ -9273,7 +9280,8 @@ var request = withDefaults(import_endpoint.endpoint, {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toDSSEBundle = exports.toMessageSignatureBundle = void 0;
+exports.toMessageSignatureBundle = toMessageSignatureBundle;
+exports.toDSSEBundle = toDSSEBundle;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -9294,9 +9302,9 @@ const bundle_1 = __nccwpck_require__(37742);
 // Message signature bundle - $case: 'messageSignature'
 function toMessageSignatureBundle(options) {
     return {
-        mediaType: options.singleCertificate
-            ? bundle_1.BUNDLE_V03_MEDIA_TYPE
-            : bundle_1.BUNDLE_V02_MEDIA_TYPE,
+        mediaType: options.certificateChain
+            ? bundle_1.BUNDLE_V02_MEDIA_TYPE
+            : bundle_1.BUNDLE_V03_MEDIA_TYPE,
         content: {
             $case: 'messageSignature',
             messageSignature: {
@@ -9310,13 +9318,12 @@ function toMessageSignatureBundle(options) {
         verificationMaterial: toVerificationMaterial(options),
     };
 }
-exports.toMessageSignatureBundle = toMessageSignatureBundle;
 // DSSE envelope bundle - $case: 'dsseEnvelope'
 function toDSSEBundle(options) {
     return {
-        mediaType: options.singleCertificate
-            ? bundle_1.BUNDLE_V03_MEDIA_TYPE
-            : bundle_1.BUNDLE_V02_MEDIA_TYPE,
+        mediaType: options.certificateChain
+            ? bundle_1.BUNDLE_V02_MEDIA_TYPE
+            : bundle_1.BUNDLE_V03_MEDIA_TYPE,
         content: {
             $case: 'dsseEnvelope',
             dsseEnvelope: toEnvelope(options),
@@ -9324,7 +9331,6 @@ function toDSSEBundle(options) {
         verificationMaterial: toVerificationMaterial(options),
     };
 }
-exports.toDSSEBundle = toDSSEBundle;
 function toEnvelope(options) {
     return {
         payloadType: options.artifactType,
@@ -9348,18 +9354,18 @@ function toVerificationMaterial(options) {
 }
 function toKeyContent(options) {
     if (options.certificate) {
-        if (options.singleCertificate) {
-            return {
-                $case: 'certificate',
-                certificate: { rawBytes: options.certificate },
-            };
-        }
-        else {
+        if (options.certificateChain) {
             return {
                 $case: 'x509CertificateChain',
                 x509CertificateChain: {
                     certificates: [{ rawBytes: options.certificate }],
                 },
+            };
+        }
+        else {
+            return {
+                $case: 'certificate',
+                certificate: { rawBytes: options.certificate },
             };
         }
     }
@@ -9382,7 +9388,11 @@ function toKeyContent(options) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isBundleWithDsseEnvelope = exports.isBundleWithMessageSignature = exports.isBundleWithPublicKey = exports.isBundleWithCertificateChain = exports.BUNDLE_V03_MEDIA_TYPE = exports.BUNDLE_V03_LEGACY_MEDIA_TYPE = exports.BUNDLE_V02_MEDIA_TYPE = exports.BUNDLE_V01_MEDIA_TYPE = void 0;
+exports.BUNDLE_V03_MEDIA_TYPE = exports.BUNDLE_V03_LEGACY_MEDIA_TYPE = exports.BUNDLE_V02_MEDIA_TYPE = exports.BUNDLE_V01_MEDIA_TYPE = void 0;
+exports.isBundleWithCertificateChain = isBundleWithCertificateChain;
+exports.isBundleWithPublicKey = isBundleWithPublicKey;
+exports.isBundleWithMessageSignature = isBundleWithMessageSignature;
+exports.isBundleWithDsseEnvelope = isBundleWithDsseEnvelope;
 exports.BUNDLE_V01_MEDIA_TYPE = 'application/vnd.dev.sigstore.bundle+json;version=0.1';
 exports.BUNDLE_V02_MEDIA_TYPE = 'application/vnd.dev.sigstore.bundle+json;version=0.2';
 exports.BUNDLE_V03_LEGACY_MEDIA_TYPE = 'application/vnd.dev.sigstore.bundle+json;version=0.3';
@@ -9391,19 +9401,15 @@ exports.BUNDLE_V03_MEDIA_TYPE = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 function isBundleWithCertificateChain(b) {
     return b.verificationMaterial.content.$case === 'x509CertificateChain';
 }
-exports.isBundleWithCertificateChain = isBundleWithCertificateChain;
 function isBundleWithPublicKey(b) {
     return b.verificationMaterial.content.$case === 'publicKey';
 }
-exports.isBundleWithPublicKey = isBundleWithPublicKey;
 function isBundleWithMessageSignature(b) {
     return b.content.$case === 'messageSignature';
 }
-exports.isBundleWithMessageSignature = isBundleWithMessageSignature;
 function isBundleWithDsseEnvelope(b) {
     return b.content.$case === 'dsseEnvelope';
 }
-exports.isBundleWithDsseEnvelope = isBundleWithDsseEnvelope;
 
 
 /***/ }),
@@ -9555,7 +9561,11 @@ exports.envelopeToJSON = envelopeToJSON;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assertBundleLatest = exports.assertBundleV02 = exports.isBundleV01 = exports.assertBundleV01 = exports.assertBundle = void 0;
+exports.assertBundle = assertBundle;
+exports.assertBundleV01 = assertBundleV01;
+exports.isBundleV01 = isBundleV01;
+exports.assertBundleV02 = assertBundleV02;
+exports.assertBundleLatest = assertBundleLatest;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -9582,7 +9592,6 @@ function assertBundle(b) {
         throw new error_1.ValidationError('invalid bundle', invalidValues);
     }
 }
-exports.assertBundle = assertBundle;
 // Asserts that the given bundle conforms to the v0.1 bundle format.
 function assertBundleV01(b) {
     const invalidValues = [];
@@ -9592,7 +9601,6 @@ function assertBundleV01(b) {
         throw new error_1.ValidationError('invalid v0.1 bundle', invalidValues);
     }
 }
-exports.assertBundleV01 = assertBundleV01;
 // Type guard to determine if Bundle is a v0.1 bundle.
 function isBundleV01(b) {
     try {
@@ -9603,7 +9611,6 @@ function isBundleV01(b) {
         return false;
     }
 }
-exports.isBundleV01 = isBundleV01;
 // Asserts that the given bundle conforms to the v0.2 bundle format.
 function assertBundleV02(b) {
     const invalidValues = [];
@@ -9613,7 +9620,6 @@ function assertBundleV02(b) {
         throw new error_1.ValidationError('invalid v0.2 bundle', invalidValues);
     }
 }
-exports.assertBundleV02 = assertBundleV02;
 // Asserts that the given bundle conforms to the newest (0.3) bundle format.
 function assertBundleLatest(b) {
     const invalidValues = [];
@@ -9624,7 +9630,6 @@ function assertBundleLatest(b) {
         throw new error_1.ValidationError('invalid bundle', invalidValues);
     }
 }
-exports.assertBundleLatest = assertBundleLatest;
 function validateBundleBase(b) {
     const invalidValues = [];
     // Media type validation
@@ -9747,6 +9752,7 @@ function validateInclusionProof(b) {
 // Necessary for V03 and later bundles
 function validateNoCertificateChain(b) {
     const invalidValues = [];
+    /* istanbul ignore next */
     if (b.verificationMaterial?.content?.$case === 'x509CertificateChain') {
         invalidValues.push('verificationMaterial.content.$case');
     }
@@ -9837,7 +9843,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.encodeLength = exports.decodeLength = void 0;
+exports.decodeLength = decodeLength;
+exports.encodeLength = encodeLength;
 const error_1 = __nccwpck_require__(11121);
 // Decodes the length of a DER-encoded ANS.1 element from the supplied stream.
 // https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-encoded-length-and-value-bytes
@@ -9866,7 +9873,6 @@ function decodeLength(stream) {
     }
     return len;
 }
-exports.decodeLength = decodeLength;
 // Translates the supplied value to a DER-encoded length.
 function encodeLength(len) {
     if (len < 128) {
@@ -9882,7 +9888,6 @@ function encodeLength(len) {
     }
     return Buffer.from([0x80 | bytes.length, ...bytes]);
 }
-exports.encodeLength = encodeLength;
 
 
 /***/ }),
@@ -10053,7 +10058,12 @@ function collectSubs(stream, len) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseBitString = exports.parseBoolean = exports.parseOID = exports.parseTime = exports.parseStringASCII = exports.parseInteger = void 0;
+exports.parseInteger = parseInteger;
+exports.parseStringASCII = parseStringASCII;
+exports.parseTime = parseTime;
+exports.parseOID = parseOID;
+exports.parseBoolean = parseBoolean;
+exports.parseBitString = parseBitString;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -10096,13 +10106,11 @@ function parseInteger(buf) {
     }
     return n;
 }
-exports.parseInteger = parseInteger;
 // Parse an ASCII string from the DER-encoded buffer
 // https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-basic-types#boolean
 function parseStringASCII(buf) {
     return buf.toString('ascii');
 }
-exports.parseStringASCII = parseStringASCII;
 // Parse a Date from the DER-encoded buffer
 // https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.5.1
 function parseTime(buf, shortYear) {
@@ -10123,7 +10131,6 @@ function parseTime(buf, shortYear) {
     // Translate to ISO8601 format and parse
     return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`);
 }
-exports.parseTime = parseTime;
 // Parse an OID from the DER-encoded buffer
 // https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier
 function parseOID(buf) {
@@ -10148,13 +10155,11 @@ function parseOID(buf) {
     }
     return oid;
 }
-exports.parseOID = parseOID;
 // Parse a boolean from the DER-encoded buffer
 // https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-basic-types#boolean
 function parseBoolean(buf) {
     return buf[0] !== 0;
 }
-exports.parseBoolean = parseBoolean;
 // Parse a bit string from the DER-encoded buffer
 // https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-bit-string
 function parseBitString(buf) {
@@ -10175,7 +10180,6 @@ function parseBitString(buf) {
     }
     return bits;
 }
-exports.parseBitString = parseBitString;
 
 
 /***/ }),
@@ -10283,7 +10287,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bufferEqual = exports.verify = exports.hash = exports.digest = exports.createPublicKey = void 0;
+exports.createPublicKey = createPublicKey;
+exports.digest = digest;
+exports.verify = verify;
+exports.bufferEqual = bufferEqual;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -10300,7 +10307,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const crypto_1 = __importDefault(__nccwpck_require__(76982));
-const SHA256_ALGORITHM = 'sha256';
 function createPublicKey(key, type = 'spki') {
     if (typeof key === 'string') {
         return crypto_1.default.createPublicKey(key);
@@ -10309,7 +10315,6 @@ function createPublicKey(key, type = 'spki') {
         return crypto_1.default.createPublicKey({ key, format: 'der', type: type });
     }
 }
-exports.createPublicKey = createPublicKey;
 function digest(algorithm, ...data) {
     const hash = crypto_1.default.createHash(algorithm);
     for (const d of data) {
@@ -10317,16 +10322,6 @@ function digest(algorithm, ...data) {
     }
     return hash.digest();
 }
-exports.digest = digest;
-// TODO: deprecate this in favor of digest()
-function hash(...data) {
-    const hash = crypto_1.default.createHash(SHA256_ALGORITHM);
-    for (const d of data) {
-        hash.update(d);
-    }
-    return hash.digest();
-}
-exports.hash = hash;
 function verify(data, key, signature, algorithm) {
     // The try/catch is to work around an issue in Node 14.x where verify throws
     // an error in some scenarios if the signature is invalid.
@@ -10338,7 +10333,6 @@ function verify(data, key, signature, algorithm) {
         return false;
     }
 }
-exports.verify = verify;
 function bufferEqual(a, b) {
     try {
         return crypto_1.default.timingSafeEqual(a, b);
@@ -10348,7 +10342,6 @@ function bufferEqual(a, b) {
         return false;
     }
 }
-exports.bufferEqual = bufferEqual;
 
 
 /***/ }),
@@ -10359,7 +10352,7 @@ exports.bufferEqual = bufferEqual;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.preAuthEncoding = void 0;
+exports.preAuthEncoding = preAuthEncoding;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -10387,7 +10380,6 @@ function preAuthEncoding(payloadType, payload) {
     ].join(' ');
     return Buffer.concat([Buffer.from(prefix, 'ascii'), payload]);
 }
-exports.preAuthEncoding = preAuthEncoding;
 
 
 /***/ }),
@@ -10398,7 +10390,8 @@ exports.preAuthEncoding = preAuthEncoding;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.base64Decode = exports.base64Encode = void 0;
+exports.base64Encode = base64Encode;
+exports.base64Decode = base64Decode;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -10419,11 +10412,9 @@ const UTF8_ENCODING = 'utf-8';
 function base64Encode(str) {
     return Buffer.from(str, UTF8_ENCODING).toString(BASE64_ENCODING);
 }
-exports.base64Encode = base64Encode;
 function base64Decode(str) {
     return Buffer.from(str, BASE64_ENCODING).toString(UTF8_ENCODING);
 }
-exports.base64Decode = base64Decode;
 
 
 /***/ }),
@@ -10513,7 +10504,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.canonicalize = void 0;
+exports.canonicalize = canonicalize;
 // JSON canonicalization per https://github.com/cyberphone/json-canonicalization
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function canonicalize(object) {
@@ -10556,7 +10547,6 @@ function canonicalize(object) {
     }
     return buffer;
 }
-exports.canonicalize = canonicalize;
 
 
 /***/ }),
@@ -10589,7 +10579,8 @@ exports.SHA2_HASH_ALGOS = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fromDER = exports.toDER = void 0;
+exports.toDER = toDER;
+exports.fromDER = fromDER;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -10617,7 +10608,6 @@ function toDER(certificate) {
     });
     return Buffer.from(der, 'base64');
 }
-exports.toDER = toDER;
 // Translates a DER-encoded buffer into a PEM-encoded string. Standard PEM
 // encoding dictates that each certificate should have a trailing newline after
 // the footer.
@@ -10630,7 +10620,6 @@ function fromDER(certificate, type = 'CERTIFICATE') {
         .join('\n')
         .concat('\n');
 }
-exports.fromDER = fromDER;
 
 
 /***/ }),
@@ -11196,13 +11185,15 @@ class X509Certificate {
     }
     get subjectAltName() {
         const ext = this.extSubjectAltName;
-        return ext?.uri || ext?.rfc822Name;
+        return ext?.uri || /* istanbul ignore next */ ext?.rfc822Name;
     }
     get extensions() {
         // The extension list is the first (and only) element of the extensions
         // context specific tag
+        /* istanbul ignore next */
         const extSeq = this.extensionsObj?.subs[0];
-        return extSeq?.subs || /* istanbul ignore next */ [];
+        /* istanbul ignore next */
+        return extSeq?.subs || [];
     }
     get extKeyUsage() {
         const ext = this.findExtension(EXTENSION_OID_KEY_USAGE);
@@ -11234,8 +11225,10 @@ class X509Certificate {
         const ca = this.extBasicConstraints?.isCA || false;
         // If the KeyUsage extension is present, keyCertSign must be set
         if (this.extKeyUsage) {
-            ca && this.extKeyUsage.keyCertSign;
+            return ca && this.extKeyUsage.keyCertSign;
         }
+        // TODO: test coverage for this case
+        /* istanbul ignore next */
         return ca;
     }
     extension(oid) {
@@ -13310,7 +13303,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toDSSEBundle = exports.toMessageSignatureBundle = void 0;
+exports.toMessageSignatureBundle = toMessageSignatureBundle;
+exports.toDSSEBundle = toDSSEBundle;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -13331,7 +13325,7 @@ const util_1 = __nccwpck_require__(19100);
 // Helper functions for assembling the parts of a Sigstore bundle
 // Message signature bundle - $case: 'messageSignature'
 function toMessageSignatureBundle(artifact, signature) {
-    const digest = util_1.crypto.hash(artifact.data);
+    const digest = util_1.crypto.digest('sha256', artifact.data);
     return sigstore.toMessageSignatureBundle({
         digest,
         signature: signature.signature,
@@ -13339,11 +13333,11 @@ function toMessageSignatureBundle(artifact, signature) {
             ? util_1.pem.toDER(signature.key.certificate)
             : undefined,
         keyHint: signature.key.$case === 'publicKey' ? signature.key.hint : undefined,
+        certificateChain: true,
     });
 }
-exports.toMessageSignatureBundle = toMessageSignatureBundle;
 // DSSE envelope bundle - $case: 'dsseEnvelope'
-function toDSSEBundle(artifact, signature, singleCertificate) {
+function toDSSEBundle(artifact, signature, certificateChain) {
     return sigstore.toDSSEBundle({
         artifact: artifact.data,
         artifactType: artifact.type,
@@ -13352,10 +13346,9 @@ function toDSSEBundle(artifact, signature, singleCertificate) {
             ? util_1.pem.toDER(signature.key.certificate)
             : undefined,
         keyHint: signature.key.$case === 'publicKey' ? signature.key.hint : undefined,
-        singleCertificate,
+        certificateChain,
     });
 }
-exports.toDSSEBundle = toDSSEBundle;
 
 
 /***/ }),
@@ -13389,7 +13382,7 @@ const bundle_1 = __nccwpck_require__(85192);
 class DSSEBundleBuilder extends base_1.BaseBundleBuilder {
     constructor(options) {
         super(options);
-        this.singleCertificate = options.singleCertificate ?? false;
+        this.certificateChain = options.certificateChain ?? false;
     }
     // DSSE requires the artifact to be pre-encoded with the payload type
     // before the signature is generated.
@@ -13399,7 +13392,7 @@ class DSSEBundleBuilder extends base_1.BaseBundleBuilder {
     }
     // Packages the artifact and signature into a DSSE bundle
     async package(artifact, signature) {
-        return (0, bundle_1.toDSSEBundle)(artifactDefaults(artifact), signature, this.singleCertificate);
+        return (0, bundle_1.toDSSEBundle)(artifactDefaults(artifact), signature, this.certificateChain);
     }
 }
 exports.DSSEBundleBuilder = DSSEBundleBuilder;
@@ -13488,7 +13481,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.internalError = exports.InternalError = void 0;
+exports.InternalError = void 0;
+exports.internalError = internalError;
 const error_1 = __nccwpck_require__(40369);
 class InternalError extends Error {
     constructor({ code, message, cause, }) {
@@ -13509,7 +13503,6 @@ function internalError(err, code, message) {
         cause: err,
     });
 }
-exports.internalError = internalError;
 
 
 /***/ }),
@@ -13557,7 +13550,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fetchWithRetry = void 0;
+exports.fetchWithRetry = fetchWithRetry;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -13612,14 +13605,13 @@ async function fetchWithRetry(url, options) {
         }
     }, retryOpts(options.retry));
 }
-exports.fetchWithRetry = fetchWithRetry;
 // Translate a Response into an HTTPError instance. This will attempt to parse
 // the response body for a message, but will default to the statusText if none
 // is found.
 const errorFromResponse = async (response) => {
     let message = response.statusText;
-    const location = response.headers?.get(HTTP2_HEADER_LOCATION) || undefined;
-    const contentType = response.headers?.get(HTTP2_HEADER_CONTENT_TYPE);
+    const location = response.headers.get(HTTP2_HEADER_LOCATION) || undefined;
+    const contentType = response.headers.get(HTTP2_HEADER_CONTENT_TYPE);
     // If response type is JSON, try to parse the body for a message
     if (contentType?.includes('application/json')) {
         try {
@@ -14013,7 +14005,6 @@ class CAClient {
             const cert = resp.signedCertificateEmbeddedSct
                 ? resp.signedCertificateEmbeddedSct
                 : resp.signedCertificateDetachedSct;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             return cert.chain.certificates;
         }
         catch (err) {
@@ -14281,7 +14272,7 @@ exports.ua = __importStar(__nccwpck_require__(81268));
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.extractJWTSubject = void 0;
+exports.extractJWTSubject = extractJWTSubject;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -14309,7 +14300,6 @@ function extractJWTSubject(jwt) {
             return payload.sub;
     }
 }
-exports.extractJWTSubject = extractJWTSubject;
 
 
 /***/ }),
@@ -14343,7 +14333,6 @@ const os_1 = __importDefault(__nccwpck_require__(70857));
 // Format User-Agent: <product> / <product-version> (<platform>)
 // source: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 const getUserAgent = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const packageVersion = (__nccwpck_require__(85896)/* .version */ .rE);
     const nodeVersion = process.version;
     const platformName = os_1.default.platform();
@@ -14462,7 +14451,7 @@ function entryExistsError(value) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toProposedEntry = void 0;
+exports.toProposedEntry = toProposedEntry;
 /*
 Copyright 2023 The Sigstore Authors.
 
@@ -14480,21 +14469,21 @@ limitations under the License.
 */
 const bundle_1 = __nccwpck_require__(61040);
 const util_1 = __nccwpck_require__(19100);
+const SHA256_ALGORITHM = 'sha256';
 function toProposedEntry(content, publicKey, 
 // TODO: Remove this parameter once have completely switched to 'dsse' entries
-entryType = 'intoto') {
+entryType = 'dsse') {
     switch (content.$case) {
         case 'dsseEnvelope':
-            // TODO: Remove this conditional once have completely switched to 'dsse' entries
-            if (entryType === 'dsse') {
-                return toProposedDSSEEntry(content.dsseEnvelope, publicKey);
+            // TODO: Remove this conditional once have completely ditched "intoto" entries
+            if (entryType === 'intoto') {
+                return toProposedIntotoEntry(content.dsseEnvelope, publicKey);
             }
-            return toProposedIntotoEntry(content.dsseEnvelope, publicKey);
+            return toProposedDSSEEntry(content.dsseEnvelope, publicKey);
         case 'messageSignature':
             return toProposedHashedRekordEntry(content.messageSignature, publicKey);
     }
 }
-exports.toProposedEntry = toProposedEntry;
 // Returns a properly formatted Rekor "hashedrekord" entry for the given digest
 // and signature
 function toProposedHashedRekordEntry(messageSignature, publicKey) {
@@ -14507,7 +14496,7 @@ function toProposedHashedRekordEntry(messageSignature, publicKey) {
         spec: {
             data: {
                 hash: {
-                    algorithm: 'sha256',
+                    algorithm: SHA256_ALGORITHM,
                     value: hexDigest,
                 },
             },
@@ -14540,7 +14529,9 @@ function toProposedDSSEEntry(envelope, publicKey) {
 // envelope and signature
 function toProposedIntotoEntry(envelope, publicKey) {
     // Calculate the value for the payloadHash field in the Rekor entry
-    const payloadHash = util_1.crypto.hash(envelope.payload).toString('hex');
+    const payloadHash = util_1.crypto
+        .digest(SHA256_ALGORITHM, envelope.payload)
+        .toString('hex');
     // Calculate the value for the hash field in the Rekor entry
     const envelopeHash = calculateDSSEHash(envelope, publicKey);
     // Collect values for re-creating the DSSE envelope.
@@ -14569,8 +14560,8 @@ function toProposedIntotoEntry(envelope, publicKey) {
         spec: {
             content: {
                 envelope: dsse,
-                hash: { algorithm: 'sha256', value: envelopeHash },
-                payloadHash: { algorithm: 'sha256', value: payloadHash },
+                hash: { algorithm: SHA256_ALGORITHM, value: envelopeHash },
+                payloadHash: { algorithm: SHA256_ALGORITHM, value: payloadHash },
             },
         },
     };
@@ -14594,7 +14585,9 @@ function calculateDSSEHash(envelope, publicKey) {
     if (envelope.signatures[0].keyid.length > 0) {
         dsse.signatures[0].keyid = envelope.signatures[0].keyid;
     }
-    return util_1.crypto.hash(util_1.json.canonicalize(dsse)).toString('hex');
+    return util_1.crypto
+        .digest(SHA256_ALGORITHM, util_1.json.canonicalize(dsse))
+        .toString('hex');
 }
 
 
@@ -14715,6 +14708,7 @@ limitations under the License.
 const error_1 = __nccwpck_require__(97841);
 const tsa_1 = __nccwpck_require__(78963);
 const util_1 = __nccwpck_require__(19100);
+const SHA256_ALGORITHM = 'sha256';
 class TSAClient {
     constructor(options) {
         this.tsa = new tsa_1.TimestampAuthority({
@@ -14725,8 +14719,10 @@ class TSAClient {
     }
     async createTimestamp(signature) {
         const request = {
-            artifactHash: util_1.crypto.hash(signature).toString('base64'),
-            hashAlgorithm: 'sha256',
+            artifactHash: util_1.crypto
+                .digest(SHA256_ALGORITHM, signature)
+                .toString('base64'),
+            hashAlgorithm: SHA256_ALGORITHM,
         };
         try {
             return await this.tsa.createTimestamp(request);
@@ -15045,61 +15041,6 @@ class Agent extends http.Agent {
 }
 exports.Agent = Agent;
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 77784:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const indentString = __nccwpck_require__(94024);
-const cleanStack = __nccwpck_require__(8208);
-
-const cleanInternalStack = stack => stack.replace(/\s+at .*aggregate-error\/index.js:\d+:\d+\)?/g, '');
-
-class AggregateError extends Error {
-	constructor(errors) {
-		if (!Array.isArray(errors)) {
-			throw new TypeError(`Expected input to be an Array, got ${typeof errors}`);
-		}
-
-		errors = [...errors].map(error => {
-			if (error instanceof Error) {
-				return error;
-			}
-
-			if (error !== null && typeof error === 'object') {
-				// Handle plain error objects with message property and/or possibly other metadata
-				return Object.assign(new Error(error.message), error);
-			}
-
-			return new Error(error);
-		});
-
-		let message = errors
-			.map(error => {
-				// The `stack` property is not standardized, so we can't assume it exists
-				return typeof error.stack === 'string' ? cleanInternalStack(cleanStack(error.stack)) : String(error);
-			})
-			.join('\n');
-		message = '\n' + indentString(message, 4);
-		super(message);
-
-		this.name = 'AggregateError';
-
-		Object.defineProperty(this, '_errors', {value: errors});
-	}
-
-	* [Symbol.iterator]() {
-		for (const error of this._errors) {
-			yield error;
-		}
-	}
-}
-
-module.exports = AggregateError;
-
 
 /***/ }),
 
@@ -17359,6 +17300,8 @@ const hashToSegments = __nccwpck_require__(99704)
 const indexV = (__nccwpck_require__(4038)/* ["cache-version"].index */ .MH.P)
 const { moveFile } = __nccwpck_require__(88437)
 
+const lsStreamConcurrency = 5
+
 module.exports.NotFoundError = class NotFoundError extends Error {
   constructor (cache, key) {
     super(`No cache entry for ${key} found in ${cache}`)
@@ -17521,16 +17464,17 @@ function lsStream (cache) {
 
   // Set all this up to run on the stream and then just return the stream
   Promise.resolve().then(async () => {
+    const { default: pMap } = await __nccwpck_require__.e(/* import() */ 606).then(__nccwpck_require__.bind(__nccwpck_require__, 606))
     const buckets = await readdirOrEmpty(indexDir)
-    await Promise.all(buckets.map(async (bucket) => {
+    await pMap(buckets, async (bucket) => {
       const bucketPath = path.join(indexDir, bucket)
       const subbuckets = await readdirOrEmpty(bucketPath)
-      await Promise.all(subbuckets.map(async (subbucket) => {
+      await pMap(subbuckets, async (subbucket) => {
         const subbucketPath = path.join(bucketPath, subbucket)
 
         // "/cachename/<bucket 0xFF>/<bucket 0xFF>./*"
         const subbucketEntries = await readdirOrEmpty(subbucketPath)
-        await Promise.all(subbucketEntries.map(async (entry) => {
+        await pMap(subbucketEntries, async (entry) => {
           const entryPath = path.join(subbucketPath, entry)
           try {
             const entries = await bucketEntries(entryPath)
@@ -17553,9 +17497,12 @@ function lsStream (cache) {
             }
             throw err
           }
-        }))
-      }))
-    }))
+        },
+        { concurrency: lsStreamConcurrency })
+      },
+      { concurrency: lsStreamConcurrency })
+    },
+    { concurrency: lsStreamConcurrency })
     stream.end()
     return stream
   }).catch(err => stream.emit('error', err))
@@ -18185,7 +18132,6 @@ const {
   truncate,
   writeFile,
 } = __nccwpck_require__(91943)
-const pMap = __nccwpck_require__(25063)
 const contentPath = __nccwpck_require__(40233)
 const fsm = __nccwpck_require__(25032)
 const glob = __nccwpck_require__(6337)
@@ -18270,6 +18216,7 @@ async function fixPerms (cache, opts) {
 //
 async function garbageCollect (cache, opts) {
   opts.log.silly('verify', 'garbage collecting content')
+  const { default: pMap } = await __nccwpck_require__.e(/* import() */ 606).then(__nccwpck_require__.bind(__nccwpck_require__, 606))
   const indexStream = index.lsStream(cache)
   const liveContent = new Set()
   indexStream.on('data', (entry) => {
@@ -18353,6 +18300,7 @@ async function verifyContent (filepath, sri) {
 
 async function rebuildIndex (cache, opts) {
   opts.log.silly('verify', 'rebuilding index')
+  const { default: pMap } = await __nccwpck_require__.e(/* import() */ 606).then(__nccwpck_require__.bind(__nccwpck_require__, 606))
   const entries = await index.ls(cache)
   const stats = {
     missingContent: 0,
@@ -18642,54 +18590,6 @@ function expand(str, isTop) {
   return expansions;
 }
 
-
-
-/***/ }),
-
-/***/ 8208:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const os = __nccwpck_require__(70857);
-
-const extractPathRegex = /\s+at.*(?:\(|\s)(.*)\)?/;
-const pathRegex = /^(?:(?:(?:node|(?:internal\/[\w/]*|.*node_modules\/(?:babel-polyfill|pirates)\/.*)?\w+)\.js:\d+:\d+)|native)/;
-const homeDir = typeof os.homedir === 'undefined' ? '' : os.homedir();
-
-module.exports = (stack, options) => {
-	options = Object.assign({pretty: false}, options);
-
-	return stack.replace(/\\/g, '/')
-		.split('\n')
-		.filter(line => {
-			const pathMatches = line.match(extractPathRegex);
-			if (pathMatches === null || !pathMatches[1]) {
-				return true;
-			}
-
-			const match = pathMatches[1];
-
-			// Electron
-			if (
-				match.includes('.app/Contents/Resources/electron.asar') ||
-				match.includes('.app/Contents/Resources/default_app.asar')
-			) {
-				return false;
-			}
-
-			return !pathRegex.test(match);
-		})
-		.filter(line => line.trim() !== '')
-		.map(line => {
-			if (options.pretty) {
-				return line.replace(extractPathRegex, (m, p1) => m.replace(p1, p1.replace(homeDir, '~')));
-			}
-
-			return line;
-		})
-		.join('\n');
-};
 
 
 /***/ }),
@@ -21107,7 +21007,7 @@ class HttpsProxyAgent extends agent_base_1.Agent {
             const servername = this.connectOpts.servername || this.connectOpts.host;
             socket = tls.connect({
                 ...this.connectOpts,
-                servername: servername && net.isIP(servername) ? undefined : servername,
+                servername,
             });
         }
         else {
@@ -21148,7 +21048,7 @@ class HttpsProxyAgent extends agent_base_1.Agent {
                 return tls.connect({
                     ...omit(opts, 'host', 'path', 'port'),
                     socket,
-                    servername: net.isIP(servername) ? undefined : servername,
+                    servername,
                 });
             }
             return socket;
@@ -24405,49 +24305,6 @@ module.exports = function(stream_module) {
 
 /***/ }),
 
-/***/ 94024:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = (string, count = 1, options) => {
-	options = {
-		indent: ' ',
-		includeEmptyLines: false,
-		...options
-	};
-
-	if (typeof string !== 'string') {
-		throw new TypeError(
-			`Expected \`input\` to be a \`string\`, got \`${typeof string}\``
-		);
-	}
-
-	if (typeof count !== 'number') {
-		throw new TypeError(
-			`Expected \`count\` to be a \`number\`, got \`${typeof count}\``
-		);
-	}
-
-	if (typeof options.indent !== 'string') {
-		throw new TypeError(
-			`Expected \`options.indent\` to be a \`string\`, got \`${typeof options.indent}\``
-		);
-	}
-
-	if (count === 0) {
-		return string;
-	}
-
-	const regex = options.includeEmptyLines ? /^/gm : /^(?!\s*$)/gm;
-
-	return string.replace(regex, options.indent.repeat(count));
-};
-
-
-/***/ }),
-
 /***/ 68850:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -26459,7 +26316,7 @@ Object.defineProperty(exports, "cryptoRuntime", ({ enumerable: true, get: functi
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compactDecrypt = void 0;
+exports.compactDecrypt = compactDecrypt;
 const decrypt_js_1 = __nccwpck_require__(59344);
 const errors_js_1 = __nccwpck_require__(15974);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
@@ -26487,7 +26344,6 @@ async function compactDecrypt(jwe, key, options) {
     }
     return result;
 }
-exports.compactDecrypt = compactDecrypt;
 
 
 /***/ }),
@@ -26537,7 +26393,7 @@ exports.CompactEncrypt = CompactEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.flattenedDecrypt = void 0;
+exports.flattenedDecrypt = flattenedDecrypt;
 const base64url_js_1 = __nccwpck_require__(12635);
 const decrypt_js_1 = __nccwpck_require__(52806);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -26699,7 +26555,6 @@ async function flattenedDecrypt(jwe, key, options) {
     }
     return result;
 }
-exports.flattenedDecrypt = flattenedDecrypt;
 
 
 /***/ }),
@@ -26883,7 +26738,7 @@ exports.FlattenedEncrypt = FlattenedEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generalDecrypt = void 0;
+exports.generalDecrypt = generalDecrypt;
 const decrypt_js_1 = __nccwpck_require__(59344);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -26915,7 +26770,6 @@ async function generalDecrypt(jwe, key, options) {
     }
     throw new errors_js_1.JWEDecryptionFailed();
 }
-exports.generalDecrypt = generalDecrypt;
 
 
 /***/ }),
@@ -27120,7 +26974,7 @@ exports.GeneralEncrypt = GeneralEncrypt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EmbeddedJWK = void 0;
+exports.EmbeddedJWK = EmbeddedJWK;
 const import_js_1 = __nccwpck_require__(45647);
 const is_object_js_1 = __nccwpck_require__(92242);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27138,7 +26992,6 @@ async function EmbeddedJWK(protectedHeader, token) {
     }
     return key;
 }
-exports.EmbeddedJWK = EmbeddedJWK;
 
 
 /***/ }),
@@ -27149,7 +27002,8 @@ exports.EmbeddedJWK = EmbeddedJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.calculateJwkThumbprintUri = exports.calculateJwkThumbprint = void 0;
+exports.calculateJwkThumbprint = calculateJwkThumbprint;
+exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 const digest_js_1 = __nccwpck_require__(12931);
 const base64url_js_1 = __nccwpck_require__(12635);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27198,13 +27052,11 @@ async function calculateJwkThumbprint(jwk, digestAlgorithm) {
     const data = buffer_utils_js_1.encoder.encode(JSON.stringify(components));
     return (0, base64url_js_1.encode)(await (0, digest_js_1.default)(digestAlgorithm, data));
 }
-exports.calculateJwkThumbprint = calculateJwkThumbprint;
 async function calculateJwkThumbprintUri(jwk, digestAlgorithm) {
     digestAlgorithm ??= 'sha256';
     const thumbprint = await calculateJwkThumbprint(jwk, digestAlgorithm);
     return `urn:ietf:params:oauth:jwk-thumbprint:sha-${digestAlgorithm.slice(-3)}:${thumbprint}`;
 }
-exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 
 
 /***/ }),
@@ -27215,7 +27067,7 @@ exports.calculateJwkThumbprintUri = calculateJwkThumbprintUri;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createLocalJWKSet = void 0;
+exports.createLocalJWKSet = createLocalJWKSet;
 const import_js_1 = __nccwpck_require__(45647);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -27338,7 +27190,6 @@ function createLocalJWKSet(jwks) {
     });
     return localJWKSet;
 }
-exports.createLocalJWKSet = createLocalJWKSet;
 
 
 /***/ }),
@@ -27349,7 +27200,8 @@ exports.createLocalJWKSet = createLocalJWKSet;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.experimental_jwksCache = exports.createRemoteJWKSet = exports.jwksCache = void 0;
+exports.experimental_jwksCache = exports.jwksCache = void 0;
+exports.createRemoteJWKSet = createRemoteJWKSet;
 const fetch_jwks_js_1 = __nccwpck_require__(20311);
 const errors_js_1 = __nccwpck_require__(15974);
 const local_js_1 = __nccwpck_require__(25275);
@@ -27362,7 +27214,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.9.4';
+    const VERSION = 'v5.9.6';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -27497,7 +27349,6 @@ function createRemoteJWKSet(url, options) {
     });
     return remoteJWKSet;
 }
-exports.createRemoteJWKSet = createRemoteJWKSet;
 exports.experimental_jwksCache = exports.jwksCache;
 
 
@@ -27539,7 +27390,7 @@ exports.CompactSign = CompactSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compactVerify = void 0;
+exports.compactVerify = compactVerify;
 const verify_js_1 = __nccwpck_require__(56358);
 const errors_js_1 = __nccwpck_require__(15974);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
@@ -27561,7 +27412,6 @@ async function compactVerify(jws, key, options) {
     }
     return result;
 }
-exports.compactVerify = compactVerify;
 
 
 /***/ }),
@@ -27668,7 +27518,7 @@ exports.FlattenedSign = FlattenedSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.flattenedVerify = void 0;
+exports.flattenedVerify = flattenedVerify;
 const base64url_js_1 = __nccwpck_require__(12635);
 const verify_js_1 = __nccwpck_require__(11242);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27791,7 +27641,6 @@ async function flattenedVerify(jws, key, options) {
     }
     return result;
 }
-exports.flattenedVerify = flattenedVerify;
 
 
 /***/ }),
@@ -27887,7 +27736,7 @@ exports.GeneralSign = GeneralSign;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generalVerify = void 0;
+exports.generalVerify = generalVerify;
 const verify_js_1 = __nccwpck_require__(56358);
 const errors_js_1 = __nccwpck_require__(15974);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -27912,7 +27761,6 @@ async function generalVerify(jws, key, options) {
     }
     throw new errors_js_1.JWSSignatureVerificationFailed();
 }
-exports.generalVerify = generalVerify;
 
 
 /***/ }),
@@ -27923,7 +27771,7 @@ exports.generalVerify = generalVerify;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.jwtDecrypt = void 0;
+exports.jwtDecrypt = jwtDecrypt;
 const decrypt_js_1 = __nccwpck_require__(14298);
 const jwt_claims_set_js_1 = __nccwpck_require__(13354);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -27947,7 +27795,6 @@ async function jwtDecrypt(jwt, key, options) {
     }
     return result;
 }
-exports.jwtDecrypt = jwtDecrypt;
 
 
 /***/ }),
@@ -28210,7 +28057,7 @@ exports.UnsecuredJWT = UnsecuredJWT;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.jwtVerify = void 0;
+exports.jwtVerify = jwtVerify;
 const verify_js_1 = __nccwpck_require__(94212);
 const jwt_claims_set_js_1 = __nccwpck_require__(13354);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -28226,7 +28073,6 @@ async function jwtVerify(jwt, key, options) {
     }
     return result;
 }
-exports.jwtVerify = jwtVerify;
 
 
 /***/ }),
@@ -28237,22 +28083,21 @@ exports.jwtVerify = jwtVerify;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.exportJWK = exports.exportPKCS8 = exports.exportSPKI = void 0;
+exports.exportSPKI = exportSPKI;
+exports.exportPKCS8 = exportPKCS8;
+exports.exportJWK = exportJWK;
 const asn1_js_1 = __nccwpck_require__(12774);
 const asn1_js_2 = __nccwpck_require__(12774);
 const key_to_jwk_js_1 = __nccwpck_require__(9041);
 async function exportSPKI(key) {
     return (0, asn1_js_1.toSPKI)(key);
 }
-exports.exportSPKI = exportSPKI;
 async function exportPKCS8(key) {
     return (0, asn1_js_2.toPKCS8)(key);
 }
-exports.exportPKCS8 = exportPKCS8;
 async function exportJWK(key) {
     return (0, key_to_jwk_js_1.default)(key);
 }
-exports.exportJWK = exportJWK;
 
 
 /***/ }),
@@ -28263,12 +28108,11 @@ exports.exportJWK = exportJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateKeyPair = void 0;
+exports.generateKeyPair = generateKeyPair;
 const generate_js_1 = __nccwpck_require__(10088);
 async function generateKeyPair(alg, options) {
     return (0, generate_js_1.generateKeyPair)(alg, options);
 }
-exports.generateKeyPair = generateKeyPair;
 
 
 /***/ }),
@@ -28279,12 +28123,11 @@ exports.generateKeyPair = generateKeyPair;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateSecret = void 0;
+exports.generateSecret = generateSecret;
 const generate_js_1 = __nccwpck_require__(10088);
 async function generateSecret(alg, options) {
     return (0, generate_js_1.generateSecret)(alg, options);
 }
-exports.generateSecret = generateSecret;
 
 
 /***/ }),
@@ -28295,7 +28138,10 @@ exports.generateSecret = generateSecret;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.importJWK = exports.importPKCS8 = exports.importX509 = exports.importSPKI = void 0;
+exports.importSPKI = importSPKI;
+exports.importX509 = importX509;
+exports.importPKCS8 = importPKCS8;
+exports.importJWK = importJWK;
 const base64url_js_1 = __nccwpck_require__(12635);
 const asn1_js_1 = __nccwpck_require__(12774);
 const jwk_to_key_js_1 = __nccwpck_require__(80939);
@@ -28307,21 +28153,18 @@ async function importSPKI(spki, alg, options) {
     }
     return (0, asn1_js_1.fromSPKI)(spki, alg, options);
 }
-exports.importSPKI = importSPKI;
 async function importX509(x509, alg, options) {
     if (typeof x509 !== 'string' || x509.indexOf('-----BEGIN CERTIFICATE-----') !== 0) {
         throw new TypeError('"x509" must be X.509 formatted string');
     }
     return (0, asn1_js_1.fromX509)(x509, alg, options);
 }
-exports.importX509 = importX509;
 async function importPKCS8(pkcs8, alg, options) {
     if (typeof pkcs8 !== 'string' || pkcs8.indexOf('-----BEGIN PRIVATE KEY-----') !== 0) {
         throw new TypeError('"pkcs8" must be PKCS#8 formatted string');
     }
     return (0, asn1_js_1.fromPKCS8)(pkcs8, alg, options);
 }
-exports.importPKCS8 = importPKCS8;
 async function importJWK(jwk, alg) {
     if (!(0, is_object_js_1.default)(jwk)) {
         throw new TypeError('JWK must be an object');
@@ -28344,7 +28187,6 @@ async function importJWK(jwk, alg) {
             throw new errors_js_1.JOSENotSupported('Unsupported "kty" (Key Type) Parameter value');
     }
 }
-exports.importJWK = importJWK;
 
 
 /***/ }),
@@ -28355,7 +28197,8 @@ exports.importJWK = importJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unwrap = exports.wrap = void 0;
+exports.wrap = wrap;
+exports.unwrap = unwrap;
 const encrypt_js_1 = __nccwpck_require__(36286);
 const decrypt_js_1 = __nccwpck_require__(52806);
 const base64url_js_1 = __nccwpck_require__(12635);
@@ -28368,12 +28211,10 @@ async function wrap(alg, key, cek, iv) {
         tag: (0, base64url_js_1.encode)(wrapped.tag),
     };
 }
-exports.wrap = wrap;
 async function unwrap(alg, key, encryptedKey, iv, tag) {
     const jweAlgorithm = alg.slice(0, 7);
     return (0, decrypt_js_1.default)(jweAlgorithm, key, encryptedKey, iv, tag, new Uint8Array(0));
 }
-exports.unwrap = unwrap;
 
 
 /***/ }),
@@ -28384,7 +28225,13 @@ exports.unwrap = unwrap;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.concatKdf = exports.lengthAndInput = exports.uint32be = exports.uint64be = exports.p2s = exports.concat = exports.decoder = exports.encoder = void 0;
+exports.decoder = exports.encoder = void 0;
+exports.concat = concat;
+exports.p2s = p2s;
+exports.uint64be = uint64be;
+exports.uint32be = uint32be;
+exports.lengthAndInput = lengthAndInput;
+exports.concatKdf = concatKdf;
 const digest_js_1 = __nccwpck_require__(12931);
 exports.encoder = new TextEncoder();
 exports.decoder = new TextDecoder();
@@ -28399,11 +28246,9 @@ function concat(...buffers) {
     }
     return buf;
 }
-exports.concat = concat;
 function p2s(alg, p2sInput) {
     return concat(exports.encoder.encode(alg), new Uint8Array([0]), p2sInput);
 }
-exports.p2s = p2s;
 function writeUInt32BE(buf, value, offset) {
     if (value < 0 || value >= MAX_INT32) {
         throw new RangeError(`value must be >= 0 and <= ${MAX_INT32 - 1}. Received ${value}`);
@@ -28418,17 +28263,14 @@ function uint64be(value) {
     writeUInt32BE(buf, low, 4);
     return buf;
 }
-exports.uint64be = uint64be;
 function uint32be(value) {
     const buf = new Uint8Array(4);
     writeUInt32BE(buf, value);
     return buf;
 }
-exports.uint32be = uint32be;
 function lengthAndInput(input) {
     return concat(uint32be(input.length), input);
 }
-exports.lengthAndInput = lengthAndInput;
 async function concatKdf(secret, bits, value) {
     const iterations = Math.ceil((bits >> 3) / 32);
     const res = new Uint8Array(iterations * 32);
@@ -28441,7 +28283,6 @@ async function concatKdf(secret, bits, value) {
     }
     return res.slice(0, bits >> 3);
 }
-exports.concatKdf = concatKdf;
 
 
 /***/ }),
@@ -28452,7 +28293,7 @@ exports.concatKdf = concatKdf;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bitLength = void 0;
+exports.bitLength = bitLength;
 const errors_js_1 = __nccwpck_require__(15974);
 const random_js_1 = __nccwpck_require__(23376);
 function bitLength(alg) {
@@ -28472,7 +28313,6 @@ function bitLength(alg) {
             throw new errors_js_1.JOSENotSupported(`Unsupported JWE Algorithm: ${alg}`);
     }
 }
-exports.bitLength = bitLength;
 exports["default"] = (alg) => (0, random_js_1.default)(new Uint8Array(bitLength(alg) >> 3));
 
 
@@ -28590,13 +28430,13 @@ exports.checkKeyTypeWithJwk = checkKeyType.bind(undefined, true);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = checkP2s;
 const errors_js_1 = __nccwpck_require__(15974);
 function checkP2s(p2s) {
     if (!(p2s instanceof Uint8Array) || p2s.length < 8) {
         throw new errors_js_1.JWEInvalid('PBES2 Salt Input must be 8 or more octets');
     }
 }
-exports["default"] = checkP2s;
 
 
 /***/ }),
@@ -28607,7 +28447,8 @@ exports["default"] = checkP2s;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.checkEncCryptoKey = exports.checkSigCryptoKey = void 0;
+exports.checkSigCryptoKey = checkSigCryptoKey;
+exports.checkEncCryptoKey = checkEncCryptoKey;
 function unusable(name, prop = 'algorithm.name') {
     return new TypeError(`CryptoKey does not support this operation, its ${prop} must be ${name}`);
 }
@@ -28702,7 +28543,6 @@ function checkSigCryptoKey(key, alg, ...usages) {
     }
     checkUsage(key, usages);
 }
-exports.checkSigCryptoKey = checkSigCryptoKey;
 function checkEncCryptoKey(key, alg, ...usages) {
     switch (alg) {
         case 'A128GCM':
@@ -28761,7 +28601,6 @@ function checkEncCryptoKey(key, alg, ...usages) {
     }
     checkUsage(key, usages);
 }
-exports.checkEncCryptoKey = checkEncCryptoKey;
 
 
 /***/ }),
@@ -29021,7 +28860,7 @@ exports["default"] = (date) => Math.floor(date.getTime() / 1000);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.withAlg = void 0;
+exports.withAlg = withAlg;
 function message(msg, actual, ...types) {
     types = types.filter(Boolean);
     if (types.length > 2) {
@@ -29053,7 +28892,6 @@ exports["default"] = (actual, ...types) => {
 function withAlg(alg, actual, ...types) {
     return message(`Key for the ${alg} algorithm must be `, actual, ...types);
 }
-exports.withAlg = withAlg;
 
 
 /***/ }),
@@ -29096,24 +28934,23 @@ exports["default"] = isDisjoint;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isSecretJWK = exports.isPublicJWK = exports.isPrivateJWK = exports.isJWK = void 0;
+exports.isJWK = isJWK;
+exports.isPrivateJWK = isPrivateJWK;
+exports.isPublicJWK = isPublicJWK;
+exports.isSecretJWK = isSecretJWK;
 const is_object_js_1 = __nccwpck_require__(92242);
 function isJWK(key) {
     return (0, is_object_js_1.default)(key) && typeof key.kty === 'string';
 }
-exports.isJWK = isJWK;
 function isPrivateJWK(key) {
     return key.kty !== 'oct' && typeof key.d === 'string';
 }
-exports.isPrivateJWK = isPrivateJWK;
 function isPublicJWK(key) {
     return key.kty !== 'oct' && typeof key.d === 'undefined';
 }
-exports.isPublicJWK = isPublicJWK;
 function isSecretJWK(key) {
     return isJWK(key) && key.kty === 'oct' && typeof key.k === 'string';
 }
-exports.isSecretJWK = isSecretJWK;
 
 
 /***/ }),
@@ -29124,6 +28961,7 @@ exports.isSecretJWK = isSecretJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = isObject;
 function isObjectLike(value) {
     return typeof value === 'object' && value !== null;
 }
@@ -29140,7 +28978,6 @@ function isObject(input) {
     }
     return Object.getPrototypeOf(input) === proto;
 }
-exports["default"] = isObject;
 
 
 /***/ }),
@@ -29151,7 +28988,7 @@ exports["default"] = isObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bitLength = void 0;
+exports.bitLength = bitLength;
 const errors_js_1 = __nccwpck_require__(15974);
 const random_js_1 = __nccwpck_require__(23376);
 function bitLength(alg) {
@@ -29171,7 +29008,6 @@ function bitLength(alg) {
             throw new errors_js_1.JOSENotSupported(`Unsupported JWE Algorithm: ${alg}`);
     }
 }
-exports.bitLength = bitLength;
 exports["default"] = (alg) => (0, random_js_1.default)(new Uint8Array(bitLength(alg) >> 3));
 
 
@@ -29592,6 +29428,7 @@ exports.decode = decode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = cbcTag;
 const node_crypto_1 = __nccwpck_require__(77598);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 function cbcTag(aad, iv, ciphertext, macSize, macKey, keySize) {
@@ -29600,7 +29437,6 @@ function cbcTag(aad, iv, ciphertext, macSize, macKey, keySize) {
     hmac.update(macData);
     return hmac.digest().slice(0, keySize >> 3);
 }
-exports["default"] = cbcTag;
 
 
 /***/ }),
@@ -29822,6 +29658,7 @@ exports["default"] = digest;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = dsaDigest;
 const errors_js_1 = __nccwpck_require__(15974);
 function dsaDigest(alg) {
     switch (alg) {
@@ -29844,7 +29681,6 @@ function dsaDigest(alg) {
             throw new errors_js_1.JOSENotSupported(`alg ${alg} is not supported either by JOSE or your javascript runtime`);
     }
 }
-exports["default"] = dsaDigest;
 
 
 /***/ }),
@@ -29855,7 +29691,9 @@ exports["default"] = dsaDigest;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ecdhAllowed = exports.generateEpk = exports.deriveKey = void 0;
+exports.ecdhAllowed = void 0;
+exports.deriveKey = deriveKey;
+exports.generateEpk = generateEpk;
 const node_crypto_1 = __nccwpck_require__(77598);
 const node_util_1 = __nccwpck_require__(57975);
 const get_named_curve_js_1 = __nccwpck_require__(65661);
@@ -29894,7 +29732,6 @@ async function deriveKey(publicKee, privateKee, algorithm, keyLength, apu = new 
     const sharedSecret = (0, node_crypto_1.diffieHellman)({ privateKey, publicKey });
     return (0, buffer_utils_js_1.concatKdf)(sharedSecret, keyLength, value);
 }
-exports.deriveKey = deriveKey;
 async function generateEpk(kee) {
     let key;
     if ((0, webcrypto_js_1.isCryptoKey)(kee)) {
@@ -29920,7 +29757,6 @@ async function generateEpk(kee) {
             throw new errors_js_1.JOSENotSupported('Invalid or unsupported EPK');
     }
 }
-exports.generateEpk = generateEpk;
 const ecdhAllowed = (key) => ['P-256', 'P-384', 'P-521', 'X25519', 'X448'].includes((0, get_named_curve_js_1.default)(key));
 exports.ecdhAllowed = ecdhAllowed;
 
@@ -30074,7 +29910,8 @@ exports["default"] = fetchJwks;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateKeyPair = exports.generateSecret = void 0;
+exports.generateSecret = generateSecret;
+exports.generateKeyPair = generateKeyPair;
 const node_crypto_1 = __nccwpck_require__(77598);
 const node_util_1 = __nccwpck_require__(57975);
 const random_js_1 = __nccwpck_require__(23376);
@@ -30107,7 +29944,6 @@ async function generateSecret(alg, options) {
     }
     return (0, node_crypto_1.createSecretKey)((0, random_js_1.default)(new Uint8Array(length >> 3)));
 }
-exports.generateSecret = generateSecret;
 async function generateKeyPair(alg, options) {
     switch (alg) {
         case 'RS256':
@@ -30173,7 +30009,6 @@ async function generateKeyPair(alg, options) {
             throw new errors_js_1.JOSENotSupported('Invalid or unsupported JWK "alg" (Algorithm) Parameter value');
     }
 }
-exports.generateKeyPair = generateKeyPair;
 
 
 /***/ }),
@@ -30253,6 +30088,7 @@ exports["default"] = getNamedCurve;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = getSignVerifyKey;
 const node_crypto_1 = __nccwpck_require__(77598);
 const webcrypto_js_1 = __nccwpck_require__(59044);
 const crypto_key_js_1 = __nccwpck_require__(26319);
@@ -30281,7 +30117,6 @@ function getSignVerifyKey(alg, key, usage) {
     }
     throw new TypeError((0, invalid_key_input_js_1.default)(key, ...is_key_like_js_1.types, 'Uint8Array', 'JSON Web Key'));
 }
-exports["default"] = getSignVerifyKey;
 
 
 /***/ }),
@@ -30292,6 +30127,7 @@ exports["default"] = getSignVerifyKey;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = hmacDigest;
 const errors_js_1 = __nccwpck_require__(15974);
 function hmacDigest(alg) {
     switch (alg) {
@@ -30305,7 +30141,6 @@ function hmacDigest(alg) {
             throw new errors_js_1.JOSENotSupported(`alg ${alg} is not supported either by JOSE or your javascript runtime`);
     }
 }
-exports["default"] = hmacDigest;
 
 
 /***/ }),
@@ -30409,6 +30244,7 @@ exports["default"] = keyToJWK;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = keyForCrypto;
 const node_crypto_1 = __nccwpck_require__(77598);
 const get_named_curve_js_1 = __nccwpck_require__(65661);
 const errors_js_1 = __nccwpck_require__(15974);
@@ -30512,7 +30348,6 @@ function keyForCrypto(alg, key) {
     }
     return options ? { ...options, key } : key;
 }
-exports["default"] = keyForCrypto;
 
 
 /***/ }),
@@ -30803,7 +30638,7 @@ exports.decode = base64url.decode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decodeJwt = void 0;
+exports.decodeJwt = decodeJwt;
 const base64url_js_1 = __nccwpck_require__(78305);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -30836,7 +30671,6 @@ function decodeJwt(jwt) {
         throw new errors_js_1.JWTInvalid('Invalid JWT Claims Set');
     return result;
 }
-exports.decodeJwt = decodeJwt;
 
 
 /***/ }),
@@ -30847,7 +30681,7 @@ exports.decodeJwt = decodeJwt;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decodeProtectedHeader = void 0;
+exports.decodeProtectedHeader = decodeProtectedHeader;
 const base64url_js_1 = __nccwpck_require__(78305);
 const buffer_utils_js_1 = __nccwpck_require__(45734);
 const is_object_js_1 = __nccwpck_require__(92242);
@@ -30882,7 +30716,6 @@ function decodeProtectedHeader(token) {
         throw new TypeError('Invalid Token or Protected Header formatting');
     }
 }
-exports.decodeProtectedHeader = decodeProtectedHeader;
 
 
 /***/ }),
@@ -33321,7 +33154,12 @@ const conditionalHeaders = [
 const configureOptions = (opts) => {
   const { strictSSL, ...options } = { ...opts }
   options.method = options.method ? options.method.toUpperCase() : 'GET'
-  options.rejectUnauthorized = strictSSL !== false
+
+  if (strictSSL === undefined || strictSSL === null) {
+    options.rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0'
+  } else {
+    options.rejectUnauthorized = strictSSL !== false
+  }
 
   if (!options.retry) {
     options.retry = { retries: 0 }
@@ -33455,7 +33293,8 @@ const RETRY_TYPES = [
 // following redirects (through the cache if necessary)
 // and verifying response integrity
 const remoteFetch = (request, options) => {
-  const agent = getAgent(request.url, options)
+  // options.signal is intended for the fetch itself, not the agent.  Attaching it to the agent will re-use that signal across multiple requests, which prevents any connections beyond the first one.
+  const agent = getAgent(request.url, { ...options, signal: undefined })
   if (!request.headers.has('connection')) {
     request.headers.set('connection', agent ? 'keep-alive' : 'close')
   }
@@ -34442,7 +34281,7 @@ module.exports = Headers
 const { URL } = __nccwpck_require__(87016)
 const http = __nccwpck_require__(58611)
 const https = __nccwpck_require__(65692)
-const zlib = __nccwpck_require__(1238)
+const zlib = __nccwpck_require__(37119)
 const { Minipass } = __nccwpck_require__(78275)
 
 const Body = __nccwpck_require__(28515)
@@ -37433,1141 +37272,6 @@ module.exports = class Minipass extends Stream {
 
 /***/ }),
 
-/***/ 30695:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-// Update with any zlib constants that are added or changed in the future.
-// Node v6 didn't export this, so we just hard code the version and rely
-// on all the other hard-coded values from zlib v4736.  When node v6
-// support drops, we can just export the realZlibConstants object.
-const realZlibConstants = (__nccwpck_require__(43106).constants) ||
-  /* istanbul ignore next */ { ZLIB_VERNUM: 4736 }
-
-module.exports = Object.freeze(Object.assign(Object.create(null), {
-  Z_NO_FLUSH: 0,
-  Z_PARTIAL_FLUSH: 1,
-  Z_SYNC_FLUSH: 2,
-  Z_FULL_FLUSH: 3,
-  Z_FINISH: 4,
-  Z_BLOCK: 5,
-  Z_OK: 0,
-  Z_STREAM_END: 1,
-  Z_NEED_DICT: 2,
-  Z_ERRNO: -1,
-  Z_STREAM_ERROR: -2,
-  Z_DATA_ERROR: -3,
-  Z_MEM_ERROR: -4,
-  Z_BUF_ERROR: -5,
-  Z_VERSION_ERROR: -6,
-  Z_NO_COMPRESSION: 0,
-  Z_BEST_SPEED: 1,
-  Z_BEST_COMPRESSION: 9,
-  Z_DEFAULT_COMPRESSION: -1,
-  Z_FILTERED: 1,
-  Z_HUFFMAN_ONLY: 2,
-  Z_RLE: 3,
-  Z_FIXED: 4,
-  Z_DEFAULT_STRATEGY: 0,
-  DEFLATE: 1,
-  INFLATE: 2,
-  GZIP: 3,
-  GUNZIP: 4,
-  DEFLATERAW: 5,
-  INFLATERAW: 6,
-  UNZIP: 7,
-  BROTLI_DECODE: 8,
-  BROTLI_ENCODE: 9,
-  Z_MIN_WINDOWBITS: 8,
-  Z_MAX_WINDOWBITS: 15,
-  Z_DEFAULT_WINDOWBITS: 15,
-  Z_MIN_CHUNK: 64,
-  Z_MAX_CHUNK: Infinity,
-  Z_DEFAULT_CHUNK: 16384,
-  Z_MIN_MEMLEVEL: 1,
-  Z_MAX_MEMLEVEL: 9,
-  Z_DEFAULT_MEMLEVEL: 8,
-  Z_MIN_LEVEL: -1,
-  Z_MAX_LEVEL: 9,
-  Z_DEFAULT_LEVEL: -1,
-  BROTLI_OPERATION_PROCESS: 0,
-  BROTLI_OPERATION_FLUSH: 1,
-  BROTLI_OPERATION_FINISH: 2,
-  BROTLI_OPERATION_EMIT_METADATA: 3,
-  BROTLI_MODE_GENERIC: 0,
-  BROTLI_MODE_TEXT: 1,
-  BROTLI_MODE_FONT: 2,
-  BROTLI_DEFAULT_MODE: 0,
-  BROTLI_MIN_QUALITY: 0,
-  BROTLI_MAX_QUALITY: 11,
-  BROTLI_DEFAULT_QUALITY: 11,
-  BROTLI_MIN_WINDOW_BITS: 10,
-  BROTLI_MAX_WINDOW_BITS: 24,
-  BROTLI_LARGE_MAX_WINDOW_BITS: 30,
-  BROTLI_DEFAULT_WINDOW: 22,
-  BROTLI_MIN_INPUT_BLOCK_BITS: 16,
-  BROTLI_MAX_INPUT_BLOCK_BITS: 24,
-  BROTLI_PARAM_MODE: 0,
-  BROTLI_PARAM_QUALITY: 1,
-  BROTLI_PARAM_LGWIN: 2,
-  BROTLI_PARAM_LGBLOCK: 3,
-  BROTLI_PARAM_DISABLE_LITERAL_CONTEXT_MODELING: 4,
-  BROTLI_PARAM_SIZE_HINT: 5,
-  BROTLI_PARAM_LARGE_WINDOW: 6,
-  BROTLI_PARAM_NPOSTFIX: 7,
-  BROTLI_PARAM_NDIRECT: 8,
-  BROTLI_DECODER_RESULT_ERROR: 0,
-  BROTLI_DECODER_RESULT_SUCCESS: 1,
-  BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT: 2,
-  BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT: 3,
-  BROTLI_DECODER_PARAM_DISABLE_RING_BUFFER_REALLOCATION: 0,
-  BROTLI_DECODER_PARAM_LARGE_WINDOW: 1,
-  BROTLI_DECODER_NO_ERROR: 0,
-  BROTLI_DECODER_SUCCESS: 1,
-  BROTLI_DECODER_NEEDS_MORE_INPUT: 2,
-  BROTLI_DECODER_NEEDS_MORE_OUTPUT: 3,
-  BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE: -1,
-  BROTLI_DECODER_ERROR_FORMAT_RESERVED: -2,
-  BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE: -3,
-  BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET: -4,
-  BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME: -5,
-  BROTLI_DECODER_ERROR_FORMAT_CL_SPACE: -6,
-  BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE: -7,
-  BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT: -8,
-  BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1: -9,
-  BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2: -10,
-  BROTLI_DECODER_ERROR_FORMAT_TRANSFORM: -11,
-  BROTLI_DECODER_ERROR_FORMAT_DICTIONARY: -12,
-  BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS: -13,
-  BROTLI_DECODER_ERROR_FORMAT_PADDING_1: -14,
-  BROTLI_DECODER_ERROR_FORMAT_PADDING_2: -15,
-  BROTLI_DECODER_ERROR_FORMAT_DISTANCE: -16,
-  BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET: -19,
-  BROTLI_DECODER_ERROR_INVALID_ARGUMENTS: -20,
-  BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES: -21,
-  BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS: -22,
-  BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP: -25,
-  BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1: -26,
-  BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2: -27,
-  BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES: -30,
-  BROTLI_DECODER_ERROR_UNREACHABLE: -31,
-}, realZlibConstants))
-
-
-/***/ }),
-
-/***/ 1238:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-const assert = __nccwpck_require__(42613)
-const Buffer = (__nccwpck_require__(20181).Buffer)
-const realZlib = __nccwpck_require__(43106)
-
-const constants = exports.constants = __nccwpck_require__(30695)
-const Minipass = __nccwpck_require__(21112)
-
-const OriginalBufferConcat = Buffer.concat
-
-const _superWrite = Symbol('_superWrite')
-class ZlibError extends Error {
-  constructor (err) {
-    super('zlib: ' + err.message)
-    this.code = err.code
-    this.errno = err.errno
-    /* istanbul ignore if */
-    if (!this.code)
-      this.code = 'ZLIB_ERROR'
-
-    this.message = 'zlib: ' + err.message
-    Error.captureStackTrace(this, this.constructor)
-  }
-
-  get name () {
-    return 'ZlibError'
-  }
-}
-
-// the Zlib class they all inherit from
-// This thing manages the queue of requests, and returns
-// true or false if there is anything in the queue when
-// you call the .write() method.
-const _opts = Symbol('opts')
-const _flushFlag = Symbol('flushFlag')
-const _finishFlushFlag = Symbol('finishFlushFlag')
-const _fullFlushFlag = Symbol('fullFlushFlag')
-const _handle = Symbol('handle')
-const _onError = Symbol('onError')
-const _sawError = Symbol('sawError')
-const _level = Symbol('level')
-const _strategy = Symbol('strategy')
-const _ended = Symbol('ended')
-const _defaultFullFlush = Symbol('_defaultFullFlush')
-
-class ZlibBase extends Minipass {
-  constructor (opts, mode) {
-    if (!opts || typeof opts !== 'object')
-      throw new TypeError('invalid options for ZlibBase constructor')
-
-    super(opts)
-    this[_sawError] = false
-    this[_ended] = false
-    this[_opts] = opts
-
-    this[_flushFlag] = opts.flush
-    this[_finishFlushFlag] = opts.finishFlush
-    // this will throw if any options are invalid for the class selected
-    try {
-      this[_handle] = new realZlib[mode](opts)
-    } catch (er) {
-      // make sure that all errors get decorated properly
-      throw new ZlibError(er)
-    }
-
-    this[_onError] = (err) => {
-      // no sense raising multiple errors, since we abort on the first one.
-      if (this[_sawError])
-        return
-
-      this[_sawError] = true
-
-      // there is no way to cleanly recover.
-      // continuing only obscures problems.
-      this.close()
-      this.emit('error', err)
-    }
-
-    this[_handle].on('error', er => this[_onError](new ZlibError(er)))
-    this.once('end', () => this.close)
-  }
-
-  close () {
-    if (this[_handle]) {
-      this[_handle].close()
-      this[_handle] = null
-      this.emit('close')
-    }
-  }
-
-  reset () {
-    if (!this[_sawError]) {
-      assert(this[_handle], 'zlib binding closed')
-      return this[_handle].reset()
-    }
-  }
-
-  flush (flushFlag) {
-    if (this.ended)
-      return
-
-    if (typeof flushFlag !== 'number')
-      flushFlag = this[_fullFlushFlag]
-    this.write(Object.assign(Buffer.alloc(0), { [_flushFlag]: flushFlag }))
-  }
-
-  end (chunk, encoding, cb) {
-    if (chunk)
-      this.write(chunk, encoding)
-    this.flush(this[_finishFlushFlag])
-    this[_ended] = true
-    return super.end(null, null, cb)
-  }
-
-  get ended () {
-    return this[_ended]
-  }
-
-  write (chunk, encoding, cb) {
-    // process the chunk using the sync process
-    // then super.write() all the outputted chunks
-    if (typeof encoding === 'function')
-      cb = encoding, encoding = 'utf8'
-
-    if (typeof chunk === 'string')
-      chunk = Buffer.from(chunk, encoding)
-
-    if (this[_sawError])
-      return
-    assert(this[_handle], 'zlib binding closed')
-
-    // _processChunk tries to .close() the native handle after it's done, so we
-    // intercept that by temporarily making it a no-op.
-    const nativeHandle = this[_handle]._handle
-    const originalNativeClose = nativeHandle.close
-    nativeHandle.close = () => {}
-    const originalClose = this[_handle].close
-    this[_handle].close = () => {}
-    // It also calls `Buffer.concat()` at the end, which may be convenient
-    // for some, but which we are not interested in as it slows us down.
-    Buffer.concat = (args) => args
-    let result
-    try {
-      const flushFlag = typeof chunk[_flushFlag] === 'number'
-        ? chunk[_flushFlag] : this[_flushFlag]
-      result = this[_handle]._processChunk(chunk, flushFlag)
-      // if we don't throw, reset it back how it was
-      Buffer.concat = OriginalBufferConcat
-    } catch (err) {
-      // or if we do, put Buffer.concat() back before we emit error
-      // Error events call into user code, which may call Buffer.concat()
-      Buffer.concat = OriginalBufferConcat
-      this[_onError](new ZlibError(err))
-    } finally {
-      if (this[_handle]) {
-        // Core zlib resets `_handle` to null after attempting to close the
-        // native handle. Our no-op handler prevented actual closure, but we
-        // need to restore the `._handle` property.
-        this[_handle]._handle = nativeHandle
-        nativeHandle.close = originalNativeClose
-        this[_handle].close = originalClose
-        // `_processChunk()` adds an 'error' listener. If we don't remove it
-        // after each call, these handlers start piling up.
-        this[_handle].removeAllListeners('error')
-        // make sure OUR error listener is still attached tho
-      }
-    }
-
-    if (this[_handle])
-      this[_handle].on('error', er => this[_onError](new ZlibError(er)))
-
-    let writeReturn
-    if (result) {
-      if (Array.isArray(result) && result.length > 0) {
-        // The first buffer is always `handle._outBuffer`, which would be
-        // re-used for later invocations; so, we always have to copy that one.
-        writeReturn = this[_superWrite](Buffer.from(result[0]))
-        for (let i = 1; i < result.length; i++) {
-          writeReturn = this[_superWrite](result[i])
-        }
-      } else {
-        writeReturn = this[_superWrite](Buffer.from(result))
-      }
-    }
-
-    if (cb)
-      cb()
-    return writeReturn
-  }
-
-  [_superWrite] (data) {
-    return super.write(data)
-  }
-}
-
-class Zlib extends ZlibBase {
-  constructor (opts, mode) {
-    opts = opts || {}
-
-    opts.flush = opts.flush || constants.Z_NO_FLUSH
-    opts.finishFlush = opts.finishFlush || constants.Z_FINISH
-    super(opts, mode)
-
-    this[_fullFlushFlag] = constants.Z_FULL_FLUSH
-    this[_level] = opts.level
-    this[_strategy] = opts.strategy
-  }
-
-  params (level, strategy) {
-    if (this[_sawError])
-      return
-
-    if (!this[_handle])
-      throw new Error('cannot switch params when binding is closed')
-
-    // no way to test this without also not supporting params at all
-    /* istanbul ignore if */
-    if (!this[_handle].params)
-      throw new Error('not supported in this implementation')
-
-    if (this[_level] !== level || this[_strategy] !== strategy) {
-      this.flush(constants.Z_SYNC_FLUSH)
-      assert(this[_handle], 'zlib binding closed')
-      // .params() calls .flush(), but the latter is always async in the
-      // core zlib. We override .flush() temporarily to intercept that and
-      // flush synchronously.
-      const origFlush = this[_handle].flush
-      this[_handle].flush = (flushFlag, cb) => {
-        this.flush(flushFlag)
-        cb()
-      }
-      try {
-        this[_handle].params(level, strategy)
-      } finally {
-        this[_handle].flush = origFlush
-      }
-      /* istanbul ignore else */
-      if (this[_handle]) {
-        this[_level] = level
-        this[_strategy] = strategy
-      }
-    }
-  }
-}
-
-// minimal 2-byte header
-class Deflate extends Zlib {
-  constructor (opts) {
-    super(opts, 'Deflate')
-  }
-}
-
-class Inflate extends Zlib {
-  constructor (opts) {
-    super(opts, 'Inflate')
-  }
-}
-
-// gzip - bigger header, same deflate compression
-const _portable = Symbol('_portable')
-class Gzip extends Zlib {
-  constructor (opts) {
-    super(opts, 'Gzip')
-    this[_portable] = opts && !!opts.portable
-  }
-
-  [_superWrite] (data) {
-    if (!this[_portable])
-      return super[_superWrite](data)
-
-    // we'll always get the header emitted in one first chunk
-    // overwrite the OS indicator byte with 0xFF
-    this[_portable] = false
-    data[9] = 255
-    return super[_superWrite](data)
-  }
-}
-
-class Gunzip extends Zlib {
-  constructor (opts) {
-    super(opts, 'Gunzip')
-  }
-}
-
-// raw - no header
-class DeflateRaw extends Zlib {
-  constructor (opts) {
-    super(opts, 'DeflateRaw')
-  }
-}
-
-class InflateRaw extends Zlib {
-  constructor (opts) {
-    super(opts, 'InflateRaw')
-  }
-}
-
-// auto-detect header.
-class Unzip extends Zlib {
-  constructor (opts) {
-    super(opts, 'Unzip')
-  }
-}
-
-class Brotli extends ZlibBase {
-  constructor (opts, mode) {
-    opts = opts || {}
-
-    opts.flush = opts.flush || constants.BROTLI_OPERATION_PROCESS
-    opts.finishFlush = opts.finishFlush || constants.BROTLI_OPERATION_FINISH
-
-    super(opts, mode)
-
-    this[_fullFlushFlag] = constants.BROTLI_OPERATION_FLUSH
-  }
-}
-
-class BrotliCompress extends Brotli {
-  constructor (opts) {
-    super(opts, 'BrotliCompress')
-  }
-}
-
-class BrotliDecompress extends Brotli {
-  constructor (opts) {
-    super(opts, 'BrotliDecompress')
-  }
-}
-
-exports.Deflate = Deflate
-exports.Inflate = Inflate
-exports.Gzip = Gzip
-exports.Gunzip = Gunzip
-exports.DeflateRaw = DeflateRaw
-exports.InflateRaw = InflateRaw
-exports.Unzip = Unzip
-/* istanbul ignore else */
-if (typeof realZlib.BrotliCompress === 'function') {
-  exports.BrotliCompress = BrotliCompress
-  exports.BrotliDecompress = BrotliDecompress
-} else {
-  exports.BrotliCompress = exports.BrotliDecompress = class {
-    constructor () {
-      throw new Error('Brotli is not supported in this version of Node.js')
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 21112:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const proc = typeof process === 'object' && process ? process : {
-  stdout: null,
-  stderr: null,
-}
-const EE = __nccwpck_require__(24434)
-const Stream = __nccwpck_require__(2203)
-const SD = (__nccwpck_require__(13193).StringDecoder)
-
-const EOF = Symbol('EOF')
-const MAYBE_EMIT_END = Symbol('maybeEmitEnd')
-const EMITTED_END = Symbol('emittedEnd')
-const EMITTING_END = Symbol('emittingEnd')
-const EMITTED_ERROR = Symbol('emittedError')
-const CLOSED = Symbol('closed')
-const READ = Symbol('read')
-const FLUSH = Symbol('flush')
-const FLUSHCHUNK = Symbol('flushChunk')
-const ENCODING = Symbol('encoding')
-const DECODER = Symbol('decoder')
-const FLOWING = Symbol('flowing')
-const PAUSED = Symbol('paused')
-const RESUME = Symbol('resume')
-const BUFFERLENGTH = Symbol('bufferLength')
-const BUFFERPUSH = Symbol('bufferPush')
-const BUFFERSHIFT = Symbol('bufferShift')
-const OBJECTMODE = Symbol('objectMode')
-const DESTROYED = Symbol('destroyed')
-const EMITDATA = Symbol('emitData')
-const EMITEND = Symbol('emitEnd')
-const EMITEND2 = Symbol('emitEnd2')
-const ASYNC = Symbol('async')
-
-const defer = fn => Promise.resolve().then(fn)
-
-// TODO remove when Node v8 support drops
-const doIter = global._MP_NO_ITERATOR_SYMBOLS_  !== '1'
-const ASYNCITERATOR = doIter && Symbol.asyncIterator
-  || Symbol('asyncIterator not implemented')
-const ITERATOR = doIter && Symbol.iterator
-  || Symbol('iterator not implemented')
-
-// events that mean 'the stream is over'
-// these are treated specially, and re-emitted
-// if they are listened for after emitting.
-const isEndish = ev =>
-  ev === 'end' ||
-  ev === 'finish' ||
-  ev === 'prefinish'
-
-const isArrayBuffer = b => b instanceof ArrayBuffer ||
-  typeof b === 'object' &&
-  b.constructor &&
-  b.constructor.name === 'ArrayBuffer' &&
-  b.byteLength >= 0
-
-const isArrayBufferView = b => !Buffer.isBuffer(b) && ArrayBuffer.isView(b)
-
-class Pipe {
-  constructor (src, dest, opts) {
-    this.src = src
-    this.dest = dest
-    this.opts = opts
-    this.ondrain = () => src[RESUME]()
-    dest.on('drain', this.ondrain)
-  }
-  unpipe () {
-    this.dest.removeListener('drain', this.ondrain)
-  }
-  // istanbul ignore next - only here for the prototype
-  proxyErrors () {}
-  end () {
-    this.unpipe()
-    if (this.opts.end)
-      this.dest.end()
-  }
-}
-
-class PipeProxyErrors extends Pipe {
-  unpipe () {
-    this.src.removeListener('error', this.proxyErrors)
-    super.unpipe()
-  }
-  constructor (src, dest, opts) {
-    super(src, dest, opts)
-    this.proxyErrors = er => dest.emit('error', er)
-    src.on('error', this.proxyErrors)
-  }
-}
-
-module.exports = class Minipass extends Stream {
-  constructor (options) {
-    super()
-    this[FLOWING] = false
-    // whether we're explicitly paused
-    this[PAUSED] = false
-    this.pipes = []
-    this.buffer = []
-    this[OBJECTMODE] = options && options.objectMode || false
-    if (this[OBJECTMODE])
-      this[ENCODING] = null
-    else
-      this[ENCODING] = options && options.encoding || null
-    if (this[ENCODING] === 'buffer')
-      this[ENCODING] = null
-    this[ASYNC] = options && !!options.async || false
-    this[DECODER] = this[ENCODING] ? new SD(this[ENCODING]) : null
-    this[EOF] = false
-    this[EMITTED_END] = false
-    this[EMITTING_END] = false
-    this[CLOSED] = false
-    this[EMITTED_ERROR] = null
-    this.writable = true
-    this.readable = true
-    this[BUFFERLENGTH] = 0
-    this[DESTROYED] = false
-  }
-
-  get bufferLength () { return this[BUFFERLENGTH] }
-
-  get encoding () { return this[ENCODING] }
-  set encoding (enc) {
-    if (this[OBJECTMODE])
-      throw new Error('cannot set encoding in objectMode')
-
-    if (this[ENCODING] && enc !== this[ENCODING] &&
-        (this[DECODER] && this[DECODER].lastNeed || this[BUFFERLENGTH]))
-      throw new Error('cannot change encoding')
-
-    if (this[ENCODING] !== enc) {
-      this[DECODER] = enc ? new SD(enc) : null
-      if (this.buffer.length)
-        this.buffer = this.buffer.map(chunk => this[DECODER].write(chunk))
-    }
-
-    this[ENCODING] = enc
-  }
-
-  setEncoding (enc) {
-    this.encoding = enc
-  }
-
-  get objectMode () { return this[OBJECTMODE] }
-  set objectMode (om) { this[OBJECTMODE] = this[OBJECTMODE] || !!om }
-
-  get ['async'] () { return this[ASYNC] }
-  set ['async'] (a) { this[ASYNC] = this[ASYNC] || !!a }
-
-  write (chunk, encoding, cb) {
-    if (this[EOF])
-      throw new Error('write after end')
-
-    if (this[DESTROYED]) {
-      this.emit('error', Object.assign(
-        new Error('Cannot call write after a stream was destroyed'),
-        { code: 'ERR_STREAM_DESTROYED' }
-      ))
-      return true
-    }
-
-    if (typeof encoding === 'function')
-      cb = encoding, encoding = 'utf8'
-
-    if (!encoding)
-      encoding = 'utf8'
-
-    const fn = this[ASYNC] ? defer : f => f()
-
-    // convert array buffers and typed array views into buffers
-    // at some point in the future, we may want to do the opposite!
-    // leave strings and buffers as-is
-    // anything else switches us into object mode
-    if (!this[OBJECTMODE] && !Buffer.isBuffer(chunk)) {
-      if (isArrayBufferView(chunk))
-        chunk = Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength)
-      else if (isArrayBuffer(chunk))
-        chunk = Buffer.from(chunk)
-      else if (typeof chunk !== 'string')
-        // use the setter so we throw if we have encoding set
-        this.objectMode = true
-    }
-
-    // handle object mode up front, since it's simpler
-    // this yields better performance, fewer checks later.
-    if (this[OBJECTMODE]) {
-      /* istanbul ignore if - maybe impossible? */
-      if (this.flowing && this[BUFFERLENGTH] !== 0)
-        this[FLUSH](true)
-
-      if (this.flowing)
-        this.emit('data', chunk)
-      else
-        this[BUFFERPUSH](chunk)
-
-      if (this[BUFFERLENGTH] !== 0)
-        this.emit('readable')
-
-      if (cb)
-        fn(cb)
-
-      return this.flowing
-    }
-
-    // at this point the chunk is a buffer or string
-    // don't buffer it up or send it to the decoder
-    if (!chunk.length) {
-      if (this[BUFFERLENGTH] !== 0)
-        this.emit('readable')
-      if (cb)
-        fn(cb)
-      return this.flowing
-    }
-
-    // fast-path writing strings of same encoding to a stream with
-    // an empty buffer, skipping the buffer/decoder dance
-    if (typeof chunk === 'string' &&
-        // unless it is a string already ready for us to use
-        !(encoding === this[ENCODING] && !this[DECODER].lastNeed)) {
-      chunk = Buffer.from(chunk, encoding)
-    }
-
-    if (Buffer.isBuffer(chunk) && this[ENCODING])
-      chunk = this[DECODER].write(chunk)
-
-    // Note: flushing CAN potentially switch us into not-flowing mode
-    if (this.flowing && this[BUFFERLENGTH] !== 0)
-      this[FLUSH](true)
-
-    if (this.flowing)
-      this.emit('data', chunk)
-    else
-      this[BUFFERPUSH](chunk)
-
-    if (this[BUFFERLENGTH] !== 0)
-      this.emit('readable')
-
-    if (cb)
-      fn(cb)
-
-    return this.flowing
-  }
-
-  read (n) {
-    if (this[DESTROYED])
-      return null
-
-    if (this[BUFFERLENGTH] === 0 || n === 0 || n > this[BUFFERLENGTH]) {
-      this[MAYBE_EMIT_END]()
-      return null
-    }
-
-    if (this[OBJECTMODE])
-      n = null
-
-    if (this.buffer.length > 1 && !this[OBJECTMODE]) {
-      if (this.encoding)
-        this.buffer = [this.buffer.join('')]
-      else
-        this.buffer = [Buffer.concat(this.buffer, this[BUFFERLENGTH])]
-    }
-
-    const ret = this[READ](n || null, this.buffer[0])
-    this[MAYBE_EMIT_END]()
-    return ret
-  }
-
-  [READ] (n, chunk) {
-    if (n === chunk.length || n === null)
-      this[BUFFERSHIFT]()
-    else {
-      this.buffer[0] = chunk.slice(n)
-      chunk = chunk.slice(0, n)
-      this[BUFFERLENGTH] -= n
-    }
-
-    this.emit('data', chunk)
-
-    if (!this.buffer.length && !this[EOF])
-      this.emit('drain')
-
-    return chunk
-  }
-
-  end (chunk, encoding, cb) {
-    if (typeof chunk === 'function')
-      cb = chunk, chunk = null
-    if (typeof encoding === 'function')
-      cb = encoding, encoding = 'utf8'
-    if (chunk)
-      this.write(chunk, encoding)
-    if (cb)
-      this.once('end', cb)
-    this[EOF] = true
-    this.writable = false
-
-    // if we haven't written anything, then go ahead and emit,
-    // even if we're not reading.
-    // we'll re-emit if a new 'end' listener is added anyway.
-    // This makes MP more suitable to write-only use cases.
-    if (this.flowing || !this[PAUSED])
-      this[MAYBE_EMIT_END]()
-    return this
-  }
-
-  // don't let the internal resume be overwritten
-  [RESUME] () {
-    if (this[DESTROYED])
-      return
-
-    this[PAUSED] = false
-    this[FLOWING] = true
-    this.emit('resume')
-    if (this.buffer.length)
-      this[FLUSH]()
-    else if (this[EOF])
-      this[MAYBE_EMIT_END]()
-    else
-      this.emit('drain')
-  }
-
-  resume () {
-    return this[RESUME]()
-  }
-
-  pause () {
-    this[FLOWING] = false
-    this[PAUSED] = true
-  }
-
-  get destroyed () {
-    return this[DESTROYED]
-  }
-
-  get flowing () {
-    return this[FLOWING]
-  }
-
-  get paused () {
-    return this[PAUSED]
-  }
-
-  [BUFFERPUSH] (chunk) {
-    if (this[OBJECTMODE])
-      this[BUFFERLENGTH] += 1
-    else
-      this[BUFFERLENGTH] += chunk.length
-    this.buffer.push(chunk)
-  }
-
-  [BUFFERSHIFT] () {
-    if (this.buffer.length) {
-      if (this[OBJECTMODE])
-        this[BUFFERLENGTH] -= 1
-      else
-        this[BUFFERLENGTH] -= this.buffer[0].length
-    }
-    return this.buffer.shift()
-  }
-
-  [FLUSH] (noDrain) {
-    do {} while (this[FLUSHCHUNK](this[BUFFERSHIFT]()))
-
-    if (!noDrain && !this.buffer.length && !this[EOF])
-      this.emit('drain')
-  }
-
-  [FLUSHCHUNK] (chunk) {
-    return chunk ? (this.emit('data', chunk), this.flowing) : false
-  }
-
-  pipe (dest, opts) {
-    if (this[DESTROYED])
-      return
-
-    const ended = this[EMITTED_END]
-    opts = opts || {}
-    if (dest === proc.stdout || dest === proc.stderr)
-      opts.end = false
-    else
-      opts.end = opts.end !== false
-    opts.proxyErrors = !!opts.proxyErrors
-
-    // piping an ended stream ends immediately
-    if (ended) {
-      if (opts.end)
-        dest.end()
-    } else {
-      this.pipes.push(!opts.proxyErrors ? new Pipe(this, dest, opts)
-        : new PipeProxyErrors(this, dest, opts))
-      if (this[ASYNC])
-        defer(() => this[RESUME]())
-      else
-        this[RESUME]()
-    }
-
-    return dest
-  }
-
-  unpipe (dest) {
-    const p = this.pipes.find(p => p.dest === dest)
-    if (p) {
-      this.pipes.splice(this.pipes.indexOf(p), 1)
-      p.unpipe()
-    }
-  }
-
-  addListener (ev, fn) {
-    return this.on(ev, fn)
-  }
-
-  on (ev, fn) {
-    const ret = super.on(ev, fn)
-    if (ev === 'data' && !this.pipes.length && !this.flowing)
-      this[RESUME]()
-    else if (ev === 'readable' && this[BUFFERLENGTH] !== 0)
-      super.emit('readable')
-    else if (isEndish(ev) && this[EMITTED_END]) {
-      super.emit(ev)
-      this.removeAllListeners(ev)
-    } else if (ev === 'error' && this[EMITTED_ERROR]) {
-      if (this[ASYNC])
-        defer(() => fn.call(this, this[EMITTED_ERROR]))
-      else
-        fn.call(this, this[EMITTED_ERROR])
-    }
-    return ret
-  }
-
-  get emittedEnd () {
-    return this[EMITTED_END]
-  }
-
-  [MAYBE_EMIT_END] () {
-    if (!this[EMITTING_END] &&
-        !this[EMITTED_END] &&
-        !this[DESTROYED] &&
-        this.buffer.length === 0 &&
-        this[EOF]) {
-      this[EMITTING_END] = true
-      this.emit('end')
-      this.emit('prefinish')
-      this.emit('finish')
-      if (this[CLOSED])
-        this.emit('close')
-      this[EMITTING_END] = false
-    }
-  }
-
-  emit (ev, data, ...extra) {
-    // error and close are only events allowed after calling destroy()
-    if (ev !== 'error' && ev !== 'close' && ev !== DESTROYED && this[DESTROYED])
-      return
-    else if (ev === 'data') {
-      return !data ? false
-        : this[ASYNC] ? defer(() => this[EMITDATA](data))
-        : this[EMITDATA](data)
-    } else if (ev === 'end') {
-      return this[EMITEND]()
-    } else if (ev === 'close') {
-      this[CLOSED] = true
-      // don't emit close before 'end' and 'finish'
-      if (!this[EMITTED_END] && !this[DESTROYED])
-        return
-      const ret = super.emit('close')
-      this.removeAllListeners('close')
-      return ret
-    } else if (ev === 'error') {
-      this[EMITTED_ERROR] = data
-      const ret = super.emit('error', data)
-      this[MAYBE_EMIT_END]()
-      return ret
-    } else if (ev === 'resume') {
-      const ret = super.emit('resume')
-      this[MAYBE_EMIT_END]()
-      return ret
-    } else if (ev === 'finish' || ev === 'prefinish') {
-      const ret = super.emit(ev)
-      this.removeAllListeners(ev)
-      return ret
-    }
-
-    // Some other unknown event
-    const ret = super.emit(ev, data, ...extra)
-    this[MAYBE_EMIT_END]()
-    return ret
-  }
-
-  [EMITDATA] (data) {
-    for (const p of this.pipes) {
-      if (p.dest.write(data) === false)
-        this.pause()
-    }
-    const ret = super.emit('data', data)
-    this[MAYBE_EMIT_END]()
-    return ret
-  }
-
-  [EMITEND] () {
-    if (this[EMITTED_END])
-      return
-
-    this[EMITTED_END] = true
-    this.readable = false
-    if (this[ASYNC])
-      defer(() => this[EMITEND2]())
-    else
-      this[EMITEND2]()
-  }
-
-  [EMITEND2] () {
-    if (this[DECODER]) {
-      const data = this[DECODER].end()
-      if (data) {
-        for (const p of this.pipes) {
-          p.dest.write(data)
-        }
-        super.emit('data', data)
-      }
-    }
-
-    for (const p of this.pipes) {
-      p.end()
-    }
-    const ret = super.emit('end')
-    this.removeAllListeners('end')
-    return ret
-  }
-
-  // const all = await stream.collect()
-  collect () {
-    const buf = []
-    if (!this[OBJECTMODE])
-      buf.dataLength = 0
-    // set the promise first, in case an error is raised
-    // by triggering the flow here.
-    const p = this.promise()
-    this.on('data', c => {
-      buf.push(c)
-      if (!this[OBJECTMODE])
-        buf.dataLength += c.length
-    })
-    return p.then(() => buf)
-  }
-
-  // const data = await stream.concat()
-  concat () {
-    return this[OBJECTMODE]
-      ? Promise.reject(new Error('cannot concat in objectMode'))
-      : this.collect().then(buf =>
-          this[OBJECTMODE]
-            ? Promise.reject(new Error('cannot concat in objectMode'))
-            : this[ENCODING] ? buf.join('') : Buffer.concat(buf, buf.dataLength))
-  }
-
-  // stream.promise().then(() => done, er => emitted error)
-  promise () {
-    return new Promise((resolve, reject) => {
-      this.on(DESTROYED, () => reject(new Error('stream destroyed')))
-      this.on('error', er => reject(er))
-      this.on('end', () => resolve())
-    })
-  }
-
-  // for await (let chunk of stream)
-  [ASYNCITERATOR] () {
-    const next = () => {
-      const res = this.read()
-      if (res !== null)
-        return Promise.resolve({ done: false, value: res })
-
-      if (this[EOF])
-        return Promise.resolve({ done: true })
-
-      let resolve = null
-      let reject = null
-      const onerr = er => {
-        this.removeListener('data', ondata)
-        this.removeListener('end', onend)
-        reject(er)
-      }
-      const ondata = value => {
-        this.removeListener('error', onerr)
-        this.removeListener('end', onend)
-        this.pause()
-        resolve({ value: value, done: !!this[EOF] })
-      }
-      const onend = () => {
-        this.removeListener('error', onerr)
-        this.removeListener('data', ondata)
-        resolve({ done: true })
-      }
-      const ondestroy = () => onerr(new Error('stream destroyed'))
-      return new Promise((res, rej) => {
-        reject = rej
-        resolve = res
-        this.once(DESTROYED, ondestroy)
-        this.once('error', onerr)
-        this.once('end', onend)
-        this.once('data', ondata)
-      })
-    }
-
-    return { next }
-  }
-
-  // for (let chunk of stream)
-  [ITERATOR] () {
-    const next = () => {
-      const value = this.read()
-      const done = value === null
-      return { value, done }
-    }
-    return { next }
-  }
-
-  destroy (er) {
-    if (this[DESTROYED]) {
-      if (er)
-        this.emit('error', er)
-      else
-        this.emit(DESTROYED)
-      return this
-    }
-
-    this[DESTROYED] = true
-
-    // throw away all buffered data, it's never coming out
-    this.buffer.length = 0
-    this[BUFFERLENGTH] = 0
-
-    if (typeof this.close === 'function' && !this[CLOSED])
-      this.close()
-
-    if (er)
-      this.emit('error', er)
-    else // if no error to emit, still reject pending promises
-      this.emit(DESTROYED)
-
-    return this
-  }
-
-  static isStream (s) {
-    return !!s && (s instanceof Minipass || s instanceof Stream ||
-      s instanceof EE && (
-        typeof s.pipe === 'function' || // readable
-        (typeof s.write === 'function' && typeof s.end === 'function') // writable
-      ))
-  }
-}
-
-
-/***/ }),
-
 /***/ 70744:
 /***/ ((module) => {
 
@@ -38787,13 +37491,14 @@ Negotiator.prototype.charsets = function charsets(available) {
   return preferredCharsets(this.request.headers['accept-charset'], available);
 };
 
-Negotiator.prototype.encoding = function encoding(available) {
-  var set = this.encodings(available);
+Negotiator.prototype.encoding = function encoding(available, opts) {
+  var set = this.encodings(available, opts);
   return set && set[0];
 };
 
-Negotiator.prototype.encodings = function encodings(available) {
-  return preferredEncodings(this.request.headers['accept-encoding'], available);
+Negotiator.prototype.encodings = function encodings(available, options) {
+  var opts = options || {};
+  return preferredEncodings(this.request.headers['accept-encoding'], available, opts.preferred);
 };
 
 Negotiator.prototype.language = function language(available) {
@@ -39106,7 +37811,7 @@ function parseEncoding(str, i) {
  */
 
 function getEncodingPriority(encoding, accepted, index) {
-  var priority = {o: -1, q: 0, s: 0};
+  var priority = {encoding: encoding, o: -1, q: 0, s: 0};
 
   for (var i = 0; i < accepted.length; i++) {
     var spec = specify(encoding, accepted[i], index);
@@ -39133,6 +37838,7 @@ function specify(encoding, spec, index) {
   }
 
   return {
+    encoding: encoding,
     i: index,
     o: spec.i,
     q: spec.q,
@@ -39145,14 +37851,34 @@ function specify(encoding, spec, index) {
  * @public
  */
 
-function preferredEncodings(accept, provided) {
+function preferredEncodings(accept, provided, preferred) {
   var accepts = parseAcceptEncoding(accept || '');
+
+  var comparator = preferred ? function comparator (a, b) {
+    if (a.q !== b.q) {
+      return b.q - a.q // higher quality first
+    }
+
+    var aPreferred = preferred.indexOf(a.encoding)
+    var bPreferred = preferred.indexOf(b.encoding)
+
+    if (aPreferred === -1 && bPreferred === -1) {
+      // consider the original specifity/order
+      return (b.s - a.s) || (a.o - b.o) || (a.i - b.i)
+    }
+
+    if (aPreferred !== -1 && bPreferred !== -1) {
+      return aPreferred - bPreferred // consider the preferred order
+    }
+
+    return aPreferred === -1 ? 1 : -1 // preferred first
+  } : compareSpecs;
 
   if (!provided) {
     // sorted list of all encodings
     return accepts
       .filter(isQuality)
-      .sort(compareSpecs)
+      .sort(comparator)
       .map(getFullEncoding);
   }
 
@@ -39161,7 +37887,7 @@ function preferredEncodings(accept, provided) {
   });
 
   // sorted list of accepted encodings
-  return priorities.filter(isQuality).sort(compareSpecs).map(function getEncoding(priority) {
+  return priorities.filter(isQuality).sort(comparator).map(function getEncoding(priority) {
     return provided[priorities.indexOf(priority)];
   });
 }
@@ -39172,7 +37898,7 @@ function preferredEncodings(accept, provided) {
  */
 
 function compareSpecs(a, b) {
-  return (b.q - a.q) || (b.s - a.s) || (a.o - b.o) || (a.i - b.i) || 0;
+  return (b.q - a.q) || (b.s - a.s) || (a.o - b.o) || (a.i - b.i);
 }
 
 /**
@@ -39458,7 +38184,7 @@ function parseMediaType(str, i) {
 
       // get the value, unwrapping quotes
       var value = val && val[0] === '"' && val[val.length - 1] === '"'
-        ? val.substr(1, val.length - 2)
+        ? val.slice(1, -1)
         : val;
 
       if (key === 'q') {
@@ -39627,8 +38353,8 @@ function splitKeyValuePair(str) {
   if (index === -1) {
     key = str;
   } else {
-    key = str.substr(0, index);
-    val = str.substr(index + 1);
+    key = str.slice(0, index);
+    val = str.slice(index + 1);
   }
 
   return [key, val];
@@ -39730,95 +38456,6 @@ function onceStrict (fn) {
   f.called = false
   return f
 }
-
-
-/***/ }),
-
-/***/ 25063:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const AggregateError = __nccwpck_require__(77784);
-
-module.exports = async (
-	iterable,
-	mapper,
-	{
-		concurrency = Infinity,
-		stopOnError = true
-	} = {}
-) => {
-	return new Promise((resolve, reject) => {
-		if (typeof mapper !== 'function') {
-			throw new TypeError('Mapper function is required');
-		}
-
-		if (!((Number.isSafeInteger(concurrency) || concurrency === Infinity) && concurrency >= 1)) {
-			throw new TypeError(`Expected \`concurrency\` to be an integer from 1 and up or \`Infinity\`, got \`${concurrency}\` (${typeof concurrency})`);
-		}
-
-		const result = [];
-		const errors = [];
-		const iterator = iterable[Symbol.iterator]();
-		let isRejected = false;
-		let isIterableDone = false;
-		let resolvingCount = 0;
-		let currentIndex = 0;
-
-		const next = () => {
-			if (isRejected) {
-				return;
-			}
-
-			const nextItem = iterator.next();
-			const index = currentIndex;
-			currentIndex++;
-
-			if (nextItem.done) {
-				isIterableDone = true;
-
-				if (resolvingCount === 0) {
-					if (!stopOnError && errors.length !== 0) {
-						reject(new AggregateError(errors));
-					} else {
-						resolve(result);
-					}
-				}
-
-				return;
-			}
-
-			resolvingCount++;
-
-			(async () => {
-				try {
-					const element = await nextItem.value;
-					result[index] = await mapper(element, index);
-					resolvingCount--;
-					next();
-				} catch (error) {
-					if (stopOnError) {
-						isRejected = true;
-						reject(error);
-					} else {
-						errors.push(error);
-						resolvingCount--;
-						next();
-					}
-				}
-			})();
-		};
-
-		for (let i = 0; i < concurrency; i++) {
-			next();
-
-			if (isIterableDone) {
-				break;
-			}
-		}
-	});
-};
 
 
 /***/ }),
@@ -44348,7 +42985,6 @@ const socks_1 = __nccwpck_require__(42474);
 const agent_base_1 = __nccwpck_require__(98894);
 const debug_1 = __importDefault(__nccwpck_require__(2830));
 const dns = __importStar(__nccwpck_require__(72250));
-const net = __importStar(__nccwpck_require__(69278));
 const tls = __importStar(__nccwpck_require__(64756));
 const url_1 = __nccwpck_require__(87016);
 const debug = (0, debug_1.default)('socks-proxy-agent');
@@ -44471,7 +43107,7 @@ class SocksProxyAgent extends agent_base_1.Agent {
             const tlsSocket = tls.connect({
                 ...omit(opts, 'host', 'path', 'port'),
                 socket,
-                servername: net.isIP(servername) ? undefined : servername,
+                servername,
             });
             tlsSocket.once('error', (error) => {
                 debug('Socket TLS error', error.message);
@@ -68990,13 +67626,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const attest_1 = __nccwpck_require__(11485);
@@ -71121,21 +69767,26 @@ class Stack {
 /**
  * Default export, the thing you're using this module to get.
  *
- * All properties from the options object (with the exception of
- * {@link OptionsBase.max} and {@link OptionsBase.maxSize}) are added as
- * normal public members. (`max` and `maxBase` are read-only getters.)
- * Changing any of these will alter the defaults for subsequent method calls,
- * but is otherwise safe.
+ * The `K` and `V` types define the key and value types, respectively. The
+ * optional `FC` type defines the type of the `context` object passed to
+ * `cache.fetch()` and `cache.memo()`.
+ *
+ * Keys and values **must not** be `null` or `undefined`.
+ *
+ * All properties from the options object (with the exception of `max`,
+ * `maxSize`, `fetchMethod`, `memoMethod`, `dispose` and `disposeAfter`) are
+ * added as normal public members. (The listed options are read-only getters.)
+ *
+ * Changing any of these will alter the defaults for subsequent method calls.
  */
 class LRUCache {
-    // properties coming in from the options of these, only max and maxSize
-    // really *need* to be protected. The rest can be modified, as they just
-    // set defaults for various methods.
+    // options that cannot be changed without disaster
     #max;
     #maxSize;
     #dispose;
     #disposeAfter;
     #fetchMethod;
+    #memoMethod;
     /**
      * {@link LRUCache.OptionsBase.ttl}
      */
@@ -71281,6 +69932,9 @@ class LRUCache {
     get fetchMethod() {
         return this.#fetchMethod;
     }
+    get memoMethod() {
+        return this.#memoMethod;
+    }
     /**
      * {@link LRUCache.OptionsBase.dispose} (read-only)
      */
@@ -71294,7 +69948,7 @@ class LRUCache {
         return this.#disposeAfter;
     }
     constructor(options) {
-        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
+        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, memoMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
         if (max !== 0 && !isPosInt(max)) {
             throw new TypeError('max option must be a nonnegative integer');
         }
@@ -71314,6 +69968,11 @@ class LRUCache {
                 throw new TypeError('sizeCalculation set to non-function');
             }
         }
+        if (memoMethod !== undefined &&
+            typeof memoMethod !== 'function') {
+            throw new TypeError('memoMethod must be a function if defined');
+        }
+        this.#memoMethod = memoMethod;
         if (fetchMethod !== undefined &&
             typeof fetchMethod !== 'function') {
             throw new TypeError('fetchMethod must be a function if specified');
@@ -71392,7 +70051,8 @@ class LRUCache {
         }
     }
     /**
-     * Return the remaining TTL time for a given entry key
+     * Return the number of ms left in the item's TTL. If item is not in cache,
+     * returns `0`. Returns `Infinity` if item is in cache without a defined TTL.
      */
     getRemainingTTL(key) {
         return this.#keyMap.has(key) ? Infinity : 0;
@@ -71408,7 +70068,7 @@ class LRUCache {
             if (ttl !== 0 && this.ttlAutopurge) {
                 const t = setTimeout(() => {
                     if (this.#isStale(index)) {
-                        this.delete(this.#keyList[index]);
+                        this.#delete(this.#keyList[index], 'expire');
                     }
                 }, ttl + 1);
                 // unref() not supported on all platforms
@@ -71665,13 +70325,14 @@ class LRUCache {
         return this.entries();
     }
     /**
-     * A String value that is used in the creation of the default string description of an object.
-     * Called by the built-in method Object.prototype.toString.
+     * A String value that is used in the creation of the default string
+     * description of an object. Called by the built-in method
+     * `Object.prototype.toString`.
      */
     [Symbol.toStringTag] = 'LRUCache';
     /**
      * Find a value for which the supplied fn method returns a truthy value,
-     * similar to Array.find().  fn is called as fn(value, key, cache).
+     * similar to `Array.find()`. fn is called as `fn(value, key, cache)`.
      */
     find(fn, getOptions = {}) {
         for (const i of this.#indexes()) {
@@ -71687,10 +70348,15 @@ class LRUCache {
         }
     }
     /**
-     * Call the supplied function on each item in the cache, in order from
-     * most recently used to least recently used.  fn is called as
-     * fn(value, key, cache).  Does not update age or recenty of use.
-     * Does not iterate over stale values.
+     * Call the supplied function on each item in the cache, in order from most
+     * recently used to least recently used.
+     *
+     * `fn` is called as `fn(value, key, cache)`.
+     *
+     * If `thisp` is provided, function will be called in the `this`-context of
+     * the provided object, or the cache if no `thisp` object is provided.
+     *
+     * Does not update age or recenty of use, or iterate over stale values.
      */
     forEach(fn, thisp = this) {
         for (const i of this.#indexes()) {
@@ -71726,7 +70392,7 @@ class LRUCache {
         let deleted = false;
         for (const i of this.#rindexes({ allowStale: true })) {
             if (this.#isStale(i)) {
-                this.delete(this.#keyList[i]);
+                this.#delete(this.#keyList[i], 'expire');
                 deleted = true;
             }
         }
@@ -71734,9 +70400,15 @@ class LRUCache {
     }
     /**
      * Get the extended info about a given entry, to get its value, size, and
-     * TTL info simultaneously. Like {@link LRUCache#dump}, but just for a
-     * single key. Always returns stale values, if their info is found in the
-     * cache, so be sure to check for expired TTLs if relevant.
+     * TTL info simultaneously. Returns `undefined` if the key is not present.
+     *
+     * Unlike {@link LRUCache#dump}, which is designed to be portable and survive
+     * serialization, the `start` value is always the current timestamp, and the
+     * `ttl` is a calculated remaining time to live (negative if expired).
+     *
+     * Always returns stale values, if their info is found in the cache, so be
+     * sure to check for expirations (ie, a negative {@link LRUCache.Entry#ttl})
+     * if relevant.
      */
     info(key) {
         const i = this.#keyMap.get(key);
@@ -71765,7 +70437,16 @@ class LRUCache {
     }
     /**
      * Return an array of [key, {@link LRUCache.Entry}] tuples which can be
-     * passed to cache.load()
+     * passed to {@link LRLUCache#load}.
+     *
+     * The `start` fields are calculated relative to a portable `Date.now()`
+     * timestamp, even if `performance.now()` is available.
+     *
+     * Stale entries are always included in the `dump`, even if
+     * {@link LRUCache.OptionsBase.allowStale} is false.
+     *
+     * Note: this returns an actual array, not a generator, so it can be more
+     * easily passed around.
      */
     dump() {
         const arr = [];
@@ -71794,8 +70475,12 @@ class LRUCache {
     }
     /**
      * Reset the cache and load in the items in entries in the order listed.
-     * Note that the shape of the resulting cache may be different if the
-     * same options are not used in both caches.
+     *
+     * The shape of the resulting cache may be different if the same options are
+     * not used in both caches.
+     *
+     * The `start` fields are assumed to be calculated relative to a portable
+     * `Date.now()` timestamp, even if `performance.now()` is available.
      */
     load(arr) {
         this.clear();
@@ -71818,6 +70503,30 @@ class LRUCache {
      *
      * Note: if `undefined` is specified as a value, this is an alias for
      * {@link LRUCache#delete}
+     *
+     * Fields on the {@link LRUCache.SetOptions} options param will override
+     * their corresponding values in the constructor options for the scope
+     * of this single `set()` operation.
+     *
+     * If `start` is provided, then that will set the effective start
+     * time for the TTL calculation. Note that this must be a previous
+     * value of `performance.now()` if supported, or a previous value of
+     * `Date.now()` if not.
+     *
+     * Options object may also include `size`, which will prevent
+     * calling the `sizeCalculation` function and just use the specified
+     * number if it is a positive integer, and `noDisposeOnSet` which
+     * will prevent calling a `dispose` function in the case of
+     * overwrites.
+     *
+     * If the `size` (or return value of `sizeCalculation`) for a given
+     * entry is greater than `maxEntrySize`, then the item will not be
+     * added to the cache.
+     *
+     * Will update the recency of the entry.
+     *
+     * If the value is `undefined`, then this is an alias for
+     * `cache.delete(key)`. `undefined` is never stored in the cache.
      */
     set(k, v, setOptions = {}) {
         if (v === undefined) {
@@ -71835,7 +70544,7 @@ class LRUCache {
                 status.maxEntrySizeExceeded = true;
             }
             // have to delete, in case something is there already.
-            this.delete(k);
+            this.#delete(k, 'set');
             return this;
         }
         let index = this.#size === 0 ? undefined : this.#keyMap.get(k);
@@ -71987,6 +70696,14 @@ class LRUCache {
      * Will return false if the item is stale, even though it is technically
      * in the cache.
      *
+     * Check if a key is in the cache, without updating the recency of
+     * use. Age is updated if {@link LRUCache.OptionsBase.updateAgeOnHas} is set
+     * to `true` in either the options or the constructor.
+     *
+     * Will return `false` if the item is stale, even though it is technically in
+     * the cache. The difference can be determined (if it matters) by using a
+     * `status` argument, and inspecting the `has` field.
+     *
      * Will not update item age unless
      * {@link LRUCache.OptionsBase.updateAgeOnHas} is set.
      */
@@ -72078,7 +70795,7 @@ class LRUCache {
                         this.#valList[index] = bf.__staleWhileFetching;
                     }
                     else {
-                        this.delete(k);
+                        this.#delete(k, 'fetch');
                     }
                 }
                 else {
@@ -72107,7 +70824,7 @@ class LRUCache {
                 // the stale value is not removed from the cache when the fetch fails.
                 const del = !noDelete || bf.__staleWhileFetching === undefined;
                 if (del) {
-                    this.delete(k);
+                    this.#delete(k, 'fetch');
                 }
                 else if (!allowStaleAborted) {
                     // still replace the *promise* with the stale value,
@@ -72253,6 +70970,28 @@ class LRUCache {
             return staleVal ? p.__staleWhileFetching : (p.__returned = p);
         }
     }
+    async forceFetch(k, fetchOptions = {}) {
+        const v = await this.fetch(k, fetchOptions);
+        if (v === undefined)
+            throw new Error('fetch() returned undefined');
+        return v;
+    }
+    memo(k, memoOptions = {}) {
+        const memoMethod = this.#memoMethod;
+        if (!memoMethod) {
+            throw new Error('no memoMethod provided to constructor');
+        }
+        const { context, forceRefresh, ...options } = memoOptions;
+        const v = this.get(k, options);
+        if (!forceRefresh && v !== undefined)
+            return v;
+        const vv = memoMethod(k, v, {
+            options,
+            context,
+        });
+        this.set(k, vv, options);
+        return vv;
+    }
     /**
      * Return a value from the cache. Will update the recency of the cache
      * entry found.
@@ -72273,7 +71012,7 @@ class LRUCache {
                 // delete only if not an in-flight background fetch
                 if (!fetching) {
                     if (!noDeleteOnStaleGet) {
-                        this.delete(k);
+                        this.#delete(k, 'expire');
                     }
                     if (status && allowStale)
                         status.returnedStale = true;
@@ -72336,16 +71075,20 @@ class LRUCache {
     }
     /**
      * Deletes a key out of the cache.
+     *
      * Returns true if the key was deleted, false otherwise.
      */
     delete(k) {
+        return this.#delete(k, 'delete');
+    }
+    #delete(k, reason) {
         let deleted = false;
         if (this.#size !== 0) {
             const index = this.#keyMap.get(k);
             if (index !== undefined) {
                 deleted = true;
                 if (this.#size === 1) {
-                    this.clear();
+                    this.#clear(reason);
                 }
                 else {
                     this.#removeItemSize(index);
@@ -72355,10 +71098,10 @@ class LRUCache {
                     }
                     else if (this.#hasDispose || this.#hasDisposeAfter) {
                         if (this.#hasDispose) {
-                            this.#dispose?.(v, k, 'delete');
+                            this.#dispose?.(v, k, reason);
                         }
                         if (this.#hasDisposeAfter) {
-                            this.#disposed?.push([v, k, 'delete']);
+                            this.#disposed?.push([v, k, reason]);
                         }
                     }
                     this.#keyMap.delete(k);
@@ -72394,6 +71137,9 @@ class LRUCache {
      * Clear the cache entirely, throwing away all values.
      */
     clear() {
+        return this.#clear('delete');
+    }
+    #clear(reason) {
         for (const index of this.#rindexes({ allowStale: true })) {
             const v = this.#valList[index];
             if (this.#isBackgroundFetch(v)) {
@@ -72402,10 +71148,10 @@ class LRUCache {
             else {
                 const k = this.#keyList[index];
                 if (this.#hasDispose) {
-                    this.#dispose?.(v, k, 'delete');
+                    this.#dispose?.(v, k, reason);
                 }
                 if (this.#hasDisposeAfter) {
-                    this.#disposed?.push([v, k, 'delete']);
+                    this.#disposed?.push([v, k, reason]);
                 }
             }
         }
@@ -72858,7 +71604,12 @@ exports.Ignore = Ignore;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.glob = exports.sync = exports.iterate = exports.iterateSync = exports.stream = exports.streamSync = exports.globIterate = exports.globIterateSync = exports.globSync = exports.globStream = exports.globStreamSync = exports.Ignore = exports.hasMagic = exports.Glob = exports.unescape = exports.escape = void 0;
+exports.glob = exports.sync = exports.iterate = exports.iterateSync = exports.stream = exports.streamSync = exports.Ignore = exports.hasMagic = exports.Glob = exports.unescape = exports.escape = void 0;
+exports.globStreamSync = globStreamSync;
+exports.globStream = globStream;
+exports.globSync = globSync;
+exports.globIterateSync = globIterateSync;
+exports.globIterate = globIterate;
 const minimatch_1 = __nccwpck_require__(85207);
 const glob_js_1 = __nccwpck_require__(81017);
 const has_magic_js_1 = __nccwpck_require__(66889);
@@ -72874,26 +71625,21 @@ Object.defineProperty(exports, "Ignore", ({ enumerable: true, get: function () {
 function globStreamSync(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).streamSync();
 }
-exports.globStreamSync = globStreamSync;
 function globStream(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).stream();
 }
-exports.globStream = globStream;
 function globSync(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).walkSync();
 }
-exports.globSync = globSync;
 async function glob_(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).walk();
 }
 function globIterateSync(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).iterateSync();
 }
-exports.globIterateSync = globIterateSync;
 function globIterate(pattern, options = {}) {
     return new glob_js_1.Glob(pattern, options).iterate();
 }
-exports.globIterate = globIterate;
 // aliases: glob.sync.stream() glob.stream.sync() glob.sync() etc
 exports.streamSync = globStreamSync;
 exports.stream = Object.assign(globStream, { sync: globStreamSync });
@@ -73991,21 +72737,26 @@ class Stack {
 /**
  * Default export, the thing you're using this module to get.
  *
- * All properties from the options object (with the exception of
- * {@link OptionsBase.max} and {@link OptionsBase.maxSize}) are added as
- * normal public members. (`max` and `maxBase` are read-only getters.)
- * Changing any of these will alter the defaults for subsequent method calls,
- * but is otherwise safe.
+ * The `K` and `V` types define the key and value types, respectively. The
+ * optional `FC` type defines the type of the `context` object passed to
+ * `cache.fetch()` and `cache.memo()`.
+ *
+ * Keys and values **must not** be `null` or `undefined`.
+ *
+ * All properties from the options object (with the exception of `max`,
+ * `maxSize`, `fetchMethod`, `memoMethod`, `dispose` and `disposeAfter`) are
+ * added as normal public members. (The listed options are read-only getters.)
+ *
+ * Changing any of these will alter the defaults for subsequent method calls.
  */
 class LRUCache {
-    // properties coming in from the options of these, only max and maxSize
-    // really *need* to be protected. The rest can be modified, as they just
-    // set defaults for various methods.
+    // options that cannot be changed without disaster
     #max;
     #maxSize;
     #dispose;
     #disposeAfter;
     #fetchMethod;
+    #memoMethod;
     /**
      * {@link LRUCache.OptionsBase.ttl}
      */
@@ -74151,6 +72902,9 @@ class LRUCache {
     get fetchMethod() {
         return this.#fetchMethod;
     }
+    get memoMethod() {
+        return this.#memoMethod;
+    }
     /**
      * {@link LRUCache.OptionsBase.dispose} (read-only)
      */
@@ -74164,7 +72918,7 @@ class LRUCache {
         return this.#disposeAfter;
     }
     constructor(options) {
-        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
+        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, memoMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
         if (max !== 0 && !isPosInt(max)) {
             throw new TypeError('max option must be a nonnegative integer');
         }
@@ -74184,6 +72938,11 @@ class LRUCache {
                 throw new TypeError('sizeCalculation set to non-function');
             }
         }
+        if (memoMethod !== undefined &&
+            typeof memoMethod !== 'function') {
+            throw new TypeError('memoMethod must be a function if defined');
+        }
+        this.#memoMethod = memoMethod;
         if (fetchMethod !== undefined &&
             typeof fetchMethod !== 'function') {
             throw new TypeError('fetchMethod must be a function if specified');
@@ -74262,7 +73021,8 @@ class LRUCache {
         }
     }
     /**
-     * Return the remaining TTL time for a given entry key
+     * Return the number of ms left in the item's TTL. If item is not in cache,
+     * returns `0`. Returns `Infinity` if item is in cache without a defined TTL.
      */
     getRemainingTTL(key) {
         return this.#keyMap.has(key) ? Infinity : 0;
@@ -74278,7 +73038,7 @@ class LRUCache {
             if (ttl !== 0 && this.ttlAutopurge) {
                 const t = setTimeout(() => {
                     if (this.#isStale(index)) {
-                        this.delete(this.#keyList[index]);
+                        this.#delete(this.#keyList[index], 'expire');
                     }
                 }, ttl + 1);
                 // unref() not supported on all platforms
@@ -74535,13 +73295,14 @@ class LRUCache {
         return this.entries();
     }
     /**
-     * A String value that is used in the creation of the default string description of an object.
-     * Called by the built-in method Object.prototype.toString.
+     * A String value that is used in the creation of the default string
+     * description of an object. Called by the built-in method
+     * `Object.prototype.toString`.
      */
     [Symbol.toStringTag] = 'LRUCache';
     /**
      * Find a value for which the supplied fn method returns a truthy value,
-     * similar to Array.find().  fn is called as fn(value, key, cache).
+     * similar to `Array.find()`. fn is called as `fn(value, key, cache)`.
      */
     find(fn, getOptions = {}) {
         for (const i of this.#indexes()) {
@@ -74557,10 +73318,15 @@ class LRUCache {
         }
     }
     /**
-     * Call the supplied function on each item in the cache, in order from
-     * most recently used to least recently used.  fn is called as
-     * fn(value, key, cache).  Does not update age or recenty of use.
-     * Does not iterate over stale values.
+     * Call the supplied function on each item in the cache, in order from most
+     * recently used to least recently used.
+     *
+     * `fn` is called as `fn(value, key, cache)`.
+     *
+     * If `thisp` is provided, function will be called in the `this`-context of
+     * the provided object, or the cache if no `thisp` object is provided.
+     *
+     * Does not update age or recenty of use, or iterate over stale values.
      */
     forEach(fn, thisp = this) {
         for (const i of this.#indexes()) {
@@ -74596,7 +73362,7 @@ class LRUCache {
         let deleted = false;
         for (const i of this.#rindexes({ allowStale: true })) {
             if (this.#isStale(i)) {
-                this.delete(this.#keyList[i]);
+                this.#delete(this.#keyList[i], 'expire');
                 deleted = true;
             }
         }
@@ -74604,9 +73370,15 @@ class LRUCache {
     }
     /**
      * Get the extended info about a given entry, to get its value, size, and
-     * TTL info simultaneously. Like {@link LRUCache#dump}, but just for a
-     * single key. Always returns stale values, if their info is found in the
-     * cache, so be sure to check for expired TTLs if relevant.
+     * TTL info simultaneously. Returns `undefined` if the key is not present.
+     *
+     * Unlike {@link LRUCache#dump}, which is designed to be portable and survive
+     * serialization, the `start` value is always the current timestamp, and the
+     * `ttl` is a calculated remaining time to live (negative if expired).
+     *
+     * Always returns stale values, if their info is found in the cache, so be
+     * sure to check for expirations (ie, a negative {@link LRUCache.Entry#ttl})
+     * if relevant.
      */
     info(key) {
         const i = this.#keyMap.get(key);
@@ -74635,7 +73407,16 @@ class LRUCache {
     }
     /**
      * Return an array of [key, {@link LRUCache.Entry}] tuples which can be
-     * passed to cache.load()
+     * passed to {@link LRLUCache#load}.
+     *
+     * The `start` fields are calculated relative to a portable `Date.now()`
+     * timestamp, even if `performance.now()` is available.
+     *
+     * Stale entries are always included in the `dump`, even if
+     * {@link LRUCache.OptionsBase.allowStale} is false.
+     *
+     * Note: this returns an actual array, not a generator, so it can be more
+     * easily passed around.
      */
     dump() {
         const arr = [];
@@ -74664,8 +73445,12 @@ class LRUCache {
     }
     /**
      * Reset the cache and load in the items in entries in the order listed.
-     * Note that the shape of the resulting cache may be different if the
-     * same options are not used in both caches.
+     *
+     * The shape of the resulting cache may be different if the same options are
+     * not used in both caches.
+     *
+     * The `start` fields are assumed to be calculated relative to a portable
+     * `Date.now()` timestamp, even if `performance.now()` is available.
      */
     load(arr) {
         this.clear();
@@ -74688,6 +73473,30 @@ class LRUCache {
      *
      * Note: if `undefined` is specified as a value, this is an alias for
      * {@link LRUCache#delete}
+     *
+     * Fields on the {@link LRUCache.SetOptions} options param will override
+     * their corresponding values in the constructor options for the scope
+     * of this single `set()` operation.
+     *
+     * If `start` is provided, then that will set the effective start
+     * time for the TTL calculation. Note that this must be a previous
+     * value of `performance.now()` if supported, or a previous value of
+     * `Date.now()` if not.
+     *
+     * Options object may also include `size`, which will prevent
+     * calling the `sizeCalculation` function and just use the specified
+     * number if it is a positive integer, and `noDisposeOnSet` which
+     * will prevent calling a `dispose` function in the case of
+     * overwrites.
+     *
+     * If the `size` (or return value of `sizeCalculation`) for a given
+     * entry is greater than `maxEntrySize`, then the item will not be
+     * added to the cache.
+     *
+     * Will update the recency of the entry.
+     *
+     * If the value is `undefined`, then this is an alias for
+     * `cache.delete(key)`. `undefined` is never stored in the cache.
      */
     set(k, v, setOptions = {}) {
         if (v === undefined) {
@@ -74705,7 +73514,7 @@ class LRUCache {
                 status.maxEntrySizeExceeded = true;
             }
             // have to delete, in case something is there already.
-            this.delete(k);
+            this.#delete(k, 'set');
             return this;
         }
         let index = this.#size === 0 ? undefined : this.#keyMap.get(k);
@@ -74857,6 +73666,14 @@ class LRUCache {
      * Will return false if the item is stale, even though it is technically
      * in the cache.
      *
+     * Check if a key is in the cache, without updating the recency of
+     * use. Age is updated if {@link LRUCache.OptionsBase.updateAgeOnHas} is set
+     * to `true` in either the options or the constructor.
+     *
+     * Will return `false` if the item is stale, even though it is technically in
+     * the cache. The difference can be determined (if it matters) by using a
+     * `status` argument, and inspecting the `has` field.
+     *
      * Will not update item age unless
      * {@link LRUCache.OptionsBase.updateAgeOnHas} is set.
      */
@@ -74948,7 +73765,7 @@ class LRUCache {
                         this.#valList[index] = bf.__staleWhileFetching;
                     }
                     else {
-                        this.delete(k);
+                        this.#delete(k, 'fetch');
                     }
                 }
                 else {
@@ -74977,7 +73794,7 @@ class LRUCache {
                 // the stale value is not removed from the cache when the fetch fails.
                 const del = !noDelete || bf.__staleWhileFetching === undefined;
                 if (del) {
-                    this.delete(k);
+                    this.#delete(k, 'fetch');
                 }
                 else if (!allowStaleAborted) {
                     // still replace the *promise* with the stale value,
@@ -75123,6 +73940,28 @@ class LRUCache {
             return staleVal ? p.__staleWhileFetching : (p.__returned = p);
         }
     }
+    async forceFetch(k, fetchOptions = {}) {
+        const v = await this.fetch(k, fetchOptions);
+        if (v === undefined)
+            throw new Error('fetch() returned undefined');
+        return v;
+    }
+    memo(k, memoOptions = {}) {
+        const memoMethod = this.#memoMethod;
+        if (!memoMethod) {
+            throw new Error('no memoMethod provided to constructor');
+        }
+        const { context, forceRefresh, ...options } = memoOptions;
+        const v = this.get(k, options);
+        if (!forceRefresh && v !== undefined)
+            return v;
+        const vv = memoMethod(k, v, {
+            options,
+            context,
+        });
+        this.set(k, vv, options);
+        return vv;
+    }
     /**
      * Return a value from the cache. Will update the recency of the cache
      * entry found.
@@ -75143,7 +73982,7 @@ class LRUCache {
                 // delete only if not an in-flight background fetch
                 if (!fetching) {
                     if (!noDeleteOnStaleGet) {
-                        this.delete(k);
+                        this.#delete(k, 'expire');
                     }
                     if (status && allowStale)
                         status.returnedStale = true;
@@ -75206,16 +74045,20 @@ class LRUCache {
     }
     /**
      * Deletes a key out of the cache.
+     *
      * Returns true if the key was deleted, false otherwise.
      */
     delete(k) {
+        return this.#delete(k, 'delete');
+    }
+    #delete(k, reason) {
         let deleted = false;
         if (this.#size !== 0) {
             const index = this.#keyMap.get(k);
             if (index !== undefined) {
                 deleted = true;
                 if (this.#size === 1) {
-                    this.clear();
+                    this.#clear(reason);
                 }
                 else {
                     this.#removeItemSize(index);
@@ -75225,10 +74068,10 @@ class LRUCache {
                     }
                     else if (this.#hasDispose || this.#hasDisposeAfter) {
                         if (this.#hasDispose) {
-                            this.#dispose?.(v, k, 'delete');
+                            this.#dispose?.(v, k, reason);
                         }
                         if (this.#hasDisposeAfter) {
-                            this.#disposed?.push([v, k, 'delete']);
+                            this.#disposed?.push([v, k, reason]);
                         }
                     }
                     this.#keyMap.delete(k);
@@ -75264,6 +74107,9 @@ class LRUCache {
      * Clear the cache entirely, throwing away all values.
      */
     clear() {
+        return this.#clear('delete');
+    }
+    #clear(reason) {
         for (const index of this.#rindexes({ allowStale: true })) {
             const v = this.#valList[index];
             if (this.#isBackgroundFetch(v)) {
@@ -75272,10 +74118,10 @@ class LRUCache {
             else {
                 const k = this.#keyList[index];
                 if (this.#hasDispose) {
-                    this.#dispose?.(v, k, 'delete');
+                    this.#dispose?.(v, k, reason);
                 }
                 if (this.#hasDisposeAfter) {
-                    this.#disposed?.push([v, k, 'delete']);
+                    this.#disposed?.push([v, k, reason]);
                 }
             }
         }
@@ -76653,10 +75499,11 @@ class Minimatch {
         for (let i = 0; i < globParts.length - 1; i++) {
             for (let j = i + 1; j < globParts.length; j++) {
                 const matched = this.partsMatch(globParts[i], globParts[j], !this.preserveMultipleSlashes);
-                if (!matched)
-                    continue;
-                globParts[i] = matched;
-                globParts[j] = [];
+                if (matched) {
+                    globParts[i] = [];
+                    globParts[j] = matched;
+                    break;
+                }
             }
         }
         return globParts.filter(gs => gs.length);
@@ -78201,6 +77048,495 @@ class Minipass extends node_events_1.EventEmitter {
     }
 }
 exports.Minipass = Minipass;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 5474:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.constants = void 0;
+// Update with any zlib constants that are added or changed in the future.
+// Node v6 didn't export this, so we just hard code the version and rely
+// on all the other hard-coded values from zlib v4736.  When node v6
+// support drops, we can just export the realZlibConstants object.
+const zlib_1 = __importDefault(__nccwpck_require__(43106));
+/* c8 ignore start */
+const realZlibConstants = zlib_1.default.constants || { ZLIB_VERNUM: 4736 };
+/* c8 ignore stop */
+exports.constants = Object.freeze(Object.assign(Object.create(null), {
+    Z_NO_FLUSH: 0,
+    Z_PARTIAL_FLUSH: 1,
+    Z_SYNC_FLUSH: 2,
+    Z_FULL_FLUSH: 3,
+    Z_FINISH: 4,
+    Z_BLOCK: 5,
+    Z_OK: 0,
+    Z_STREAM_END: 1,
+    Z_NEED_DICT: 2,
+    Z_ERRNO: -1,
+    Z_STREAM_ERROR: -2,
+    Z_DATA_ERROR: -3,
+    Z_MEM_ERROR: -4,
+    Z_BUF_ERROR: -5,
+    Z_VERSION_ERROR: -6,
+    Z_NO_COMPRESSION: 0,
+    Z_BEST_SPEED: 1,
+    Z_BEST_COMPRESSION: 9,
+    Z_DEFAULT_COMPRESSION: -1,
+    Z_FILTERED: 1,
+    Z_HUFFMAN_ONLY: 2,
+    Z_RLE: 3,
+    Z_FIXED: 4,
+    Z_DEFAULT_STRATEGY: 0,
+    DEFLATE: 1,
+    INFLATE: 2,
+    GZIP: 3,
+    GUNZIP: 4,
+    DEFLATERAW: 5,
+    INFLATERAW: 6,
+    UNZIP: 7,
+    BROTLI_DECODE: 8,
+    BROTLI_ENCODE: 9,
+    Z_MIN_WINDOWBITS: 8,
+    Z_MAX_WINDOWBITS: 15,
+    Z_DEFAULT_WINDOWBITS: 15,
+    Z_MIN_CHUNK: 64,
+    Z_MAX_CHUNK: Infinity,
+    Z_DEFAULT_CHUNK: 16384,
+    Z_MIN_MEMLEVEL: 1,
+    Z_MAX_MEMLEVEL: 9,
+    Z_DEFAULT_MEMLEVEL: 8,
+    Z_MIN_LEVEL: -1,
+    Z_MAX_LEVEL: 9,
+    Z_DEFAULT_LEVEL: -1,
+    BROTLI_OPERATION_PROCESS: 0,
+    BROTLI_OPERATION_FLUSH: 1,
+    BROTLI_OPERATION_FINISH: 2,
+    BROTLI_OPERATION_EMIT_METADATA: 3,
+    BROTLI_MODE_GENERIC: 0,
+    BROTLI_MODE_TEXT: 1,
+    BROTLI_MODE_FONT: 2,
+    BROTLI_DEFAULT_MODE: 0,
+    BROTLI_MIN_QUALITY: 0,
+    BROTLI_MAX_QUALITY: 11,
+    BROTLI_DEFAULT_QUALITY: 11,
+    BROTLI_MIN_WINDOW_BITS: 10,
+    BROTLI_MAX_WINDOW_BITS: 24,
+    BROTLI_LARGE_MAX_WINDOW_BITS: 30,
+    BROTLI_DEFAULT_WINDOW: 22,
+    BROTLI_MIN_INPUT_BLOCK_BITS: 16,
+    BROTLI_MAX_INPUT_BLOCK_BITS: 24,
+    BROTLI_PARAM_MODE: 0,
+    BROTLI_PARAM_QUALITY: 1,
+    BROTLI_PARAM_LGWIN: 2,
+    BROTLI_PARAM_LGBLOCK: 3,
+    BROTLI_PARAM_DISABLE_LITERAL_CONTEXT_MODELING: 4,
+    BROTLI_PARAM_SIZE_HINT: 5,
+    BROTLI_PARAM_LARGE_WINDOW: 6,
+    BROTLI_PARAM_NPOSTFIX: 7,
+    BROTLI_PARAM_NDIRECT: 8,
+    BROTLI_DECODER_RESULT_ERROR: 0,
+    BROTLI_DECODER_RESULT_SUCCESS: 1,
+    BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT: 2,
+    BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT: 3,
+    BROTLI_DECODER_PARAM_DISABLE_RING_BUFFER_REALLOCATION: 0,
+    BROTLI_DECODER_PARAM_LARGE_WINDOW: 1,
+    BROTLI_DECODER_NO_ERROR: 0,
+    BROTLI_DECODER_SUCCESS: 1,
+    BROTLI_DECODER_NEEDS_MORE_INPUT: 2,
+    BROTLI_DECODER_NEEDS_MORE_OUTPUT: 3,
+    BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE: -1,
+    BROTLI_DECODER_ERROR_FORMAT_RESERVED: -2,
+    BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE: -3,
+    BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET: -4,
+    BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME: -5,
+    BROTLI_DECODER_ERROR_FORMAT_CL_SPACE: -6,
+    BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE: -7,
+    BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT: -8,
+    BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1: -9,
+    BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2: -10,
+    BROTLI_DECODER_ERROR_FORMAT_TRANSFORM: -11,
+    BROTLI_DECODER_ERROR_FORMAT_DICTIONARY: -12,
+    BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS: -13,
+    BROTLI_DECODER_ERROR_FORMAT_PADDING_1: -14,
+    BROTLI_DECODER_ERROR_FORMAT_PADDING_2: -15,
+    BROTLI_DECODER_ERROR_FORMAT_DISTANCE: -16,
+    BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET: -19,
+    BROTLI_DECODER_ERROR_INVALID_ARGUMENTS: -20,
+    BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES: -21,
+    BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS: -22,
+    BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP: -25,
+    BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1: -26,
+    BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2: -27,
+    BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES: -30,
+    BROTLI_DECODER_ERROR_UNREACHABLE: -31,
+}, realZlibConstants));
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
+
+/***/ 37119:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BrotliDecompress = exports.BrotliCompress = exports.Brotli = exports.Unzip = exports.InflateRaw = exports.DeflateRaw = exports.Gunzip = exports.Gzip = exports.Inflate = exports.Deflate = exports.Zlib = exports.ZlibError = exports.constants = void 0;
+const assert_1 = __importDefault(__nccwpck_require__(42613));
+const buffer_1 = __nccwpck_require__(20181);
+const minipass_1 = __nccwpck_require__(78275);
+const zlib_1 = __importDefault(__nccwpck_require__(43106));
+const constants_js_1 = __nccwpck_require__(5474);
+var constants_js_2 = __nccwpck_require__(5474);
+Object.defineProperty(exports, "constants", ({ enumerable: true, get: function () { return constants_js_2.constants; } }));
+const OriginalBufferConcat = buffer_1.Buffer.concat;
+const _superWrite = Symbol('_superWrite');
+class ZlibError extends Error {
+    code;
+    errno;
+    constructor(err) {
+        super('zlib: ' + err.message);
+        this.code = err.code;
+        this.errno = err.errno;
+        /* c8 ignore next */
+        if (!this.code)
+            this.code = 'ZLIB_ERROR';
+        this.message = 'zlib: ' + err.message;
+        Error.captureStackTrace(this, this.constructor);
+    }
+    get name() {
+        return 'ZlibError';
+    }
+}
+exports.ZlibError = ZlibError;
+// the Zlib class they all inherit from
+// This thing manages the queue of requests, and returns
+// true or false if there is anything in the queue when
+// you call the .write() method.
+const _flushFlag = Symbol('flushFlag');
+class ZlibBase extends minipass_1.Minipass {
+    #sawError = false;
+    #ended = false;
+    #flushFlag;
+    #finishFlushFlag;
+    #fullFlushFlag;
+    #handle;
+    #onError;
+    get sawError() {
+        return this.#sawError;
+    }
+    get handle() {
+        return this.#handle;
+    }
+    /* c8 ignore start */
+    get flushFlag() {
+        return this.#flushFlag;
+    }
+    /* c8 ignore stop */
+    constructor(opts, mode) {
+        if (!opts || typeof opts !== 'object')
+            throw new TypeError('invalid options for ZlibBase constructor');
+        //@ts-ignore
+        super(opts);
+        /* c8 ignore start */
+        this.#flushFlag = opts.flush ?? 0;
+        this.#finishFlushFlag = opts.finishFlush ?? 0;
+        this.#fullFlushFlag = opts.fullFlushFlag ?? 0;
+        /* c8 ignore stop */
+        // this will throw if any options are invalid for the class selected
+        try {
+            // @types/node doesn't know that it exports the classes, but they're there
+            //@ts-ignore
+            this.#handle = new zlib_1.default[mode](opts);
+        }
+        catch (er) {
+            // make sure that all errors get decorated properly
+            throw new ZlibError(er);
+        }
+        this.#onError = err => {
+            // no sense raising multiple errors, since we abort on the first one.
+            if (this.#sawError)
+                return;
+            this.#sawError = true;
+            // there is no way to cleanly recover.
+            // continuing only obscures problems.
+            this.close();
+            this.emit('error', err);
+        };
+        this.#handle?.on('error', er => this.#onError(new ZlibError(er)));
+        this.once('end', () => this.close);
+    }
+    close() {
+        if (this.#handle) {
+            this.#handle.close();
+            this.#handle = undefined;
+            this.emit('close');
+        }
+    }
+    reset() {
+        if (!this.#sawError) {
+            (0, assert_1.default)(this.#handle, 'zlib binding closed');
+            //@ts-ignore
+            return this.#handle.reset?.();
+        }
+    }
+    flush(flushFlag) {
+        if (this.ended)
+            return;
+        if (typeof flushFlag !== 'number')
+            flushFlag = this.#fullFlushFlag;
+        this.write(Object.assign(buffer_1.Buffer.alloc(0), { [_flushFlag]: flushFlag }));
+    }
+    end(chunk, encoding, cb) {
+        /* c8 ignore start */
+        if (typeof chunk === 'function') {
+            cb = chunk;
+            encoding = undefined;
+            chunk = undefined;
+        }
+        if (typeof encoding === 'function') {
+            cb = encoding;
+            encoding = undefined;
+        }
+        /* c8 ignore stop */
+        if (chunk) {
+            if (encoding)
+                this.write(chunk, encoding);
+            else
+                this.write(chunk);
+        }
+        this.flush(this.#finishFlushFlag);
+        this.#ended = true;
+        return super.end(cb);
+    }
+    get ended() {
+        return this.#ended;
+    }
+    // overridden in the gzip classes to do portable writes
+    [_superWrite](data) {
+        return super.write(data);
+    }
+    write(chunk, encoding, cb) {
+        // process the chunk using the sync process
+        // then super.write() all the outputted chunks
+        if (typeof encoding === 'function')
+            (cb = encoding), (encoding = 'utf8');
+        if (typeof chunk === 'string')
+            chunk = buffer_1.Buffer.from(chunk, encoding);
+        if (this.#sawError)
+            return;
+        (0, assert_1.default)(this.#handle, 'zlib binding closed');
+        // _processChunk tries to .close() the native handle after it's done, so we
+        // intercept that by temporarily making it a no-op.
+        // diving into the node:zlib internals a bit here
+        const nativeHandle = this.#handle
+            ._handle;
+        const originalNativeClose = nativeHandle.close;
+        nativeHandle.close = () => { };
+        const originalClose = this.#handle.close;
+        this.#handle.close = () => { };
+        // It also calls `Buffer.concat()` at the end, which may be convenient
+        // for some, but which we are not interested in as it slows us down.
+        buffer_1.Buffer.concat = args => args;
+        let result = undefined;
+        try {
+            const flushFlag = typeof chunk[_flushFlag] === 'number'
+                ? chunk[_flushFlag]
+                : this.#flushFlag;
+            result = this.#handle._processChunk(chunk, flushFlag);
+            // if we don't throw, reset it back how it was
+            buffer_1.Buffer.concat = OriginalBufferConcat;
+        }
+        catch (err) {
+            // or if we do, put Buffer.concat() back before we emit error
+            // Error events call into user code, which may call Buffer.concat()
+            buffer_1.Buffer.concat = OriginalBufferConcat;
+            this.#onError(new ZlibError(err));
+        }
+        finally {
+            if (this.#handle) {
+                // Core zlib resets `_handle` to null after attempting to close the
+                // native handle. Our no-op handler prevented actual closure, but we
+                // need to restore the `._handle` property.
+                ;
+                this.#handle._handle =
+                    nativeHandle;
+                nativeHandle.close = originalNativeClose;
+                this.#handle.close = originalClose;
+                // `_processChunk()` adds an 'error' listener. If we don't remove it
+                // after each call, these handlers start piling up.
+                this.#handle.removeAllListeners('error');
+                // make sure OUR error listener is still attached tho
+            }
+        }
+        if (this.#handle)
+            this.#handle.on('error', er => this.#onError(new ZlibError(er)));
+        let writeReturn;
+        if (result) {
+            if (Array.isArray(result) && result.length > 0) {
+                const r = result[0];
+                // The first buffer is always `handle._outBuffer`, which would be
+                // re-used for later invocations; so, we always have to copy that one.
+                writeReturn = this[_superWrite](buffer_1.Buffer.from(r));
+                for (let i = 1; i < result.length; i++) {
+                    writeReturn = this[_superWrite](result[i]);
+                }
+            }
+            else {
+                // either a single Buffer or an empty array
+                writeReturn = this[_superWrite](buffer_1.Buffer.from(result));
+            }
+        }
+        if (cb)
+            cb();
+        return writeReturn;
+    }
+}
+class Zlib extends ZlibBase {
+    #level;
+    #strategy;
+    constructor(opts, mode) {
+        opts = opts || {};
+        opts.flush = opts.flush || constants_js_1.constants.Z_NO_FLUSH;
+        opts.finishFlush = opts.finishFlush || constants_js_1.constants.Z_FINISH;
+        opts.fullFlushFlag = constants_js_1.constants.Z_FULL_FLUSH;
+        super(opts, mode);
+        this.#level = opts.level;
+        this.#strategy = opts.strategy;
+    }
+    params(level, strategy) {
+        if (this.sawError)
+            return;
+        if (!this.handle)
+            throw new Error('cannot switch params when binding is closed');
+        // no way to test this without also not supporting params at all
+        /* c8 ignore start */
+        if (!this.handle.params)
+            throw new Error('not supported in this implementation');
+        /* c8 ignore stop */
+        if (this.#level !== level || this.#strategy !== strategy) {
+            this.flush(constants_js_1.constants.Z_SYNC_FLUSH);
+            (0, assert_1.default)(this.handle, 'zlib binding closed');
+            // .params() calls .flush(), but the latter is always async in the
+            // core zlib. We override .flush() temporarily to intercept that and
+            // flush synchronously.
+            const origFlush = this.handle.flush;
+            this.handle.flush = (flushFlag, cb) => {
+                /* c8 ignore start */
+                if (typeof flushFlag === 'function') {
+                    cb = flushFlag;
+                    flushFlag = this.flushFlag;
+                }
+                /* c8 ignore stop */
+                this.flush(flushFlag);
+                cb?.();
+            };
+            try {
+                ;
+                this.handle.params(level, strategy);
+            }
+            finally {
+                this.handle.flush = origFlush;
+            }
+            /* c8 ignore start */
+            if (this.handle) {
+                this.#level = level;
+                this.#strategy = strategy;
+            }
+            /* c8 ignore stop */
+        }
+    }
+}
+exports.Zlib = Zlib;
+// minimal 2-byte header
+class Deflate extends Zlib {
+    constructor(opts) {
+        super(opts, 'Deflate');
+    }
+}
+exports.Deflate = Deflate;
+class Inflate extends Zlib {
+    constructor(opts) {
+        super(opts, 'Inflate');
+    }
+}
+exports.Inflate = Inflate;
+class Gzip extends Zlib {
+    #portable;
+    constructor(opts) {
+        super(opts, 'Gzip');
+        this.#portable = opts && !!opts.portable;
+    }
+    [_superWrite](data) {
+        if (!this.#portable)
+            return super[_superWrite](data);
+        // we'll always get the header emitted in one first chunk
+        // overwrite the OS indicator byte with 0xFF
+        this.#portable = false;
+        data[9] = 255;
+        return super[_superWrite](data);
+    }
+}
+exports.Gzip = Gzip;
+class Gunzip extends Zlib {
+    constructor(opts) {
+        super(opts, 'Gunzip');
+    }
+}
+exports.Gunzip = Gunzip;
+// raw - no header
+class DeflateRaw extends Zlib {
+    constructor(opts) {
+        super(opts, 'DeflateRaw');
+    }
+}
+exports.DeflateRaw = DeflateRaw;
+class InflateRaw extends Zlib {
+    constructor(opts) {
+        super(opts, 'InflateRaw');
+    }
+}
+exports.InflateRaw = InflateRaw;
+// auto-detect header.
+class Unzip extends Zlib {
+    constructor(opts) {
+        super(opts, 'Unzip');
+    }
+}
+exports.Unzip = Unzip;
+class Brotli extends ZlibBase {
+    constructor(opts, mode) {
+        opts = opts || {};
+        opts.flush = opts.flush || constants_js_1.constants.BROTLI_OPERATION_PROCESS;
+        opts.finishFlush =
+            opts.finishFlush || constants_js_1.constants.BROTLI_OPERATION_FINISH;
+        opts.fullFlushFlag = constants_js_1.constants.BROTLI_OPERATION_FLUSH;
+        super(opts, mode);
+    }
+}
+exports.Brotli = Brotli;
+class BrotliCompress extends Brotli {
+    constructor(opts) {
+        super(opts, 'BrotliCompress');
+    }
+}
+exports.BrotliCompress = BrotliCompress;
+class BrotliDecompress extends Brotli {
+    constructor(opts) {
+        super(opts, 'BrotliDecompress');
+    }
+}
+exports.BrotliDecompress = BrotliDecompress;
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -80362,21 +79698,26 @@ class Stack {
 /**
  * Default export, the thing you're using this module to get.
  *
- * All properties from the options object (with the exception of
- * {@link OptionsBase.max} and {@link OptionsBase.maxSize}) are added as
- * normal public members. (`max` and `maxBase` are read-only getters.)
- * Changing any of these will alter the defaults for subsequent method calls,
- * but is otherwise safe.
+ * The `K` and `V` types define the key and value types, respectively. The
+ * optional `FC` type defines the type of the `context` object passed to
+ * `cache.fetch()` and `cache.memo()`.
+ *
+ * Keys and values **must not** be `null` or `undefined`.
+ *
+ * All properties from the options object (with the exception of `max`,
+ * `maxSize`, `fetchMethod`, `memoMethod`, `dispose` and `disposeAfter`) are
+ * added as normal public members. (The listed options are read-only getters.)
+ *
+ * Changing any of these will alter the defaults for subsequent method calls.
  */
 class LRUCache {
-    // properties coming in from the options of these, only max and maxSize
-    // really *need* to be protected. The rest can be modified, as they just
-    // set defaults for various methods.
+    // options that cannot be changed without disaster
     #max;
     #maxSize;
     #dispose;
     #disposeAfter;
     #fetchMethod;
+    #memoMethod;
     /**
      * {@link LRUCache.OptionsBase.ttl}
      */
@@ -80522,6 +79863,9 @@ class LRUCache {
     get fetchMethod() {
         return this.#fetchMethod;
     }
+    get memoMethod() {
+        return this.#memoMethod;
+    }
     /**
      * {@link LRUCache.OptionsBase.dispose} (read-only)
      */
@@ -80535,7 +79879,7 @@ class LRUCache {
         return this.#disposeAfter;
     }
     constructor(options) {
-        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
+        const { max = 0, ttl, ttlResolution = 1, ttlAutopurge, updateAgeOnGet, updateAgeOnHas, allowStale, dispose, disposeAfter, noDisposeOnSet, noUpdateTTL, maxSize = 0, maxEntrySize = 0, sizeCalculation, fetchMethod, memoMethod, noDeleteOnFetchRejection, noDeleteOnStaleGet, allowStaleOnFetchRejection, allowStaleOnFetchAbort, ignoreFetchAbort, } = options;
         if (max !== 0 && !isPosInt(max)) {
             throw new TypeError('max option must be a nonnegative integer');
         }
@@ -80555,6 +79899,11 @@ class LRUCache {
                 throw new TypeError('sizeCalculation set to non-function');
             }
         }
+        if (memoMethod !== undefined &&
+            typeof memoMethod !== 'function') {
+            throw new TypeError('memoMethod must be a function if defined');
+        }
+        this.#memoMethod = memoMethod;
         if (fetchMethod !== undefined &&
             typeof fetchMethod !== 'function') {
             throw new TypeError('fetchMethod must be a function if specified');
@@ -80633,7 +79982,8 @@ class LRUCache {
         }
     }
     /**
-     * Return the remaining TTL time for a given entry key
+     * Return the number of ms left in the item's TTL. If item is not in cache,
+     * returns `0`. Returns `Infinity` if item is in cache without a defined TTL.
      */
     getRemainingTTL(key) {
         return this.#keyMap.has(key) ? Infinity : 0;
@@ -80649,7 +79999,7 @@ class LRUCache {
             if (ttl !== 0 && this.ttlAutopurge) {
                 const t = setTimeout(() => {
                     if (this.#isStale(index)) {
-                        this.delete(this.#keyList[index]);
+                        this.#delete(this.#keyList[index], 'expire');
                     }
                 }, ttl + 1);
                 // unref() not supported on all platforms
@@ -80906,13 +80256,14 @@ class LRUCache {
         return this.entries();
     }
     /**
-     * A String value that is used in the creation of the default string description of an object.
-     * Called by the built-in method Object.prototype.toString.
+     * A String value that is used in the creation of the default string
+     * description of an object. Called by the built-in method
+     * `Object.prototype.toString`.
      */
     [Symbol.toStringTag] = 'LRUCache';
     /**
      * Find a value for which the supplied fn method returns a truthy value,
-     * similar to Array.find().  fn is called as fn(value, key, cache).
+     * similar to `Array.find()`. fn is called as `fn(value, key, cache)`.
      */
     find(fn, getOptions = {}) {
         for (const i of this.#indexes()) {
@@ -80928,10 +80279,15 @@ class LRUCache {
         }
     }
     /**
-     * Call the supplied function on each item in the cache, in order from
-     * most recently used to least recently used.  fn is called as
-     * fn(value, key, cache).  Does not update age or recenty of use.
-     * Does not iterate over stale values.
+     * Call the supplied function on each item in the cache, in order from most
+     * recently used to least recently used.
+     *
+     * `fn` is called as `fn(value, key, cache)`.
+     *
+     * If `thisp` is provided, function will be called in the `this`-context of
+     * the provided object, or the cache if no `thisp` object is provided.
+     *
+     * Does not update age or recenty of use, or iterate over stale values.
      */
     forEach(fn, thisp = this) {
         for (const i of this.#indexes()) {
@@ -80967,7 +80323,7 @@ class LRUCache {
         let deleted = false;
         for (const i of this.#rindexes({ allowStale: true })) {
             if (this.#isStale(i)) {
-                this.delete(this.#keyList[i]);
+                this.#delete(this.#keyList[i], 'expire');
                 deleted = true;
             }
         }
@@ -80975,9 +80331,15 @@ class LRUCache {
     }
     /**
      * Get the extended info about a given entry, to get its value, size, and
-     * TTL info simultaneously. Like {@link LRUCache#dump}, but just for a
-     * single key. Always returns stale values, if their info is found in the
-     * cache, so be sure to check for expired TTLs if relevant.
+     * TTL info simultaneously. Returns `undefined` if the key is not present.
+     *
+     * Unlike {@link LRUCache#dump}, which is designed to be portable and survive
+     * serialization, the `start` value is always the current timestamp, and the
+     * `ttl` is a calculated remaining time to live (negative if expired).
+     *
+     * Always returns stale values, if their info is found in the cache, so be
+     * sure to check for expirations (ie, a negative {@link LRUCache.Entry#ttl})
+     * if relevant.
      */
     info(key) {
         const i = this.#keyMap.get(key);
@@ -81006,7 +80368,16 @@ class LRUCache {
     }
     /**
      * Return an array of [key, {@link LRUCache.Entry}] tuples which can be
-     * passed to cache.load()
+     * passed to {@link LRLUCache#load}.
+     *
+     * The `start` fields are calculated relative to a portable `Date.now()`
+     * timestamp, even if `performance.now()` is available.
+     *
+     * Stale entries are always included in the `dump`, even if
+     * {@link LRUCache.OptionsBase.allowStale} is false.
+     *
+     * Note: this returns an actual array, not a generator, so it can be more
+     * easily passed around.
      */
     dump() {
         const arr = [];
@@ -81035,8 +80406,12 @@ class LRUCache {
     }
     /**
      * Reset the cache and load in the items in entries in the order listed.
-     * Note that the shape of the resulting cache may be different if the
-     * same options are not used in both caches.
+     *
+     * The shape of the resulting cache may be different if the same options are
+     * not used in both caches.
+     *
+     * The `start` fields are assumed to be calculated relative to a portable
+     * `Date.now()` timestamp, even if `performance.now()` is available.
      */
     load(arr) {
         this.clear();
@@ -81059,6 +80434,30 @@ class LRUCache {
      *
      * Note: if `undefined` is specified as a value, this is an alias for
      * {@link LRUCache#delete}
+     *
+     * Fields on the {@link LRUCache.SetOptions} options param will override
+     * their corresponding values in the constructor options for the scope
+     * of this single `set()` operation.
+     *
+     * If `start` is provided, then that will set the effective start
+     * time for the TTL calculation. Note that this must be a previous
+     * value of `performance.now()` if supported, or a previous value of
+     * `Date.now()` if not.
+     *
+     * Options object may also include `size`, which will prevent
+     * calling the `sizeCalculation` function and just use the specified
+     * number if it is a positive integer, and `noDisposeOnSet` which
+     * will prevent calling a `dispose` function in the case of
+     * overwrites.
+     *
+     * If the `size` (or return value of `sizeCalculation`) for a given
+     * entry is greater than `maxEntrySize`, then the item will not be
+     * added to the cache.
+     *
+     * Will update the recency of the entry.
+     *
+     * If the value is `undefined`, then this is an alias for
+     * `cache.delete(key)`. `undefined` is never stored in the cache.
      */
     set(k, v, setOptions = {}) {
         if (v === undefined) {
@@ -81076,7 +80475,7 @@ class LRUCache {
                 status.maxEntrySizeExceeded = true;
             }
             // have to delete, in case something is there already.
-            this.delete(k);
+            this.#delete(k, 'set');
             return this;
         }
         let index = this.#size === 0 ? undefined : this.#keyMap.get(k);
@@ -81228,6 +80627,14 @@ class LRUCache {
      * Will return false if the item is stale, even though it is technically
      * in the cache.
      *
+     * Check if a key is in the cache, without updating the recency of
+     * use. Age is updated if {@link LRUCache.OptionsBase.updateAgeOnHas} is set
+     * to `true` in either the options or the constructor.
+     *
+     * Will return `false` if the item is stale, even though it is technically in
+     * the cache. The difference can be determined (if it matters) by using a
+     * `status` argument, and inspecting the `has` field.
+     *
      * Will not update item age unless
      * {@link LRUCache.OptionsBase.updateAgeOnHas} is set.
      */
@@ -81319,7 +80726,7 @@ class LRUCache {
                         this.#valList[index] = bf.__staleWhileFetching;
                     }
                     else {
-                        this.delete(k);
+                        this.#delete(k, 'fetch');
                     }
                 }
                 else {
@@ -81348,7 +80755,7 @@ class LRUCache {
                 // the stale value is not removed from the cache when the fetch fails.
                 const del = !noDelete || bf.__staleWhileFetching === undefined;
                 if (del) {
-                    this.delete(k);
+                    this.#delete(k, 'fetch');
                 }
                 else if (!allowStaleAborted) {
                     // still replace the *promise* with the stale value,
@@ -81494,6 +80901,28 @@ class LRUCache {
             return staleVal ? p.__staleWhileFetching : (p.__returned = p);
         }
     }
+    async forceFetch(k, fetchOptions = {}) {
+        const v = await this.fetch(k, fetchOptions);
+        if (v === undefined)
+            throw new Error('fetch() returned undefined');
+        return v;
+    }
+    memo(k, memoOptions = {}) {
+        const memoMethod = this.#memoMethod;
+        if (!memoMethod) {
+            throw new Error('no memoMethod provided to constructor');
+        }
+        const { context, forceRefresh, ...options } = memoOptions;
+        const v = this.get(k, options);
+        if (!forceRefresh && v !== undefined)
+            return v;
+        const vv = memoMethod(k, v, {
+            options,
+            context,
+        });
+        this.set(k, vv, options);
+        return vv;
+    }
     /**
      * Return a value from the cache. Will update the recency of the cache
      * entry found.
@@ -81514,7 +80943,7 @@ class LRUCache {
                 // delete only if not an in-flight background fetch
                 if (!fetching) {
                     if (!noDeleteOnStaleGet) {
-                        this.delete(k);
+                        this.#delete(k, 'expire');
                     }
                     if (status && allowStale)
                         status.returnedStale = true;
@@ -81577,16 +81006,20 @@ class LRUCache {
     }
     /**
      * Deletes a key out of the cache.
+     *
      * Returns true if the key was deleted, false otherwise.
      */
     delete(k) {
+        return this.#delete(k, 'delete');
+    }
+    #delete(k, reason) {
         let deleted = false;
         if (this.#size !== 0) {
             const index = this.#keyMap.get(k);
             if (index !== undefined) {
                 deleted = true;
                 if (this.#size === 1) {
-                    this.clear();
+                    this.#clear(reason);
                 }
                 else {
                     this.#removeItemSize(index);
@@ -81596,10 +81029,10 @@ class LRUCache {
                     }
                     else if (this.#hasDispose || this.#hasDisposeAfter) {
                         if (this.#hasDispose) {
-                            this.#dispose?.(v, k, 'delete');
+                            this.#dispose?.(v, k, reason);
                         }
                         if (this.#hasDisposeAfter) {
-                            this.#disposed?.push([v, k, 'delete']);
+                            this.#disposed?.push([v, k, reason]);
                         }
                     }
                     this.#keyMap.delete(k);
@@ -81635,6 +81068,9 @@ class LRUCache {
      * Clear the cache entirely, throwing away all values.
      */
     clear() {
+        return this.#clear('delete');
+    }
+    #clear(reason) {
         for (const index of this.#rindexes({ allowStale: true })) {
             const v = this.#valList[index];
             if (this.#isBackgroundFetch(v)) {
@@ -81643,10 +81079,10 @@ class LRUCache {
             else {
                 const k = this.#keyList[index];
                 if (this.#hasDispose) {
-                    this.#dispose?.(v, k, 'delete');
+                    this.#dispose?.(v, k, reason);
                 }
                 if (this.#hasDisposeAfter) {
-                    this.#disposed?.push([v, k, 'delete']);
+                    this.#disposed?.push([v, k, reason]);
                 }
             }
         }
@@ -81683,7 +81119,7 @@ exports.LRUCache = LRUCache;
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"2.3.2"};
+module.exports = {"rE":"3.0.0"};
 
 /***/ }),
 
@@ -81763,7 +81199,7 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"make-fetch-happen","version":"13.0.1","description":"Opinionated, caching, retrying fetch client","main":"lib/index.js","files":["bin/","lib/"],"scripts":{"test":"tap","posttest":"npm run lint","eslint":"eslint","lint":"eslint \\"**/*.{js,cjs,ts,mjs,jsx,tsx}\\"","lintfix":"npm run lint -- --fix","postlint":"template-oss-check","snap":"tap","template-oss-apply":"template-oss-apply --force"},"repository":{"type":"git","url":"https://github.com/npm/make-fetch-happen.git"},"keywords":["http","request","fetch","mean girls","caching","cache","subresource integrity"],"author":"GitHub Inc.","license":"ISC","dependencies":{"@npmcli/agent":"^2.0.0","cacache":"^18.0.0","http-cache-semantics":"^4.1.1","is-lambda":"^1.0.1","minipass":"^7.0.2","minipass-fetch":"^3.0.0","minipass-flush":"^1.0.5","minipass-pipeline":"^1.2.4","negotiator":"^0.6.3","proc-log":"^4.2.0","promise-retry":"^2.0.1","ssri":"^10.0.0"},"devDependencies":{"@npmcli/eslint-config":"^4.0.0","@npmcli/template-oss":"4.21.4","nock":"^13.2.4","safe-buffer":"^5.2.1","standard-version":"^9.3.2","tap":"^16.0.0"},"engines":{"node":"^16.14.0 || >=18.0.0"},"tap":{"color":1,"files":"test/*.js","check-coverage":true,"timeout":60,"nyc-arg":["--exclude","tap-snapshots/**"]},"templateOSS":{"//@npmcli/template-oss":"This file is partially managed by @npmcli/template-oss. Edits may be overwritten.","version":"4.21.4","publish":"true"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"make-fetch-happen","version":"14.0.3","description":"Opinionated, caching, retrying fetch client","main":"lib/index.js","files":["bin/","lib/"],"scripts":{"test":"tap","posttest":"npm run lint","eslint":"eslint \\"**/*.{js,cjs,ts,mjs,jsx,tsx}\\"","lint":"npm run eslint","lintfix":"npm run eslint -- --fix","postlint":"template-oss-check","snap":"tap","template-oss-apply":"template-oss-apply --force"},"repository":{"type":"git","url":"git+https://github.com/npm/make-fetch-happen.git"},"keywords":["http","request","fetch","mean girls","caching","cache","subresource integrity"],"author":"GitHub Inc.","license":"ISC","dependencies":{"@npmcli/agent":"^3.0.0","cacache":"^19.0.1","http-cache-semantics":"^4.1.1","minipass":"^7.0.2","minipass-fetch":"^4.0.0","minipass-flush":"^1.0.5","minipass-pipeline":"^1.2.4","negotiator":"^1.0.0","proc-log":"^5.0.0","promise-retry":"^2.0.1","ssri":"^12.0.0"},"devDependencies":{"@npmcli/eslint-config":"^5.0.0","@npmcli/template-oss":"4.23.4","nock":"^13.2.4","safe-buffer":"^5.2.1","standard-version":"^9.3.2","tap":"^16.0.0"},"engines":{"node":"^18.17.0 || >=20.5.0"},"tap":{"color":1,"files":"test/*.js","check-coverage":true,"timeout":60,"nyc-arg":["--exclude","tap-snapshots/**"]},"templateOSS":{"//@npmcli/template-oss":"This file is partially managed by @npmcli/template-oss. Edits may be overwritten.","version":"4.23.4","publish":"true"}}');
 
 /***/ }),
 
@@ -81771,7 +81207,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"make-fetch-happen","version":
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"3.0.5"};
+module.exports = {"rE":"4.0.0"};
 
 /***/ })
 
@@ -81807,10 +81243,94 @@ module.exports = {"rE":"3.0.5"};
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__nccwpck_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/ensure chunk */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.f = {};
+/******/ 		// This file contains only the entry chunk.
+/******/ 		// The chunk loading function for additional chunks
+/******/ 		__nccwpck_require__.e = (chunkId) => {
+/******/ 			return Promise.all(Object.keys(__nccwpck_require__.f).reduce((promises, key) => {
+/******/ 				__nccwpck_require__.f[key](chunkId, promises);
+/******/ 				return promises;
+/******/ 			}, []));
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__nccwpck_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".index.js";
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/******/ 	/* webpack/runtime/require chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded chunks
+/******/ 		// "1" means "loaded", otherwise not loaded yet
+/******/ 		var installedChunks = {
+/******/ 			792: 1
+/******/ 		};
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		var installChunk = (chunk) => {
+/******/ 			var moreModules = chunk.modules, chunkIds = chunk.ids, runtime = chunk.runtime;
+/******/ 			for(var moduleId in moreModules) {
+/******/ 				if(__nccwpck_require__.o(moreModules, moduleId)) {
+/******/ 					__nccwpck_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__nccwpck_require__);
+/******/ 			for(var i = 0; i < chunkIds.length; i++)
+/******/ 				installedChunks[chunkIds[i]] = 1;
+/******/ 		
+/******/ 		};
+/******/ 		
+/******/ 		// require() chunk loading for javascript
+/******/ 		__nccwpck_require__.f.require = (chunkId, promises) => {
+/******/ 			// "1" is the signal for "already loaded"
+/******/ 			if(!installedChunks[chunkId]) {
+/******/ 				if(true) { // all chunks have JS
+/******/ 					installChunk(require("./" + __nccwpck_require__.u(chunkId)));
+/******/ 				} else installedChunks[chunkId] = 1;
+/******/ 			}
+/******/ 		};
+/******/ 		
+/******/ 		// no external install chunk
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 	})();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
