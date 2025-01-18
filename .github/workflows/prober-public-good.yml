@@ -1,0 +1,18 @@
+name: Public-Good Sigstore Prober
+
+on:
+  workflow_dispatch:
+  schedule:
+    # run every 5 minutes, as often as Github Actions allows
+    - cron: '*/5 * * * *'
+
+jobs:
+  prober:
+    if: github.repository_owner == 'actions'
+    permissions:
+      attestations: write
+      id-token: write
+    secrets: inherit
+    uses: ./.github/workflows/prober.yml
+    with:
+      sigstore: public-good

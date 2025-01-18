@@ -1,0 +1,84 @@
+name: Prober Workflow
+
+on:
+  workflow_call:
+    inputs:
+      sigstore:
+        description: 'Which Sigstore instance to use for signing'
+        required: true
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Request OIDC Token
+        run: |
+          curl "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nobody" \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            -H "Accept: application/json; api-version=2.0" \
+            -H "Content-Type: application/json" \
+            --silent | jq -r '.value' | jq -R 'split(".") | .[0],.[1] | @base64d | fromjson'
+
+      - name: Create artifact
+        run: |
+          date > artifact
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        env:
+          INPUT_PRIVATE-SIGNING: ${{ inputs.sigstore == 'github' && 'true' || 'false' }}
+        with:
+          subject-path: artifact
+
+      - name: Verify build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify ./artifact --owner "$GITHUB_REPOSITORY_OWNER"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: "artifact"
+
+      - name: Report attestation prober success
+        if: ${{ success() }}
+        uses: masci/datadog@a5d283e78e33a688ed08a96ba64440505e645a8c # v1.7.1
+        with:
+          api-key: "${{ secrets.DATADOG_API_KEY }}"
+          service-checks: |
+            - check: "attestation-integration.actions.prober"
+              status: 0
+              host_name: github.com
+              tags:
+                - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
+                - "service:${{ secrets.CATALOG_SERVICE }}"
+                - "stamp:${{ secrets.STAMP }}"
+                - "env:production"
+                - "repo:${{ github.repository }}"
+                - "team:${{ secrets.TEAM }}"
+                - "sigstore:${{ inputs.sigstore }}"
+
+      - name: Report attestation prober failure
+        if: ${{ failure() }}
+        uses: masci/datadog@a5d283e78e33a688ed08a96ba64440505e645a8c # v1.7.1
+        with:
+          api-key: "${{ secrets.DATADOG_API_KEY }}"
+          service-checks: |
+            - check: "attestation-integration.actions.prober"
+              message: "${{ github.repository_owner }} failed prober check"
+              status: 2
+              host_name: github.com
+              tags:
+                - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
+                - "service:${{ secrets.CATALOG_SERVICE }}"
+                - "stamp:${{ secrets.STAMP }}"
+                - "env:production"
+                - "repo:${{ github.repository }}"
+                - "team:${{ secrets.TEAM }}"
+                - "sigstore:${{ inputs.sigstore }}"
