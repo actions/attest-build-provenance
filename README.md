@@ -247,6 +247,26 @@ jobs:
           push-to-registry: true
 ```
 
+### Integration with `actions/upload-artifact`
+
+If you'd like to create an attestation for an archive created with the
+[actions/upload-artifact][11] action you can feed the digest of the generated
+artifact directly into the `subject-digest` input of the attestation action.
+
+```yaml
+- name: Upload build artifact
+  id: upload
+  uses: actions/upload-artifact@v4
+  with:
+    path: dist/*
+    name: artifact.zip
+
+- uses: actions/attest-build-provenance@v2
+  with:
+    subject-name: artifact.zip
+    subject-digest: sha256:${{ steps.upload.outputs.artifact-digest }}
+```
+
 [1]: https://github.com/actions/toolkit/tree/main/packages/attest
 [2]: https://github.com/in-toto/attestation/tree/main/spec/v1
 [3]: https://slsa.dev/spec/v1.0/provenance
@@ -258,3 +278,4 @@ jobs:
 [9]:
   https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
 [10]: https://github.com/sigstore/cosign/blob/main/specs/BUNDLE_SPEC.md
+[11]: https://github.com/actions/upload-artifact
