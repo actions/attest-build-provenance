@@ -9,20 +9,26 @@ inputs:
   subject-path:
     description: >
       Path to the artifact serving as the subject of the attestation. Must
-      specify exactly one of "subject-path" or "subject-digest". May contain a
-      glob pattern or list of paths (total subject count cannot exceed 1024).
+      specify exactly one of "subject-path", "subject-digest", or
+      "subject-checksums". May contain a glob pattern or list of paths
+      (total subject count cannot exceed 1024).
     required: false
   subject-digest:
     description: >
       Digest of the subject for which provenance will be generated. Must be in
       the form "algorithm:hex_digest" (e.g. "sha256:abc123..."). Must specify
-      exactly one of "subject-path" or "subject-digest".
+      exactly one of "subject-path", "subject-digest", or "subject-checksums".
     required: false
   subject-name:
     description: >
-      Subject name as it should appear in the provenance statement. Required
-      unless "subject-path" is specified, in which case it will be inferred from
-      the path.
+      Subject name as it should appear in the attestation. Required when
+      identifying the subject with the "subject-digest" input.
+  subject-checksums:
+    description: >
+      Path to checksums file containing digest and name of subjects for
+      attestation. Must specify exactly one of "subject-path", "subject-digest",
+      or "subject-checksums".
+    required: false
   push-to-registry:
     description: >
       Whether to push the provenance statement to the image registry. Requires
@@ -58,12 +64,13 @@ runs:
   steps:
     - uses: actions/attest-build-provenance/predicate@36fa7d009e22618ca7cd599486979b8150596c74 # predicate@1.1.4
       id: generate-build-provenance-predicate
-    - uses: actions/attest@v2.1.0
+    - uses: actions/attest@v2.2.0
       id: attest
       with:
         subject-path: ${{ inputs.subject-path }}
         subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
+        subject-checksums: ${{ inputs.subject-checksums }}
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
