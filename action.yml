@@ -69,3 +69,14 @@ runs:
         push-to-registry: ${{ inputs.push-to-registry }}
         show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}
+
+name: 'My Action'
+description: 'Description of my action'
+inputs:
+  myInput:
+    description: 'Description of my input'
+    required: true
+    default: 'default value'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
