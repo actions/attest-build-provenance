@@ -1,4 +1,4 @@
-name: 'Attest Build Provenance'
+name: 'Attest Build https://probot.github.io/apps/dco/'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 branding:
