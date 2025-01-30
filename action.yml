@@ -1,7 +1,115 @@
 name: 'actionable.Attest Build Provenance.yml'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
-branding:
+branding: 'from IPython.display import display
+from IPython.display import Markdown
+
+# Call the model and print the response.
+gemini = genai.GenerativeModel(model_name=model)
+
+response = gemini.generate_content(
+    Skip to main content
+chat_spark
+Create Prompt
+mic
+Stream Realtime
+bolt
+Starter Apps
+tune
+Tune a Model
+home_storage
+Library
+No prompts yet
+book_2
+Prompt Gallery
+quick_reference_all
+API documentation
+forum
+Developer forum
+view_agenda
+Changelog
+This experimental model is for feedback and testing only.
+settings
+Settings
+action commit
+Chais Fitzwater
+Optional tone and style instructions for the model
+City Scavenger
+Create a scavenger hunt.
+Plant care
+Identify and care for your plants.
+Which is bigger
+Test if AI knows which number is bigger.
+Type something
+
+Run
+Ctrl
+1.75
+Get code
+For newer models, the genai SDK is recommended
+You can run this prompt from the Gemini API, after installing the relevant package, by running the following code:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+import os
+import google.generativeai as genai
+
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+# Create the model
+generation_config = {
+  "temperature": 1.8,
+  "top_p": 0.95,
+  "top_k": 40,
+  "max_output_tokens": 8192,
+  "response_mime_type": "application/json",
+}
+
+model = genai.GenerativeModel(
+  model_name="gemini-2.0-flash-exp",
+  generation_config=generation_config,
+)
+
+chat_session = model.start_chat(
+  history=[
+  ]
+)
+
+response = chat_session.send_message("INSERT_INPUT_HERE")
+
+print(response.text)
+
+    contents,
+    generation_config=generation_config,
+    safety_settings=safety_settings,
+    stream=stream,
+)
+
+display(Markdown(response.text))'
   color: 'blue'
   icon: 'lock'
 
