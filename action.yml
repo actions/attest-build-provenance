@@ -1,4 +1,4 @@
-name: 'Attest Build Provenance'
+name: 'actionable.Attest Build Provenance.yml'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 branding:
