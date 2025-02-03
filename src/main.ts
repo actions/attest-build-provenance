@@ -14,6 +14,8 @@ export async function run(): Promise<void> {
       for (const image of images) {
         core.info(`Processing image: ${image}`)
         // Add logic to process each image for attestation
+        // Assuming processImageForAttestation is a function that processes the image
+        await processImageForAttestation(image)
       }
     }
 
@@ -27,4 +29,14 @@ export async function run(): Promise<void> {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
   }
+}
+
+/**
+ * Processes an image for attestation.
+ * @param {string} image - The image to process.
+ * @returns {Promise<void>} Resolves when the image is processed.
+ */
+async function processImageForAttestation(image: string): Promise<void> {
+  // Add the actual logic to process the image for attestation
+  core.info(`Image ${image} processed for attestation`)
 }
