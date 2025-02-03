@@ -71,14 +71,13 @@ See [action.yml](action.yml)
 - uses: actions/attest-build-provenance@v2
   with:
     # Path to the artifact serving as the subject of the attestation. Must
-    # specify exactly one of "subject-path", "subject-digest", or
-    # "subject-checksums". May contain a glob pattern or list of paths
+    # specify exactly one of "subject-path", "subject-digest", "subject-checksums", or "subject-images". May contain a glob pattern or list of paths
     # (total subject count cannot exceed 1024).
     subject-path:
 
     # SHA256 digest of the subject for the attestation. Must be in the form
     # "sha256:hex_digest" (e.g. "sha256:abc123..."). Must specify exactly one
-    # of "subject-path", "subject-digest", or "subject-checksums".
+    # of "subject-path", "subject-digest", "subject-checksums", or "subject-images".
     subject-digest:
 
     # Subject name as it should appear in the attestation. Required when
@@ -87,8 +86,13 @@ See [action.yml](action.yml)
 
     # Path to checksums file containing digest and name of subjects for
     # attestation. Must specify exactly one of "subject-path", "subject-digest",
-    # or "subject-checksums".
+    # "subject-checksums", or "subject-images".
     subject-checksums:
+
+    # List of docker images to attest. Each image should be specified in the
+    # format "registry/image:tag@digest". Must specify exactly one of
+    # "subject-path", "subject-digest", "subject-checksums", or "subject-images".
+    subject-images:
 
     # Whether to push the attestation to the image registry. Requires that the
     # "subject-name" parameter specify the fully-qualified image name and that
@@ -283,6 +287,55 @@ jobs:
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+```
+
+### Attest Multiple Docker Images
+
+You can also attest multiple docker images by passing a list of images to the `subject-images` input. Each image should be specified in the format "registry/image:tag@digest".
+
+```yaml
+name: build-attested-images
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push images
+        id: push
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0.0 .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0.0
+      - name: Attest
+        uses: actions/attest-build-provenance@v2
+        id: attest
+        with:
+          subject-images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest@${{ steps.push.outputs.digest }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0.0@${{ steps.push.outputs.digest }}
           push-to-registry: true
 ```
 

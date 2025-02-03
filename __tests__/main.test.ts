@@ -154,4 +154,33 @@ describe('main', () => {
       expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
     })
   })
+
+  describe('when subject-images input is provided', () => {
+    beforeEach(() => {
+      process.env = {
+        ...originalEnv,
+        GITHUB_SERVER_URL: 'https://github.com',
+        GITHUB_REPOSITORY: 'owner/repo'
+      }
+    })
+
+    it('processes multiple docker images for attestation', async () => {
+      const subjectImages = `
+        registry/image:tag@sha256:1234567890abcdef
+        registry/image2:tag@sha256:abcdef1234567890
+      `
+      jest.spyOn(core, 'getInput').mockImplementation((name) => {
+        if (name === 'subject-images') {
+          return subjectImages
+        }
+        return ''
+      })
+
+      await main.run()
+
+      expect(setOutputMock).toHaveBeenCalledTimes(2)
+      expect(outputs['predicate']).toMatchSnapshot()
+      expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
+    })
+  })
 })

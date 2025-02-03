@@ -9,15 +9,14 @@ inputs:
   subject-path:
     description: >
       Path to the artifact serving as the subject of the attestation. Must
-      specify exactly one of "subject-path", "subject-digest", or
-      "subject-checksums". May contain a glob pattern or list of paths
+      specify exactly one of "subject-path", "subject-digest", "subject-checksums", or "subject-images". May contain a glob pattern or list of paths
       (total subject count cannot exceed 1024).
     required: false
   subject-digest:
     description: >
       Digest of the subject for which provenance will be generated. Must be in
       the form "algorithm:hex_digest" (e.g. "sha256:abc123..."). Must specify
-      exactly one of "subject-path", "subject-digest", or "subject-checksums".
+      exactly one of "subject-path", "subject-digest", "subject-checksums", or "subject-images".
     required: false
   subject-name:
     description: >
@@ -27,7 +26,13 @@ inputs:
     description: >
       Path to checksums file containing digest and name of subjects for
       attestation. Must specify exactly one of "subject-path", "subject-digest",
-      or "subject-checksums".
+      "subject-checksums", or "subject-images".
+    required: false
+  subject-images:
+    description: >
+      List of docker images to attest. Each image should be specified in the
+      format "registry/image:tag@digest". Must specify exactly one of
+      "subject-path", "subject-digest", "subject-checksums", or "subject-images".
     required: false
   push-to-registry:
     description: >
@@ -71,6 +76,7 @@ runs:
         subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
         subject-checksums: ${{ inputs.subject-checksums }}
+        subject-images: ${{ inputs.subject-images }}
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
