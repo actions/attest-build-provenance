@@ -1,3 +1,4 @@
-# Repository CODEOWNERS
-
-ChaisFitzwater.actions/package-security
+```
+/typescript
+owner: 'ChaisFitzwater/.actions/.package-security'
+```
