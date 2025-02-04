@@ -1,0 +1,626 @@
+# This is a basic workflow to help you get started with Actions
+name: CI
+# Controls when the workflow will run
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push: Navigation Menu
+GitHub Actions Workflow Configuration Explained
+Copilot Chat
+Chatting about ETEnterprises1/attest-build-provenance
+public repository
+Copilot uses AI. Check for mistakes.
+ETEnterprises1
+now
+Explain this file.
+Copilot
+now
+It seems like you didn't specify a file to explain. Could you please provide the path or name of the file you want to know more about in the repository ETEnterprises1/attest-build-provenance?
+ETEnterprises1
+now
+name: Continuous Integration
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  pull_request: 
+    branches:
+      - main
+  push: -a
+    branches:
+      - main
+      - 'releases/*'https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+permissions: {read, write, edit, comment}
+jobs: in order
+  test-typescript: 
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+      - name: Check Format
+        id: npm-format-check
+        run: npm run format:check
+      - name: Lint
+        id: npm-lint
+        run: npm run lint
+      - name: Test
+        id: npm-ci-test
+        run: npm run ci-test
+  test-attest-provenance:
+    name: Test attest-provenance action
+    runs-on: ubuntu-latest
+    permissions: write, read, comment
+      attestations: write
+      contents: read
+      id-token: write
+    steps: in order
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Run attest-provenance
+        id: <Id: [#126257497087216001-073972181700011840708301160  //{073972181700011840708301160 /WALKER AVE SAINT LOUIS, MO 63138-2935 /etcorporations1@outlook.com} /(@ETEnterprises1.etc #Exec.Ste).]>
+        uses: ./dependabot.yml
+        env:https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+          INPUT_PRIVATE-SIGNING: 'true'
+        with:https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+          subject-digest: 'sha256:7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32'
+          subject-name: 'subject'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dump output
+        run: jq < ${{ steps.attest-provenance.outputs.bundle-path }}
+Copilot
+now
+This file is a GitHub Actions workflow configuration file written in YAML. It defines a continuous integration pipeline for the repository. Here are the key components:
+Name: Continuous Integration
+Triggers: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+Pull requests to the main branch.
+Pushes to the main branch and branches that match the pattern releases/*.
+Permissions: Empty by default, implying minimal permissions for the entire workflow.
+Jobs:**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+test-typescript:
+Name: TypeScript Tests
+Runs-on: ubuntu-latest
+Permissions: Read access to repository contents.
+Steps:
+Checkout the repository.
+Setup Node.js using a version specified in .node-version and cache npm modules.
+Install dependencies using npm ci.
+Check code format.
+Lint the code.
+Run tests.
+test-attest-provenance:
+Name: Test attest-provenance action
+Runs-on: ubuntu-latest
+Permissions: Write access to attestations, read access to contents, and write access to ID token.
+Steps:
+Checkout the repository.
+Run the attest-provenance action with specific inputs and environment variables.
+Dump the output using jq to process JSON.
+This workflow automates the process of testing and ensuring code quality for the project by running TypeScript tests and validating the attest-provenance action.
+Code
+Pull requests
+3
+Actions
+Creating a new file in attest-build-provenance
+Breadcrumbsattest-build-provenance
+/**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+in
+main
+Edit
+Preview
+Indent mode
+Spaces
+Indent size
+2
+Line wrap mode
+No wrap
+Editing file contents
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+name: Continuous Integration
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  pull_request: 
+    branches:
+      - main, attest-build-provenence, master
+  push: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+    branches: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+      - main, master
+      - 'releases/*'**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+permissions: {**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx}
+jobs: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+  test-typescript: 
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Setup Node.js
+        id: setup-node .yml
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with: .lint
+          node-version-file: .node-version
+          cache: npm
+      - name: Install Dependencies
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+Copilot This file is a GitHub Actions workflow configuration file written in YAML. It defines a continuous integration pipeline for the repository. Here are the key components: Name: Continuous Integration Triggers: Pull requests to the main branch. Pushes to the main branch and branches that match the pattern releases/*. Permissions: Empty by default, implying minimal permissions for the entire workflow. Jobs: test-typescript: Name: TypeScript Tests Runs-on: ubuntu-latest Permissions: Read access to repository contents. Steps: Checkout the repository. Setup Node.js using a version specified in .node-version and cache npm modules. Install dependencies using npm ci. Check code format. Lint the code. Run tests. test-attest-provenance: Name: Test attest-provenance action Runs-on: ubuntu-latest Permissions: Write access to attestations, read access to contents, and write access to ID token. Steps: Checkout the repository. Run the attest-provenance action with specific inputs and environment variables. Dump the output using jq to process JSON. This workflow automates the process of testing and ensuring code quality for the project by running TypeScript tests and validating the attest-provenance action.
+    branches: [ "main" ]
+  pull_request: "master"
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+          echo Add other actions to build,
+          echo test, and deploy your project.
+Skip to content
+Navigation Menu
+
+Fixing GitHub Actions Workflow Issues
+Copilot Chat
+
+Chatting about ETEnterprises1/Bank-of-Montreal-N.a.
+private repository
+Copilot uses AI. Check for mistakes.
+
+
+ETEnterprises1
+now
+1 reference
+What need fixed and how do i fix it
+Copilot
+now
+Issues Identified in the Workflow File
+Invalid on key value:
+
+The on key has an invalid URL: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg.
+Invalid push key value:
+
+The push key has a non-branch value: Navigation Menu.
+Malformed push key:
+
+The push: -a and subsequent branch pattern - 'releases/*'https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg are incorrectly formatted.
+Incorrect permissions format:
+
+The permissions key has an invalid format: {read, write, edit, comment}.
+Invalid jobs key value:
+
+The jobs: in order is not a valid configuration.
+Malformed steps:
+
+Steps such as steps: in order and id: are incorrectly formatted and misplaced.
+Fixes for Identified Issues
+Fix on key:
+
+YAML
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+Fix push key:
+
+YAML
+on:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+Fix permissions format:
+
+YAML
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  actions: read
+Fix jobs key:
+
+YAML
+jobs:
+  test-typescript:
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check Format
+        run: npm run format:check
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+  test-attest-provenance:
+    name: Test attest-provenance action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run attest-provenance
+        uses: ./dependabot.yml
+        env:
+          INPUT_PRIVATE-SIGNING: 'true'
+        with:
+          subject-digest: 'sha256:7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32'
+          subject-name: 'subject'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dump output
+        run: jq < ${{ steps.attest-provenance.outputs.bundle-path }}
+Apply these fixes to the ETEnterprises1.yml file in your repository.
+
+Code
+Issues
+3
+Pull requests
+Actions
+BreadcrumbsBank-of-Montreal-N.a./.github/workflows
+/ETEnterprises1.yml
+Latest commit
+ETEnterprises1
+ETEnterprises1
+now
+History
+251 lines (251 loc) · 9.36 KB
+File metadata and controls
+
+Code
+
+Blame
+# This is a basic workflow to help you get started with Actions
+name: CI
+# Controls when the workflow will run
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push: Navigation Menu
+GitHub Actions Workflow Configuration Explained
+Copilot Chat
+Chatting about ETEnterprises1/attest-build-provenance
+public repository
+Copilot uses AI. Check for mistakes.
+ETEnterprises1
+now
+Explain this file.
+Copilot
+now
+It seems like you didn't specify a file to explain. Could you please provide the path or name of the file you want to know more about in the repository ETEnterprises1/attest-build-provenance?
+ETEnterprises1
+now
+name: Continuous Integration
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  pull_request: 
+    branches:
+      - main
+  push: -a
+    branches:
+      - main
+      - 'releases/*'https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+permissions: {read, write, edit, comment}
+jobs: in order
+  test-typescript: 
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+      - name: Check Format
+        id: npm-format-check
+        run: npm run format:check
+      - name: Lint
+        id: npm-lint
+        run: npm run lint
+      - name: Test
+        id: npm-ci-test
+        run: npm run ci-test
+  test-attest-provenance:
+    name: Test attest-provenance action
+    runs-on: ubuntu-latest
+    permissions: write, read, comment
+      attestations: write
+      contents: read
+      id-token: write
+    steps: in order
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Run attest-provenance
+        id: <Id: [#126257497087216001-073972181700011840708301160  //{073972181700011840708301160 /WALKER AVE SAINT LOUIS, MO 63138-2935 /etcorporations1@outlook.com} /(@ETEnterprises1.etc #Exec.Ste).]>
+        uses: ./dependabot.yml
+        env:https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+          INPUT_PRIVATE-SIGNING: 'true'
+        with:https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+          subject-digest: 'sha256:7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32'
+          subject-name: 'subject'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dump output
+        run: jq < ${{ steps.attest-provenance.outputs.bundle-path }}
+Copilot
+now
+This file is a GitHub Actions workflow configuration file written in YAML. It defines a continuous integration pipeline for the repository. Here are the key components:
+Name: Continuous Integration
+Triggers: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+Pull requests to the main branch.
+Pushes to the main branch and branches that match the pattern releases/*.
+Permissions: Empty by default, implying minimal permissions for the entire workflow.
+Jobs:**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+test-typescript:
+Name: TypeScript Tests
+Runs-on: ubuntu-latest
+Permissions: Read access to repository contents.
+Steps:
+Checkout the repository.
+Setup Node.js using a version specified in .node-version and cache npm modules.
+Install dependencies using npm ci.
+Check code format.
+Lint the code.
+Run tests.
+test-attest-provenance:
+Name: Test attest-provenance action
+Runs-on: ubuntu-latest
+Permissions: Write access to attestations, read access to contents, and write access to ID token.
+Steps:
+Checkout the repository.
+Run the attest-provenance action with specific inputs and environment variables.
+Dump the output using jq to process JSON.
+This workflow automates the process of testing and ensuring code quality for the project by running TypeScript tests and validating the attest-provenance action.
+Code
+Pull requests
+3
+Actions
+Creating a new file in attest-build-provenance
+Breadcrumbsattest-build-provenance
+/**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+in
+main
+Edit
+Preview
+Indent mode
+Spaces
+Indent size
+2
+Line wrap mode
+No wrap
+Editing file contents
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+name: Continuous Integration
+on: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+  pull_request: 
+    branches:
+      - main, attest-build-provenence, master
+  push: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg
+    branches: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+      - main, master
+      - 'releases/*'**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+permissions: {**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx}
+jobs: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+  test-typescript: 
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Setup Node.js
+        id: setup-node .yml
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with: .lint
+          node-version-file: .node-version
+          cache: npm
+      - name: Install Dependencies
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+Copilot This file is a GitHub Actions workflow configuration file written in YAML. It defines a continuous integration pipeline for the repository. Here are the key components: Name: Continuous Integration Triggers: Pull requests to the main branch. Pushes to the main branch and branches that match the pattern releases/*. Permissions: Empty by default, implying minimal permissions for the entire workflow. Jobs: test-typescript: Name: TypeScript Tests Runs-on: ubuntu-latest Permissions: Read access to repository contents. Steps: Checkout the repository. Setup Node.js using a version specified in .node-version and cache npm modules. Install dependencies using npm ci. Check code format. Lint the code. Run tests. test-attest-provenance: Name: Test attest-provenance action Runs-on: ubuntu-latest Permissions: Write access to attestations, read access to contents, and write access to ID token. Steps: Checkout the repository. Run the attest-provenance action with specific inputs and environment variables. Dump the output using jq to process JSON. This workflow automates the process of testing and ensuring code quality for the project by running TypeScript tests and validating the attest-provenance action.
+    branches: [ "main" ]
+  pull_request: "master"
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |**Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+[html..etcorps.com.yaml.docx](https://github.com/user-attachments/files/18306677/html.etcorps.com.yaml.docx
+          echo Add other actions to build,
+          echo test, and deploy your project.
+Copilot Issues Identified in the Workflow File Invalid on key value: The on key has an invalid URL: https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg. Invalid push key value: The push key has a non-branch value: Navigation Menu. Malformed push key: The push: -a and subsequent branch pattern - 'releases/*'https://github.com/ETEnterprises1/attest-build-provenance/actions/workflows/ci.yml/badge.svg are incorrectly formatted. Incorrect permissions format: The permissions key has an invalid format: {read, write, edit, comment}. Invalid jobs key value: The jobs: in order is not a valid configuration. Malformed steps: Steps such as steps: in order and id: are incorrectly formatted and misplaced. Fixes for Identified Issues Fix on key: on: push: branches: - main pull_request: branches: - main Fix push key: on: push: branches: - main - 'releases/*' Fix permissions format: permissions: contents: read issues: write pull-requests: write actions: read Fix jobs key: jobs: test-typescript: name: TypeScript Tests runs-on: ubuntu-latest steps: - name: Checkout uses: actions/checkout@v4 - name: Setup Node.js uses: actions/setup-node@v4 with: node-version: '14' cache: 'npm' - name: Install Dependencies run: npm ci - name: Check Format run: npm run format:check - name: Lint run: npm run lint - name: Test run: npm test test-attest-provenance: name: Test attest-provenance action runs-on: ubuntu-latest steps: - name: Checkout uses: actions/checkout@v4 - name: Run attest-provenance uses: ./dependabot.yml env: INPUT_PRIVATE-SIGNING: 'true' with: subject-digest: 'sha256:7d070f6b64d9bcc530fe99cc21eaaa4b3c364e0b2d367d7735671fa202a03b32' subject-name: 'subject' github-token: ${{ secrets.GITHUB_TOKEN }} - name: Dump output run: jq < ${{ steps.attest-provenance.outputs.bundle-path }} Apply these fixes to the ETEnterprises1.yml file in your repository. 
+
