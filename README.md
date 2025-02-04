@@ -71,19 +71,24 @@ See [action.yml](action.yml)
 - uses: actions/attest-build-provenance@v2
   with:
     # Path to the artifact serving as the subject of the attestation. Must
-    # specify exactly one of "subject-path" or "subject-digest". May contain a
-    # glob pattern or list of paths (total subject count cannot exceed 1024).
+    # specify exactly one of "subject-path", "subject-digest", or
+    # "subject-checksums". May contain a glob pattern or list of paths
+    # (total subject count cannot exceed 1024).
     subject-path:
 
     # SHA256 digest of the subject for the attestation. Must be in the form
     # "sha256:hex_digest" (e.g. "sha256:abc123..."). Must specify exactly one
-    # of "subject-path" or "subject-digest".
+    # of "subject-path", "subject-digest", or "subject-checksums".
     subject-digest:
 
-    # Subject name as it should appear in the attestation. Required unless
-    # "subject-path" is specified, in which case it will be inferred from the
-    # path.
+    # Subject name as it should appear in the attestation. Required when
+    # identifying the subject with the "subject-digest" input.
     subject-name:
+
+    # Path to checksums file containing digest and name of subjects for
+    # attestation. Must specify exactly one of "subject-path", "subject-digest",
+    # or "subject-checksums".
+    subject-checksums:
 
     # Whether to push the attestation to the image registry. Requires that the
     # "subject-name" parameter specify the fully-qualified image name and that
@@ -186,6 +191,40 @@ newline delimited list:
       dist/bar
 ```
 
+### Identify Subjects with Checksums File
+
+If you are using tools like
+[goreleaser](https://goreleaser.com/customization/checksum/) or
+[jreleaser](https://jreleaser.org/guide/latest/reference/checksum.html) which
+generate a checksums file you can identify the attestation subjects by passing
+the path of the checksums file to the `subject-checksums` input. Each of the
+artifacts identified in the checksums file will be listed as a subject for the
+attestation.
+
+```yaml
+- name: Calculate artifact digests
+  run: |
+    shasum -a 256 foo_0.0.1_* > subject.checksums.txt
+- uses: actions/attest-build-provenance@v2
+  with:
+    subject-checksums: subject.checksums.txt
+```
+
+<!-- markdownlint-disable MD038 -->
+
+The file referenced by the `subject-checksums` input must conform to the same
+format used by the shasum tools. Each subject should be listed on a separate
+line including the hex-encoded digest (either SHA256 or SHA512), a space, a
+single character flag indicating either binary (`*`) or text (` `) input mode,
+and the filename.
+
+<!-- markdownlint-enable MD038 -->
+
+```text
+b569bf992b287f55d78bf8ee476497e9b7e9d2bf1c338860bfb905016218c740  foo_0.0.1_darwin_amd64
+a54fc515e616cac7fcf11a49d5c5ec9ec315948a5935c1e11dd610b834b14dde  foo_0.0.1_darwin_arm64
+```
+
 ### Container Image
 
 When working with container images you can invoke the action with the
@@ -247,6 +286,26 @@ jobs:
           push-to-registry: true
 ```
 
+### Integration with `actions/upload-artifact`
+
+If you'd like to create an attestation for an archive created with the
+[actions/upload-artifact][11] action you can feed the digest of the generated
+artifact directly into the `subject-digest` input of the attestation action.
+
+```yaml
+- name: Upload build artifact
+  id: upload
+  uses: actions/upload-artifact@v4
+  with:
+    path: dist/*
+    name: artifact.zip
+
+- uses: actions/attest-build-provenance@v2
+  with:
+    subject-name: artifact.zip
+    subject-digest: sha256:${{ steps.upload.outputs.artifact-digest }}
+```
+
 [1]: https://github.com/actions/toolkit/tree/main/packages/attest
 [2]: https://github.com/in-toto/attestation/tree/main/spec/v1
 [3]: https://slsa.dev/spec/v1.0/provenance
@@ -258,3 +317,4 @@ jobs:
 [9]:
   https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
 [10]: https://github.com/sigstore/cosign/blob/main/specs/BUNDLE_SPEC.md
+[11]: https://github.com/actions/upload-artifact
