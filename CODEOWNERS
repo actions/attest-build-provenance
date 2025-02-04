@@ -1,6 +1,7 @@
-# repository code owners 
+# 'repository codeowners' 
 ```
 /typescript
 non-owner-user: 'ChaisFitzwater/.actions/.package-security'
 ```
-* ETEnterprises1/.actions/package-security
+* 'signed by chaisfitzwater@ETEnterprises1'
+'codeowners@actions/package-security'
