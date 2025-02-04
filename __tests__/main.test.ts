@@ -183,4 +183,27 @@ describe('main', () => {
       expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
     })
   })
+
+  describe('when an error occurs during processing', () => {
+    beforeEach(() => {
+      process.env = {
+        ...originalEnv,
+        GITHUB_SERVER_URL: 'https://github.com',
+        GITHUB_REPOSITORY: 'owner/repo'
+      }
+    })
+
+    it('fails the workflow run', async () => {
+      jest.spyOn(core, 'getInput').mockImplementation((name) => {
+        if (name === 'subject-images') {
+          throw new Error('Test error')
+        }
+        return ''
+      })
+
+      await main.run()
+
+      expect(setFailedMock).toHaveBeenCalledWith('Test error')
+    })
+  })
 })
