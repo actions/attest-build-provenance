@@ -1,4 +1,3 @@
-import * as core from '@actions/core'
 import * as jose from 'jose'
 import nock from 'nock'
 import * as main from '../src/main'
