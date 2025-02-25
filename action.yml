@@ -76,3 +76,6 @@ runs:
         push-to-registry: ${{ inputs.push-to-registry }}
         show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}
+
+        - name: Attest Build Provenance
+  uses: actions/attest-build-provenance@v2.2.0
