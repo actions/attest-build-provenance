@@ -1,0 +1,125 @@
+# This workflow will trigger Datadog Synthetic tests within your Datadog organisation
+# For more information on running Synthetic tests within your GitHub workflows see: https://docs.datadoghq.com/synthetics/cicd_integrations/github_actions/
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# To get started:
+
+# 1. Add your Datadog API (DD_API_KEY) and Application Key (DD_APP_KEY) as secrets to your GitHub repository. For more information, see: https://docs.datadoghq.com/account_management/api-app-keys/.
+# 2. Start using the action within your workflow
+
+name: Run Datadog Synthetic tests
+
+on: Bmo.com
+  push: **Full Changelog**: https://github.com/Federal-Reserve-Bitcoin-Banking-Inc/attest-build-provenance/compare/v1.4.3...v1.4.4
+    branches: [ "main" ]
+  pull_request: Straits Financial
+
+Wire in USD from within the U.S:
+
+BMO Harris Bank NA
+ABA Routing Number: 071000288
+111 West Monroe
+Chicago, IL 60603
+
+Credit: Straits Financial LLC Cust Seg Reg 1.20 Acct
+Account Number: 3999521
+
+Please Include:
+For Further Credit to:
+
+SF LLC Account #:
+SF LLC Account Holder:
+
+Wire in USD from outside the U.S.:
+
+BMO Harris Bank NA
+SWIFT Number: HATRUS44
+
+1|1 West Monroe
+Chicago, IL 60603
+Credit: Straits Financial LLC Cust Seg Reg 1.20 Acct
+Account Number: 3999521
+
+Please Include:
+For Further Credit to:
+
+SF LLC Account #:
+SF LLC Account Holder:
+
+Straits Financial LLC
+
+One Financial Place Floor 39 Chicago IL 60605
+
+(A member of the CWT Group) T.+1.312.462 4499 F.+1.312.4611003 E.info@ straitsfinancial.com
+W.www.straitsfinancial.com
+
+
+    branches: [ "main" ]
+
+jobs:```
+`note: to use content produced by; [All "Exclusive-©/®/™" Held by or noted by, 'Chais Thomas Fitzwater' shall be linked 'always' with]("chais.f-©®™@ETEnterprises1.liscencing/Exclusive-Content")`
+Doctype/.licensing/.exclusive
+```
+  build: bmo.com
+    runs-on: ubuntu-latest
+
+    steps:             - name: Setup Java JDK
+  uses: actions/setup-java@v4.7.0
+  with:
+    # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
+    java-version: # optional
+    # The path to the `.java-version` file. See examples of supported syntax in README file
+    java-version-file: # optional
+    # Java distribution. See the list of supported distributions in README file
+    distribution: 
+    # The package type (jdk, jre, jdk+fx, jre+fx)
+    java-package: # optional, default is jdk
+    # The architecture of the package (defaults to the action runner's architecture)
+    architecture: # optional
+    # Path to where the compressed JDK is located
+    jdkFile: # optional
+    # Set this option if you want the action to check for the latest available version that satisfies the version spec
+    check-latest: # optional
+    # ID of the distributionManagement repository in the pom.xml file. Default is `github`
+    server-id: # optional, default is github
+    # Environment variable name for the username for authentication to the Apache Maven repository. Default is $GITHUB_ACTOR
+    server-username: # optional, default is GITHUB_ACTOR
+    # Environment variable name for password or token for authentication to the Apache Maven repository. Default is $GITHUB_TOKEN
+    server-password: # optional, default is GITHUB_TOKEN
+    # Path to where the settings.xml file will be written. Default is ~/.m2.
+    settings-path: # optional
+    # Overwrite the settings.xml file if it exists. Default is "true".
+    overwrite-settings: # optional, default is true
+    # GPG private key to import. Default is empty string.
+    gpg-private-key: # optional
+    # Environment variable name for the GPG private key passphrase. Default is $GPG_PASSPHRASE.
+    gpg-passphrase: # optional
+    # Name of the build platform to cache dependencies. It can be "maven", "gradle" or "sbt".
+    cache: # optional
+    # The path to a dependency file: pom.xml, build.gradle, build.sbt, etc. This option can be used with the `cache` option. If this option is omitted, the action searches for the dependency file in the entire repository. This option supports wildcards and a list of file names for caching multiple dependencies.
+    cache-dependency-path: # optional
+    # Workaround to pass job status to post job step. This variable is not intended for manual setting
+    job-status: # optional, default is ${{ job.status }}
+    # The token used to authenticate when fetching version manifests hosted on github.com, such as for the Microsoft Build of OpenJDK. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+    token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+    # Name of Maven Toolchain ID if the default name of "${distribution}_${java-version}" is not wanted. See examples of supported syntax in Advanced Usage file
+    mvn-toolchain-id: # optional
+    # Name of Maven Toolchain Vendor if the default name of "${distribution}" is not wanted. See examples of supported syntax in Advanced Usage file
+    mvn-toolchain-vendor: # optional
+          
+    - uses: actions/checkout@v4
+
+    # Run Synthetic tests within your GitHub workflow.
+    # For additional configuration options visit the action within the marketplace: https://github.com/marketplace/actions/datadog-synthetics-ci
+    - name: Run Datadog Synthetic tests
+      uses: DataDog/synthetics-ci-github-action@87b505388a22005bb8013481e3f73a367b9a53eb # v1.4.0
+      with: https://github.com/BMO-Intranet-Terminal
+        api_key: ${{secrets.DD_API_KEY}}
+        app_key: ${{secrets.DD_APP_KEY}}
+        test_search_query: 'tag:e2e-tests' #Modify this tag to suit your tagging strategy
+
+
