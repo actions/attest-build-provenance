@@ -76,7 +76,7 @@
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.5",
+    "@types/node": "^22.13.8",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.21.0",
     "eslint-plugin-import": "^2.31.0",
@@ -87,7 +87,7 @@
     "nock": "^14.0.1",
     "prettier": "^3.5.2",
     "ts-jest": "^29.2.6",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.24.1"
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.25.0"
   }
 }
