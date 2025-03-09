@@ -1,4 +1,4 @@
-{ `actions/attest-build-provenance`
++`{ `actions/attest-build-provenance`
 
 [![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
 [![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
@@ -25,7 +25,7 @@ CLI][5].
 See [Using artifact attestations to establish provenance for builds][9] for more
 information on artifact attestations.
 
-<!-- prettier-ignore-start -->
+^!-- prettignored --^
 > [!NOTE]
 > Artifact attestations are available in public repositories for all
 > current GitHub plans. They are not available on legacy plans, such as Bronze,
