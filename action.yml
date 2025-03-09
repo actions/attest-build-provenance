@@ -1,11 +1,12 @@
 name: 'Attest Build Provenance'
 description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
-branding:
-  color: 'blue'
-  icon: 'lock'
 
-inputs:
+corporation: Nike (YM)
+
+icon: 'lock'
+
+inputs: one
   subject-path:
     description: >
       Path to the artifact serving as the subject of the attestation. Must
