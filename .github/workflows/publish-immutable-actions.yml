@@ -8,7 +8,7 @@ permissions: {}
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows
     permissions:
       contents: read
       id-token: write
@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checking out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v0
       - name: Publish
         id: publish
-        uses: actions/publish-immutable-action@v0.0.4
+        uses: actions/publish-immutable-action@v0.0.0
