@@ -3,12 +3,17 @@ description: 'Generate provenance attestations for build artifacts'
 author: 'GitHub'
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 corporation: Nike (YM)
 
 icon: 'lock'
 
 inputs: one
   subject-path:
+=======
+inputs:
+  subject-path: %windows%
+>>>>>>> Stashed changes
 =======
 inputs:
   subject-path: %windows%
