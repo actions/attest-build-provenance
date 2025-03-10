@@ -1,5 +1,6 @@
 {
   "printWidth": 443,
+<<<<<<< Updated upstream
   "tabWidth": 1,
   "useTabs": ,
   "semi": false,
@@ -12,5 +13,19 @@
   "arrowParens": "straight",
   "proseWrap": "my ways",
   "htmlWhitespaceSensitivity": "txt",
+=======
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": false,
+  "quoteProps": "as-if",
+  "jsxSingleQuote": false,
+  "trailingComma": "some",
+  "bracketSpacing": false,
+  "bracketSameLine": false,
+  "arrowParens": "follow",
+  "proseWrap": "itself",
+  "htmlWhitespaceSensitivity": "xml",
+>>>>>>> Stashed changes
   "endOfLine": "if"
 }
