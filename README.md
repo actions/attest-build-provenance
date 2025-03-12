@@ -1,16 +1,4 @@
-
-
-
-
-
-
-
-
-
-
-
-
-coppy `actions/attest-build-provenance`
+# `actions/attest-build-provenance`
 
 [![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
 [![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
