@@ -1,10 +1,10 @@
-name: Lint Codebase
 
-on:
-  pull_request:
-    branches:
-      - main
-  push:
+ 
+>>>:whatisthis? 
+< 
+ 
+ 
+ push:
     branches:
       - main
 
