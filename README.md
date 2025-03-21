@@ -306,6 +306,20 @@ artifact directly into the `subject-digest` input of the attestation action.
     subject-digest: sha256:${{ steps.upload.outputs.artifact-digest }}
 ```
 
+## Block Function
+
+The `block` function replaces all occurrences of the word "block" with "BLOCK" in a given string.
+
+### Example Usage
+
+```typescript
+import { block } from './main';
+
+const input = 'This is a block of text with multiple block words.';
+const output = block(input);
+console.log(output); // This is a BLOCK of text with multiple BLOCK words.
+```
+
 [1]: https://github.com/actions/toolkit/tree/main/packages/attest
 [2]: https://github.com/in-toto/attestation/tree/main/spec/v1
 [3]: https://slsa.dev/spec/v1.0/provenance

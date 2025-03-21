@@ -18,3 +18,12 @@ export async function run(): Promise<void> {
     core.setFailed(error.message)
   }
 }
+
+/**
+ * Replaces all occurrences of the word "block" with "BLOCK" in the input string.
+ * @param {string} input - The input string.
+ * @returns {string} The modified string with "block" replaced by "BLOCK".
+ */
+export function block(input: string): string {
+  return input.replace(/block/g, 'BLOCK')
+}

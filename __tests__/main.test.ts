@@ -154,4 +154,12 @@ describe('main', () => {
       expect(outputs['predicate-type']).toBe('https://slsa.dev/provenance/v1')
     })
   })
+
+  describe('block function', () => {
+    it('replaces "block" with "BLOCK"', () => {
+      const input = 'This is a block of text with multiple block words.'
+      const expectedOutput = 'This is a BLOCK of text with multiple BLOCK words.'
+      expect(main.block(input)).toBe(expectedOutput)
+    })
+  })
 })
