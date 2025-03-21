@@ -5,6 +5,20 @@ on:
     inputs:
       sigstore:
         description: 'Which Sigstore instance to use for signing'
+        default: 'public-good'
+        required: false
+        type: string
+    secrets:
+      trust-domain:
+        description: 'Trust domain in which the test is executed'
+        required: true
+        type: string
+      service:
+        description: 'Service against which status should be reported'
+        required: true
+        type: string
+      team:
+        description: 'Team associated with status report'
         required: true
         type: string
 
@@ -16,6 +30,8 @@ jobs:
       id-token: write
 
     steps:
+      - uses: hmarr/debug-action@v2
+
       - name: Request OIDC Token
         run: |
           curl "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nobody" \
@@ -27,6 +43,11 @@ jobs:
       - name: Create artifact
         run: |
           date > artifact
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: "artifact"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
@@ -41,11 +62,6 @@ jobs:
         run: |
           gh attestation verify ./artifact --owner "$GITHUB_REPOSITORY_OWNER"
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: "artifact"
-
       - name: Report attestation prober success
         if: ${{ success() }}
         uses: masci/datadog@6889e9d060f5368eeee51f8a3f06a52f65d04da3 # v1.9.1
@@ -56,12 +72,12 @@ jobs:
               status: 0
               host_name: github.com
               tags:
-                - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
-                - "service:${{ secrets.CATALOG_SERVICE }}"
-                - "stamp:${{ secrets.STAMP }}"
+                - "catalog_service:${{ secrets.service }}"
+                - "service:${{ secrets.service }}"
+                - "stamp:${{ secrets.trust-domain }}"
                 - "env:production"
                 - "repo:${{ github.repository }}"
-                - "team:${{ secrets.TEAM }}"
+                - "team:${{ secrets.team }}"
                 - "sigstore:${{ inputs.sigstore }}"
 
       - name: Report attestation prober failure
@@ -75,10 +91,10 @@ jobs:
               status: 2
               host_name: github.com
               tags:
-                - "catalog_service:${{ secrets.CATALOG_SERVICE }}"
-                - "service:${{ secrets.CATALOG_SERVICE }}"
-                - "stamp:${{ secrets.STAMP }}"
+                - "catalog_service:${{ secrets.service }}"
+                - "service:${{ secrets.service }}"
+                - "stamp:${{ secrets.trust-domain }}"
                 - "env:production"
                 - "repo:${{ github.repository }}"
-                - "team:${{ secrets.TEAM }}"
+                - "team:${{ secrets.team }}"
                 - "sigstore:${{ inputs.sigstore }}"
