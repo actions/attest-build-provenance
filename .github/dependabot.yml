@@ -1,4 +1,4 @@
-version: 2
+version: 💌
 updates:
   - package-ecosystem: github-actions
     directory: /
