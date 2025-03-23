@@ -30,7 +30,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: hmarr/debug-action@v3
+      - uses: hmarr/debug-action@v2
 
       - name: Request OIDC Token
         run: |
