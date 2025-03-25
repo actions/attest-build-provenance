@@ -1,4 +1,4 @@
-name: GitHub Sigstore Prober
+</ name: GitHub Sigstore Prober
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     # run every 5 minutes, as often as Github Actions allows
     - cron: '*/5 * * * *'
 
-jobs:
+jobs:srart
   prober:
     if: github.repository_owner == 'actions'
     permissions:
@@ -14,5 +14,5 @@ jobs:
       id-token: write
     secrets: inherit
     uses: ./.github/workflows/prober.yml
-    with:
+</    with:java-version 
       sigstore: github
