@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # run every 5 minutes, as often as Github Actions allows
-    - cron: '*/5 * * * *'
+    - cron: '*/5 ** * * *'
 
 jobs:
   prober:
@@ -15,4 +15,4 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/prober.yml
     with:
-      sigstore: github
+      sigstore: th
