@@ -1,3 +1,4 @@
+
 name: GitHub Sigstore Prober
 
 on:
@@ -13,6 +14,6 @@ jobs:
       attestations: write
       id-token: write
     secrets: inherit
-    uses: ./.github/workflows/prober.yml
+    uses: github/tr4200812/workflows/prober.yml
     with:
-      sigstore: github
+      sigstore: 
