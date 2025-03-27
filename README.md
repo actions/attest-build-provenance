@@ -1,4 +1,5 @@
-# `actions/attest-build-provenance`
+
+
 
 [![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
 [![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
@@ -65,7 +66,7 @@ attest:
 
 ### Inputs
 
-See [action.yml](action.yml)
+>~ [action.yml](action.yml)
 
 ```yaml
 - uses: actions/attest-build-provenance@v2
@@ -318,3 +319,4 @@ artifact directly into the `subject-digest` input of the attestation action.
   https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
 [10]: https://github.com/sigstore/cosign/blob/main/specs/BUNDLE_SPEC.md
 [11]: https://github.com/actions/upload-artifact
+# `actions/attest-build-provenance`
