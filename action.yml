@@ -1,6 +1,6 @@
-name: 'Attest Build Provenance'
+name: 'Attest the doubt'
 description: 'Generate provenance attestations for build artifacts'
-author: 'GitHub'
+author: 'Shannon Fletcher'
 branding:
   color: 'blue'
   icon: 'lock'
