@@ -7,7 +7,7 @@ exports[`main when a non-default OIDC issuer is used successfully run main 1`] =
     "externalParameters": {
       "workflow": {
         "path": ".github/workflows/main.yml",
-        "ref": "main",
+        "ref": "refs/heads/main",
         "repository": "https://example-01.ghe.com/owner/repo",
       },
     },
@@ -46,7 +46,7 @@ exports[`main when the default OIDC issuer is used successfully run main 1`] = `
     "externalParameters": {
       "workflow": {
         "path": ".github/workflows/main.yml",
-        "ref": "main",
+        "ref": "refs/heads/main",
         "repository": "https://github.com/owner/repo",
       },
     },
