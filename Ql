@@ -1,0 +1,3 @@
+/
+
+<---[![CodeQL Advanced](https://github.com/tr4200812/-/actions/workflows/codeql.yml/badge.svg)](https://github.com/tr4200812/-/actions/workflows/codeql.yml)
