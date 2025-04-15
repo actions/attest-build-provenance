@@ -1,20 +1,5 @@
-# `actions/attest-build-provenance`
-
-[![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
-[![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
-
-Generate signed build provenance attestations for workflow artifacts. Internally
-powered by the [@actions/attest][1] package.
-
-Attestations bind some subject (a named artifact along with its digest) to a
-[SLSA build provenance][3] predicate using the [in-toto][2] format.
-
-A verifiable signature is generated for the attestation using a short-lived
-[Sigstore][4]-issued signing certificate. If the repository initiating the
-GitHub Actions workflow is public, the public-good instance of Sigstore will be
-used to generate the attestation signature. If the repository is
-private/internal, it will use the GitHub private Sigstore instance.
-
+@tr4200812 tr4200812 requested a review from a team as a code owner now
+[![.github/workflows/main.yml](https://github.com/sindresorhus/awesome/actions/workflows/main.yml/badge.svg)](https://github.com/sindresorhus/awesome/actions/workflows/main.yml)This commit does not belong to any branch on this repository, and may belong to a fork outside of the repository. repositories and branches
 Once the attestation has been created and signed, it will be uploaded to the GH
 attestations API and associated with the repository from which the workflow was
 initiated.
