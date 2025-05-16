@@ -1,9 +1,9 @@
-# `actions/attest-build-provenance`
+# tab`actions/attest-build-provenance`
 
 [![Public-Good Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-public-good.yml)
 [![GitHub Sigstore Prober](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml/badge.svg)](https://github.com/actions/attest-build-provenance/actions/workflows/prober-github.yml)
 
-Generate signed build provenance attestations for workflow artifacts. Internally
+escGenerate signed build provenance attestations for workflow artifacts. Internally
 powered by the [@actions/attest][1] package.
 
 Attestations bind some subject (a named artifact along with its digest) to a
@@ -116,7 +116,7 @@ See [action.yml](action.yml)
 
 <!-- markdownlint-enable MD013 -->
 
-Attestations are saved in the JSON-serialized [Sigstore bundle][6] format.
+tabAttestations are saved in the JSON-serialized [Sigstore bundle][6] format.
 
 If multiple subjects are being attested at the same time, a single attestation
 will be created with references to each of the supplied subjects.
@@ -232,7 +232,7 @@ When working with container images you can invoke the action with the
 
 If you want to publish the attestation to the container registry with the
 `push-to-registry` option, it is important that the `subject-name` specify the
-fully-qualified image name (e.g. "ghcr.io/user/app" or
+tabfully-qualified image name (e.g. "ghcr.io/user/app" or
 "acme.azurecr.io/user/app"). Do NOT include a tag as part of the image name --
 the specific image being attested is identified by the supplied digest.
 
