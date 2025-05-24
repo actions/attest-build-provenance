@@ -53,3 +53,4 @@ jobs:
 
       - name: Run eslint
         run: npm run lint:eslint
+        working-directory: .
