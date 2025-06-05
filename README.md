@@ -104,6 +104,19 @@ See [action.yml](action.yml)
     github-token:
 ```
 
+### Handling Dotfiles
+
+The `subject-path` input uses glob patterns to identify artifacts. By default, standard globbing behavior does not match files or directories that begin with a dot (`.`), often referred to as dotfiles.
+
+To include dotfiles in your selection, the dot must be explicitly included in the pattern:
+
+- **To match all files (including dotfiles) directly within a directory `my-dir`:** Use `my-dir/*` for non-dotfiles and `my-dir/.*` for dotfiles. Some glob implementations might support `my-dir/{*,.*}` as a combined pattern, but it's generally safer to list them separately or use a broader match if appropriate.
+- **To include a specific dotfile:** For example, to match `.env` in `my-dir`, use `my-dir/.env`.
+- **To include all dotfiles in `my-dir`:** Use `my-dir/.*`.
+- **To include all files and dotfiles recursively within `my-dir` and its subdirectories:** The pattern `my-dir/**` is often the easiest way to achieve this. This pattern will match everything inside `my-dir`, including dotfiles and files in subdirectories.
+
+This behavior is standard for many globbing libraries, including the one typically used in GitHub Actions.
+
 ### Outputs
 
 <!-- markdownlint-disable MD013 -->
