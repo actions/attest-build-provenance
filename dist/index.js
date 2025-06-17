@@ -18064,7 +18064,7 @@ async function all (cache) {
 "use strict";
 
 
-const { glob } = __nccwpck_require__(67471)
+const { glob } = __nccwpck_require__(21363)
 const path = __nccwpck_require__(16928)
 
 const globify = (pattern) => pattern.split(path.win32.sep).join(path.posix.sep)
@@ -18384,216 +18384,6 @@ async function lastRun (cache) {
   const data = await readFile(path.join(cache, '_lastverified'), { encoding: 'utf8' })
   return new Date(+data)
 }
-
-
-/***/ }),
-
-/***/ 45177:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var balanced = __nccwpck_require__(59380);
-
-module.exports = expandTop;
-
-var escSlash = '\0SLASH'+Math.random()+'\0';
-var escOpen = '\0OPEN'+Math.random()+'\0';
-var escClose = '\0CLOSE'+Math.random()+'\0';
-var escComma = '\0COMMA'+Math.random()+'\0';
-var escPeriod = '\0PERIOD'+Math.random()+'\0';
-
-function numeric(str) {
-  return parseInt(str, 10) == str
-    ? parseInt(str, 10)
-    : str.charCodeAt(0);
-}
-
-function escapeBraces(str) {
-  return str.split('\\\\').join(escSlash)
-            .split('\\{').join(escOpen)
-            .split('\\}').join(escClose)
-            .split('\\,').join(escComma)
-            .split('\\.').join(escPeriod);
-}
-
-function unescapeBraces(str) {
-  return str.split(escSlash).join('\\')
-            .split(escOpen).join('{')
-            .split(escClose).join('}')
-            .split(escComma).join(',')
-            .split(escPeriod).join('.');
-}
-
-
-// Basically just str.split(","), but handling cases
-// where we have nested braced sections, which should be
-// treated as individual members, like {a,{b,c},d}
-function parseCommaParts(str) {
-  if (!str)
-    return [''];
-
-  var parts = [];
-  var m = balanced('{', '}', str);
-
-  if (!m)
-    return str.split(',');
-
-  var pre = m.pre;
-  var body = m.body;
-  var post = m.post;
-  var p = pre.split(',');
-
-  p[p.length-1] += '{' + body + '}';
-  var postParts = parseCommaParts(post);
-  if (post.length) {
-    p[p.length-1] += postParts.shift();
-    p.push.apply(p, postParts);
-  }
-
-  parts.push.apply(parts, p);
-
-  return parts;
-}
-
-function expandTop(str) {
-  if (!str)
-    return [];
-
-  // I don't know why Bash 4.3 does this, but it does.
-  // Anything starting with {} will have the first two bytes preserved
-  // but *only* at the top level, so {},a}b will not expand to anything,
-  // but a{},b}c will be expanded to [a}c,abc].
-  // One could argue that this is a bug in Bash, but since the goal of
-  // this module is to match Bash's rules, we escape a leading {}
-  if (str.substr(0, 2) === '{}') {
-    str = '\\{\\}' + str.substr(2);
-  }
-
-  return expand(escapeBraces(str), true).map(unescapeBraces);
-}
-
-function embrace(str) {
-  return '{' + str + '}';
-}
-function isPadded(el) {
-  return /^-?0\d/.test(el);
-}
-
-function lte(i, y) {
-  return i <= y;
-}
-function gte(i, y) {
-  return i >= y;
-}
-
-function expand(str, isTop) {
-  var expansions = [];
-
-  var m = balanced('{', '}', str);
-  if (!m) return [str];
-
-  // no need to expand pre, since it is guaranteed to be free of brace-sets
-  var pre = m.pre;
-  var post = m.post.length
-    ? expand(m.post, false)
-    : [''];
-
-  if (/\$$/.test(m.pre)) {    
-    for (var k = 0; k < post.length; k++) {
-      var expansion = pre+ '{' + m.body + '}' + post[k];
-      expansions.push(expansion);
-    }
-  } else {
-    var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
-    var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
-    var isSequence = isNumericSequence || isAlphaSequence;
-    var isOptions = m.body.indexOf(',') >= 0;
-    if (!isSequence && !isOptions) {
-      // {a},b}
-      if (m.post.match(/,.*\}/)) {
-        str = m.pre + '{' + m.body + escClose + m.post;
-        return expand(str);
-      }
-      return [str];
-    }
-
-    var n;
-    if (isSequence) {
-      n = m.body.split(/\.\./);
-    } else {
-      n = parseCommaParts(m.body);
-      if (n.length === 1) {
-        // x{{a,b}}y ==> x{a}y x{b}y
-        n = expand(n[0], false).map(embrace);
-        if (n.length === 1) {
-          return post.map(function(p) {
-            return m.pre + n[0] + p;
-          });
-        }
-      }
-    }
-
-    // at this point, n is the parts, and we know it's not a comma set
-    // with a single entry.
-    var N;
-
-    if (isSequence) {
-      var x = numeric(n[0]);
-      var y = numeric(n[1]);
-      var width = Math.max(n[0].length, n[1].length)
-      var incr = n.length == 3
-        ? Math.abs(numeric(n[2]))
-        : 1;
-      var test = lte;
-      var reverse = y < x;
-      if (reverse) {
-        incr *= -1;
-        test = gte;
-      }
-      var pad = n.some(isPadded);
-
-      N = [];
-
-      for (var i = x; test(i, y); i += incr) {
-        var c;
-        if (isAlphaSequence) {
-          c = String.fromCharCode(i);
-          if (c === '\\')
-            c = '';
-        } else {
-          c = String(i);
-          if (pad) {
-            var need = width - c.length;
-            if (need > 0) {
-              var z = new Array(need + 1).join('0');
-              if (i < 0)
-                c = '-' + z + c.slice(1);
-              else
-                c = z + c;
-            }
-          }
-        }
-        N.push(c);
-      }
-    } else {
-      N = [];
-
-      for (var j = 0; j < n.length; j++) {
-        N.push.apply(N, expand(n[j], false));
-      }
-    }
-
-    for (var j = 0; j < N.length; j++) {
-      for (var k = 0; k < post.length; k++) {
-        var expansion = pre + N[j] + post[k];
-        if (!isTop || isSequence || expansion)
-          expansions.push(expansion);
-      }
-    }
-  }
-
-  return expansions;
-}
-
 
 
 /***/ }),
@@ -20063,6 +19853,216 @@ exports.ReadStreamSync = ReadStreamSync
 
 exports.WriteStream = WriteStream
 exports.WriteStreamSync = WriteStreamSync
+
+
+/***/ }),
+
+/***/ 68497:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var balanced = __nccwpck_require__(59380);
+
+module.exports = expandTop;
+
+var escSlash = '\0SLASH'+Math.random()+'\0';
+var escOpen = '\0OPEN'+Math.random()+'\0';
+var escClose = '\0CLOSE'+Math.random()+'\0';
+var escComma = '\0COMMA'+Math.random()+'\0';
+var escPeriod = '\0PERIOD'+Math.random()+'\0';
+
+function numeric(str) {
+  return parseInt(str, 10) == str
+    ? parseInt(str, 10)
+    : str.charCodeAt(0);
+}
+
+function escapeBraces(str) {
+  return str.split('\\\\').join(escSlash)
+            .split('\\{').join(escOpen)
+            .split('\\}').join(escClose)
+            .split('\\,').join(escComma)
+            .split('\\.').join(escPeriod);
+}
+
+function unescapeBraces(str) {
+  return str.split(escSlash).join('\\')
+            .split(escOpen).join('{')
+            .split(escClose).join('}')
+            .split(escComma).join(',')
+            .split(escPeriod).join('.');
+}
+
+
+// Basically just str.split(","), but handling cases
+// where we have nested braced sections, which should be
+// treated as individual members, like {a,{b,c},d}
+function parseCommaParts(str) {
+  if (!str)
+    return [''];
+
+  var parts = [];
+  var m = balanced('{', '}', str);
+
+  if (!m)
+    return str.split(',');
+
+  var pre = m.pre;
+  var body = m.body;
+  var post = m.post;
+  var p = pre.split(',');
+
+  p[p.length-1] += '{' + body + '}';
+  var postParts = parseCommaParts(post);
+  if (post.length) {
+    p[p.length-1] += postParts.shift();
+    p.push.apply(p, postParts);
+  }
+
+  parts.push.apply(parts, p);
+
+  return parts;
+}
+
+function expandTop(str) {
+  if (!str)
+    return [];
+
+  // I don't know why Bash 4.3 does this, but it does.
+  // Anything starting with {} will have the first two bytes preserved
+  // but *only* at the top level, so {},a}b will not expand to anything,
+  // but a{},b}c will be expanded to [a}c,abc].
+  // One could argue that this is a bug in Bash, but since the goal of
+  // this module is to match Bash's rules, we escape a leading {}
+  if (str.substr(0, 2) === '{}') {
+    str = '\\{\\}' + str.substr(2);
+  }
+
+  return expand(escapeBraces(str), true).map(unescapeBraces);
+}
+
+function embrace(str) {
+  return '{' + str + '}';
+}
+function isPadded(el) {
+  return /^-?0\d/.test(el);
+}
+
+function lte(i, y) {
+  return i <= y;
+}
+function gte(i, y) {
+  return i >= y;
+}
+
+function expand(str, isTop) {
+  var expansions = [];
+
+  var m = balanced('{', '}', str);
+  if (!m) return [str];
+
+  // no need to expand pre, since it is guaranteed to be free of brace-sets
+  var pre = m.pre;
+  var post = m.post.length
+    ? expand(m.post, false)
+    : [''];
+
+  if (/\$$/.test(m.pre)) {    
+    for (var k = 0; k < post.length; k++) {
+      var expansion = pre+ '{' + m.body + '}' + post[k];
+      expansions.push(expansion);
+    }
+  } else {
+    var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+    var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+    var isSequence = isNumericSequence || isAlphaSequence;
+    var isOptions = m.body.indexOf(',') >= 0;
+    if (!isSequence && !isOptions) {
+      // {a},b}
+      if (m.post.match(/,(?!,).*\}/)) {
+        str = m.pre + '{' + m.body + escClose + m.post;
+        return expand(str);
+      }
+      return [str];
+    }
+
+    var n;
+    if (isSequence) {
+      n = m.body.split(/\.\./);
+    } else {
+      n = parseCommaParts(m.body);
+      if (n.length === 1) {
+        // x{{a,b}}y ==> x{a}y x{b}y
+        n = expand(n[0], false).map(embrace);
+        if (n.length === 1) {
+          return post.map(function(p) {
+            return m.pre + n[0] + p;
+          });
+        }
+      }
+    }
+
+    // at this point, n is the parts, and we know it's not a comma set
+    // with a single entry.
+    var N;
+
+    if (isSequence) {
+      var x = numeric(n[0]);
+      var y = numeric(n[1]);
+      var width = Math.max(n[0].length, n[1].length)
+      var incr = n.length == 3
+        ? Math.abs(numeric(n[2]))
+        : 1;
+      var test = lte;
+      var reverse = y < x;
+      if (reverse) {
+        incr *= -1;
+        test = gte;
+      }
+      var pad = n.some(isPadded);
+
+      N = [];
+
+      for (var i = x; test(i, y); i += incr) {
+        var c;
+        if (isAlphaSequence) {
+          c = String.fromCharCode(i);
+          if (c === '\\')
+            c = '';
+        } else {
+          c = String(i);
+          if (pad) {
+            var need = width - c.length;
+            if (need > 0) {
+              var z = new Array(need + 1).join('0');
+              if (i < 0)
+                c = '-' + z + c.slice(1);
+              else
+                c = z + c;
+            }
+          }
+        }
+        N.push(c);
+      }
+    } else {
+      N = [];
+
+      for (var j = 0; j < n.length; j++) {
+        N.push.apply(N, expand(n[j], false));
+      }
+    }
+
+    for (var j = 0; j < N.length; j++) {
+      for (var k = 0; k < post.length; k++) {
+        var expansion = pre + N[j] + post[k];
+        if (!isTop || isSequence || expansion)
+          expansions.push(expansion);
+      }
+    }
+  }
+
+  return expansions;
+}
+
 
 
 /***/ }),
@@ -71348,1423 +71348,6 @@ exports.LRUCache = LRUCache;
 
 /***/ }),
 
-/***/ 81017:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Glob = void 0;
-const minimatch_1 = __nccwpck_require__(85207);
-const node_url_1 = __nccwpck_require__(73136);
-const path_scurry_1 = __nccwpck_require__(16577);
-const pattern_js_1 = __nccwpck_require__(4041);
-const walker_js_1 = __nccwpck_require__(95049);
-// if no process global, just call it linux.
-// so we default to case-sensitive, / separators
-const defaultPlatform = (typeof process === 'object' &&
-    process &&
-    typeof process.platform === 'string') ?
-    process.platform
-    : 'linux';
-/**
- * An object that can perform glob pattern traversals.
- */
-class Glob {
-    absolute;
-    cwd;
-    root;
-    dot;
-    dotRelative;
-    follow;
-    ignore;
-    magicalBraces;
-    mark;
-    matchBase;
-    maxDepth;
-    nobrace;
-    nocase;
-    nodir;
-    noext;
-    noglobstar;
-    pattern;
-    platform;
-    realpath;
-    scurry;
-    stat;
-    signal;
-    windowsPathsNoEscape;
-    withFileTypes;
-    includeChildMatches;
-    /**
-     * The options provided to the constructor.
-     */
-    opts;
-    /**
-     * An array of parsed immutable {@link Pattern} objects.
-     */
-    patterns;
-    /**
-     * All options are stored as properties on the `Glob` object.
-     *
-     * See {@link GlobOptions} for full options descriptions.
-     *
-     * Note that a previous `Glob` object can be passed as the
-     * `GlobOptions` to another `Glob` instantiation to re-use settings
-     * and caches with a new pattern.
-     *
-     * Traversal functions can be called multiple times to run the walk
-     * again.
-     */
-    constructor(pattern, opts) {
-        /* c8 ignore start */
-        if (!opts)
-            throw new TypeError('glob options required');
-        /* c8 ignore stop */
-        this.withFileTypes = !!opts.withFileTypes;
-        this.signal = opts.signal;
-        this.follow = !!opts.follow;
-        this.dot = !!opts.dot;
-        this.dotRelative = !!opts.dotRelative;
-        this.nodir = !!opts.nodir;
-        this.mark = !!opts.mark;
-        if (!opts.cwd) {
-            this.cwd = '';
-        }
-        else if (opts.cwd instanceof URL || opts.cwd.startsWith('file://')) {
-            opts.cwd = (0, node_url_1.fileURLToPath)(opts.cwd);
-        }
-        this.cwd = opts.cwd || '';
-        this.root = opts.root;
-        this.magicalBraces = !!opts.magicalBraces;
-        this.nobrace = !!opts.nobrace;
-        this.noext = !!opts.noext;
-        this.realpath = !!opts.realpath;
-        this.absolute = opts.absolute;
-        this.includeChildMatches = opts.includeChildMatches !== false;
-        this.noglobstar = !!opts.noglobstar;
-        this.matchBase = !!opts.matchBase;
-        this.maxDepth =
-            typeof opts.maxDepth === 'number' ? opts.maxDepth : Infinity;
-        this.stat = !!opts.stat;
-        this.ignore = opts.ignore;
-        if (this.withFileTypes && this.absolute !== undefined) {
-            throw new Error('cannot set absolute and withFileTypes:true');
-        }
-        if (typeof pattern === 'string') {
-            pattern = [pattern];
-        }
-        this.windowsPathsNoEscape =
-            !!opts.windowsPathsNoEscape ||
-                opts.allowWindowsEscape ===
-                    false;
-        if (this.windowsPathsNoEscape) {
-            pattern = pattern.map(p => p.replace(/\\/g, '/'));
-        }
-        if (this.matchBase) {
-            if (opts.noglobstar) {
-                throw new TypeError('base matching requires globstar');
-            }
-            pattern = pattern.map(p => (p.includes('/') ? p : `./**/${p}`));
-        }
-        this.pattern = pattern;
-        this.platform = opts.platform || defaultPlatform;
-        this.opts = { ...opts, platform: this.platform };
-        if (opts.scurry) {
-            this.scurry = opts.scurry;
-            if (opts.nocase !== undefined &&
-                opts.nocase !== opts.scurry.nocase) {
-                throw new Error('nocase option contradicts provided scurry option');
-            }
-        }
-        else {
-            const Scurry = opts.platform === 'win32' ? path_scurry_1.PathScurryWin32
-                : opts.platform === 'darwin' ? path_scurry_1.PathScurryDarwin
-                    : opts.platform ? path_scurry_1.PathScurryPosix
-                        : path_scurry_1.PathScurry;
-            this.scurry = new Scurry(this.cwd, {
-                nocase: opts.nocase,
-                fs: opts.fs,
-            });
-        }
-        this.nocase = this.scurry.nocase;
-        // If you do nocase:true on a case-sensitive file system, then
-        // we need to use regexps instead of strings for non-magic
-        // path portions, because statting `aBc` won't return results
-        // for the file `AbC` for example.
-        const nocaseMagicOnly = this.platform === 'darwin' || this.platform === 'win32';
-        const mmo = {
-            // default nocase based on platform
-            ...opts,
-            dot: this.dot,
-            matchBase: this.matchBase,
-            nobrace: this.nobrace,
-            nocase: this.nocase,
-            nocaseMagicOnly,
-            nocomment: true,
-            noext: this.noext,
-            nonegate: true,
-            optimizationLevel: 2,
-            platform: this.platform,
-            windowsPathsNoEscape: this.windowsPathsNoEscape,
-            debug: !!this.opts.debug,
-        };
-        const mms = this.pattern.map(p => new minimatch_1.Minimatch(p, mmo));
-        const [matchSet, globParts] = mms.reduce((set, m) => {
-            set[0].push(...m.set);
-            set[1].push(...m.globParts);
-            return set;
-        }, [[], []]);
-        this.patterns = matchSet.map((set, i) => {
-            const g = globParts[i];
-            /* c8 ignore start */
-            if (!g)
-                throw new Error('invalid pattern object');
-            /* c8 ignore stop */
-            return new pattern_js_1.Pattern(set, g, 0, this.platform);
-        });
-    }
-    async walk() {
-        // Walkers always return array of Path objects, so we just have to
-        // coerce them into the right shape.  It will have already called
-        // realpath() if the option was set to do so, so we know that's cached.
-        // start out knowing the cwd, at least
-        return [
-            ...(await new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
-                ...this.opts,
-                maxDepth: this.maxDepth !== Infinity ?
-                    this.maxDepth + this.scurry.cwd.depth()
-                    : Infinity,
-                platform: this.platform,
-                nocase: this.nocase,
-                includeChildMatches: this.includeChildMatches,
-            }).walk()),
-        ];
-    }
-    walkSync() {
-        return [
-            ...new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
-                ...this.opts,
-                maxDepth: this.maxDepth !== Infinity ?
-                    this.maxDepth + this.scurry.cwd.depth()
-                    : Infinity,
-                platform: this.platform,
-                nocase: this.nocase,
-                includeChildMatches: this.includeChildMatches,
-            }).walkSync(),
-        ];
-    }
-    stream() {
-        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
-            ...this.opts,
-            maxDepth: this.maxDepth !== Infinity ?
-                this.maxDepth + this.scurry.cwd.depth()
-                : Infinity,
-            platform: this.platform,
-            nocase: this.nocase,
-            includeChildMatches: this.includeChildMatches,
-        }).stream();
-    }
-    streamSync() {
-        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
-            ...this.opts,
-            maxDepth: this.maxDepth !== Infinity ?
-                this.maxDepth + this.scurry.cwd.depth()
-                : Infinity,
-            platform: this.platform,
-            nocase: this.nocase,
-            includeChildMatches: this.includeChildMatches,
-        }).streamSync();
-    }
-    /**
-     * Default sync iteration function. Returns a Generator that
-     * iterates over the results.
-     */
-    iterateSync() {
-        return this.streamSync()[Symbol.iterator]();
-    }
-    [Symbol.iterator]() {
-        return this.iterateSync();
-    }
-    /**
-     * Default async iteration function. Returns an AsyncGenerator that
-     * iterates over the results.
-     */
-    iterate() {
-        return this.stream()[Symbol.asyncIterator]();
-    }
-    [Symbol.asyncIterator]() {
-        return this.iterate();
-    }
-}
-exports.Glob = Glob;
-//# sourceMappingURL=glob.js.map
-
-/***/ }),
-
-/***/ 66889:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.hasMagic = void 0;
-const minimatch_1 = __nccwpck_require__(85207);
-/**
- * Return true if the patterns provided contain any magic glob characters,
- * given the options provided.
- *
- * Brace expansion is not considered "magic" unless the `magicalBraces` option
- * is set, as brace expansion just turns one string into an array of strings.
- * So a pattern like `'x{a,b}y'` would return `false`, because `'xay'` and
- * `'xby'` both do not contain any magic glob characters, and it's treated the
- * same as if you had called it on `['xay', 'xby']`. When `magicalBraces:true`
- * is in the options, brace expansion _is_ treated as a pattern having magic.
- */
-const hasMagic = (pattern, options = {}) => {
-    if (!Array.isArray(pattern)) {
-        pattern = [pattern];
-    }
-    for (const p of pattern) {
-        if (new minimatch_1.Minimatch(p, options).hasMagic())
-            return true;
-    }
-    return false;
-};
-exports.hasMagic = hasMagic;
-//# sourceMappingURL=has-magic.js.map
-
-/***/ }),
-
-/***/ 4833:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-// give it a pattern, and it'll be able to tell you if
-// a given path should be ignored.
-// Ignoring a path ignores its children if the pattern ends in /**
-// Ignores are always parsed in dot:true mode
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Ignore = void 0;
-const minimatch_1 = __nccwpck_require__(85207);
-const pattern_js_1 = __nccwpck_require__(4041);
-const defaultPlatform = (typeof process === 'object' &&
-    process &&
-    typeof process.platform === 'string') ?
-    process.platform
-    : 'linux';
-/**
- * Class used to process ignored patterns
- */
-class Ignore {
-    relative;
-    relativeChildren;
-    absolute;
-    absoluteChildren;
-    platform;
-    mmopts;
-    constructor(ignored, { nobrace, nocase, noext, noglobstar, platform = defaultPlatform, }) {
-        this.relative = [];
-        this.absolute = [];
-        this.relativeChildren = [];
-        this.absoluteChildren = [];
-        this.platform = platform;
-        this.mmopts = {
-            dot: true,
-            nobrace,
-            nocase,
-            noext,
-            noglobstar,
-            optimizationLevel: 2,
-            platform,
-            nocomment: true,
-            nonegate: true,
-        };
-        for (const ign of ignored)
-            this.add(ign);
-    }
-    add(ign) {
-        // this is a little weird, but it gives us a clean set of optimized
-        // minimatch matchers, without getting tripped up if one of them
-        // ends in /** inside a brace section, and it's only inefficient at
-        // the start of the walk, not along it.
-        // It'd be nice if the Pattern class just had a .test() method, but
-        // handling globstars is a bit of a pita, and that code already lives
-        // in minimatch anyway.
-        // Another way would be if maybe Minimatch could take its set/globParts
-        // as an option, and then we could at least just use Pattern to test
-        // for absolute-ness.
-        // Yet another way, Minimatch could take an array of glob strings, and
-        // a cwd option, and do the right thing.
-        const mm = new minimatch_1.Minimatch(ign, this.mmopts);
-        for (let i = 0; i < mm.set.length; i++) {
-            const parsed = mm.set[i];
-            const globParts = mm.globParts[i];
-            /* c8 ignore start */
-            if (!parsed || !globParts) {
-                throw new Error('invalid pattern object');
-            }
-            // strip off leading ./ portions
-            // https://github.com/isaacs/node-glob/issues/570
-            while (parsed[0] === '.' && globParts[0] === '.') {
-                parsed.shift();
-                globParts.shift();
-            }
-            /* c8 ignore stop */
-            const p = new pattern_js_1.Pattern(parsed, globParts, 0, this.platform);
-            const m = new minimatch_1.Minimatch(p.globString(), this.mmopts);
-            const children = globParts[globParts.length - 1] === '**';
-            const absolute = p.isAbsolute();
-            if (absolute)
-                this.absolute.push(m);
-            else
-                this.relative.push(m);
-            if (children) {
-                if (absolute)
-                    this.absoluteChildren.push(m);
-                else
-                    this.relativeChildren.push(m);
-            }
-        }
-    }
-    ignored(p) {
-        const fullpath = p.fullpath();
-        const fullpaths = `${fullpath}/`;
-        const relative = p.relative() || '.';
-        const relatives = `${relative}/`;
-        for (const m of this.relative) {
-            if (m.match(relative) || m.match(relatives))
-                return true;
-        }
-        for (const m of this.absolute) {
-            if (m.match(fullpath) || m.match(fullpaths))
-                return true;
-        }
-        return false;
-    }
-    childrenIgnored(p) {
-        const fullpath = p.fullpath() + '/';
-        const relative = (p.relative() || '.') + '/';
-        for (const m of this.relativeChildren) {
-            if (m.match(relative))
-                return true;
-        }
-        for (const m of this.absoluteChildren) {
-            if (m.match(fullpath))
-                return true;
-        }
-        return false;
-    }
-}
-exports.Ignore = Ignore;
-//# sourceMappingURL=ignore.js.map
-
-/***/ }),
-
-/***/ 67471:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.glob = exports.sync = exports.iterate = exports.iterateSync = exports.stream = exports.streamSync = exports.Ignore = exports.hasMagic = exports.Glob = exports.unescape = exports.escape = void 0;
-exports.globStreamSync = globStreamSync;
-exports.globStream = globStream;
-exports.globSync = globSync;
-exports.globIterateSync = globIterateSync;
-exports.globIterate = globIterate;
-const minimatch_1 = __nccwpck_require__(85207);
-const glob_js_1 = __nccwpck_require__(81017);
-const has_magic_js_1 = __nccwpck_require__(66889);
-var minimatch_2 = __nccwpck_require__(85207);
-Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return minimatch_2.escape; } }));
-Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return minimatch_2.unescape; } }));
-var glob_js_2 = __nccwpck_require__(81017);
-Object.defineProperty(exports, "Glob", ({ enumerable: true, get: function () { return glob_js_2.Glob; } }));
-var has_magic_js_2 = __nccwpck_require__(66889);
-Object.defineProperty(exports, "hasMagic", ({ enumerable: true, get: function () { return has_magic_js_2.hasMagic; } }));
-var ignore_js_1 = __nccwpck_require__(4833);
-Object.defineProperty(exports, "Ignore", ({ enumerable: true, get: function () { return ignore_js_1.Ignore; } }));
-function globStreamSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).streamSync();
-}
-function globStream(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).stream();
-}
-function globSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).walkSync();
-}
-async function glob_(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).walk();
-}
-function globIterateSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).iterateSync();
-}
-function globIterate(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).iterate();
-}
-// aliases: glob.sync.stream() glob.stream.sync() glob.sync() etc
-exports.streamSync = globStreamSync;
-exports.stream = Object.assign(globStream, { sync: globStreamSync });
-exports.iterateSync = globIterateSync;
-exports.iterate = Object.assign(globIterate, {
-    sync: globIterateSync,
-});
-exports.sync = Object.assign(globSync, {
-    stream: globStreamSync,
-    iterate: globIterateSync,
-});
-exports.glob = Object.assign(glob_, {
-    glob: glob_,
-    globSync,
-    sync: exports.sync,
-    globStream,
-    stream: exports.stream,
-    globStreamSync,
-    streamSync: exports.streamSync,
-    globIterate,
-    iterate: exports.iterate,
-    globIterateSync,
-    iterateSync: exports.iterateSync,
-    Glob: glob_js_1.Glob,
-    hasMagic: has_magic_js_1.hasMagic,
-    escape: minimatch_1.escape,
-    unescape: minimatch_1.unescape,
-});
-exports.glob.glob = exports.glob;
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 4041:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-// this is just a very light wrapper around 2 arrays with an offset index
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Pattern = void 0;
-const minimatch_1 = __nccwpck_require__(85207);
-const isPatternList = (pl) => pl.length >= 1;
-const isGlobList = (gl) => gl.length >= 1;
-/**
- * An immutable-ish view on an array of glob parts and their parsed
- * results
- */
-class Pattern {
-    #patternList;
-    #globList;
-    #index;
-    length;
-    #platform;
-    #rest;
-    #globString;
-    #isDrive;
-    #isUNC;
-    #isAbsolute;
-    #followGlobstar = true;
-    constructor(patternList, globList, index, platform) {
-        if (!isPatternList(patternList)) {
-            throw new TypeError('empty pattern list');
-        }
-        if (!isGlobList(globList)) {
-            throw new TypeError('empty glob list');
-        }
-        if (globList.length !== patternList.length) {
-            throw new TypeError('mismatched pattern list and glob list lengths');
-        }
-        this.length = patternList.length;
-        if (index < 0 || index >= this.length) {
-            throw new TypeError('index out of range');
-        }
-        this.#patternList = patternList;
-        this.#globList = globList;
-        this.#index = index;
-        this.#platform = platform;
-        // normalize root entries of absolute patterns on initial creation.
-        if (this.#index === 0) {
-            // c: => ['c:/']
-            // C:/ => ['C:/']
-            // C:/x => ['C:/', 'x']
-            // //host/share => ['//host/share/']
-            // //host/share/ => ['//host/share/']
-            // //host/share/x => ['//host/share/', 'x']
-            // /etc => ['/', 'etc']
-            // / => ['/']
-            if (this.isUNC()) {
-                // '' / '' / 'host' / 'share'
-                const [p0, p1, p2, p3, ...prest] = this.#patternList;
-                const [g0, g1, g2, g3, ...grest] = this.#globList;
-                if (prest[0] === '') {
-                    // ends in /
-                    prest.shift();
-                    grest.shift();
-                }
-                const p = [p0, p1, p2, p3, ''].join('/');
-                const g = [g0, g1, g2, g3, ''].join('/');
-                this.#patternList = [p, ...prest];
-                this.#globList = [g, ...grest];
-                this.length = this.#patternList.length;
-            }
-            else if (this.isDrive() || this.isAbsolute()) {
-                const [p1, ...prest] = this.#patternList;
-                const [g1, ...grest] = this.#globList;
-                if (prest[0] === '') {
-                    // ends in /
-                    prest.shift();
-                    grest.shift();
-                }
-                const p = p1 + '/';
-                const g = g1 + '/';
-                this.#patternList = [p, ...prest];
-                this.#globList = [g, ...grest];
-                this.length = this.#patternList.length;
-            }
-        }
-    }
-    /**
-     * The first entry in the parsed list of patterns
-     */
-    pattern() {
-        return this.#patternList[this.#index];
-    }
-    /**
-     * true of if pattern() returns a string
-     */
-    isString() {
-        return typeof this.#patternList[this.#index] === 'string';
-    }
-    /**
-     * true of if pattern() returns GLOBSTAR
-     */
-    isGlobstar() {
-        return this.#patternList[this.#index] === minimatch_1.GLOBSTAR;
-    }
-    /**
-     * true if pattern() returns a regexp
-     */
-    isRegExp() {
-        return this.#patternList[this.#index] instanceof RegExp;
-    }
-    /**
-     * The /-joined set of glob parts that make up this pattern
-     */
-    globString() {
-        return (this.#globString =
-            this.#globString ||
-                (this.#index === 0 ?
-                    this.isAbsolute() ?
-                        this.#globList[0] + this.#globList.slice(1).join('/')
-                        : this.#globList.join('/')
-                    : this.#globList.slice(this.#index).join('/')));
-    }
-    /**
-     * true if there are more pattern parts after this one
-     */
-    hasMore() {
-        return this.length > this.#index + 1;
-    }
-    /**
-     * The rest of the pattern after this part, or null if this is the end
-     */
-    rest() {
-        if (this.#rest !== undefined)
-            return this.#rest;
-        if (!this.hasMore())
-            return (this.#rest = null);
-        this.#rest = new Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
-        this.#rest.#isAbsolute = this.#isAbsolute;
-        this.#rest.#isUNC = this.#isUNC;
-        this.#rest.#isDrive = this.#isDrive;
-        return this.#rest;
-    }
-    /**
-     * true if the pattern represents a //unc/path/ on windows
-     */
-    isUNC() {
-        const pl = this.#patternList;
-        return this.#isUNC !== undefined ?
-            this.#isUNC
-            : (this.#isUNC =
-                this.#platform === 'win32' &&
-                    this.#index === 0 &&
-                    pl[0] === '' &&
-                    pl[1] === '' &&
-                    typeof pl[2] === 'string' &&
-                    !!pl[2] &&
-                    typeof pl[3] === 'string' &&
-                    !!pl[3]);
-    }
-    // pattern like C:/...
-    // split = ['C:', ...]
-    // XXX: would be nice to handle patterns like `c:*` to test the cwd
-    // in c: for *, but I don't know of a way to even figure out what that
-    // cwd is without actually chdir'ing into it?
-    /**
-     * True if the pattern starts with a drive letter on Windows
-     */
-    isDrive() {
-        const pl = this.#patternList;
-        return this.#isDrive !== undefined ?
-            this.#isDrive
-            : (this.#isDrive =
-                this.#platform === 'win32' &&
-                    this.#index === 0 &&
-                    this.length > 1 &&
-                    typeof pl[0] === 'string' &&
-                    /^[a-z]:$/i.test(pl[0]));
-    }
-    // pattern = '/' or '/...' or '/x/...'
-    // split = ['', ''] or ['', ...] or ['', 'x', ...]
-    // Drive and UNC both considered absolute on windows
-    /**
-     * True if the pattern is rooted on an absolute path
-     */
-    isAbsolute() {
-        const pl = this.#patternList;
-        return this.#isAbsolute !== undefined ?
-            this.#isAbsolute
-            : (this.#isAbsolute =
-                (pl[0] === '' && pl.length > 1) ||
-                    this.isDrive() ||
-                    this.isUNC());
-    }
-    /**
-     * consume the root of the pattern, and return it
-     */
-    root() {
-        const p = this.#patternList[0];
-        return (typeof p === 'string' && this.isAbsolute() && this.#index === 0) ?
-            p
-            : '';
-    }
-    /**
-     * Check to see if the current globstar pattern is allowed to follow
-     * a symbolic link.
-     */
-    checkFollowGlobstar() {
-        return !(this.#index === 0 ||
-            !this.isGlobstar() ||
-            !this.#followGlobstar);
-    }
-    /**
-     * Mark that the current globstar pattern is following a symbolic link
-     */
-    markFollowGlobstar() {
-        if (this.#index === 0 || !this.isGlobstar() || !this.#followGlobstar)
-            return false;
-        this.#followGlobstar = false;
-        return true;
-    }
-}
-exports.Pattern = Pattern;
-//# sourceMappingURL=pattern.js.map
-
-/***/ }),
-
-/***/ 48095:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-// synchronous utility for filtering entries and calculating subwalks
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Processor = exports.SubWalks = exports.MatchRecord = exports.HasWalkedCache = void 0;
-const minimatch_1 = __nccwpck_require__(85207);
-/**
- * A cache of which patterns have been processed for a given Path
- */
-class HasWalkedCache {
-    store;
-    constructor(store = new Map()) {
-        this.store = store;
-    }
-    copy() {
-        return new HasWalkedCache(new Map(this.store));
-    }
-    hasWalked(target, pattern) {
-        return this.store.get(target.fullpath())?.has(pattern.globString());
-    }
-    storeWalked(target, pattern) {
-        const fullpath = target.fullpath();
-        const cached = this.store.get(fullpath);
-        if (cached)
-            cached.add(pattern.globString());
-        else
-            this.store.set(fullpath, new Set([pattern.globString()]));
-    }
-}
-exports.HasWalkedCache = HasWalkedCache;
-/**
- * A record of which paths have been matched in a given walk step,
- * and whether they only are considered a match if they are a directory,
- * and whether their absolute or relative path should be returned.
- */
-class MatchRecord {
-    store = new Map();
-    add(target, absolute, ifDir) {
-        const n = (absolute ? 2 : 0) | (ifDir ? 1 : 0);
-        const current = this.store.get(target);
-        this.store.set(target, current === undefined ? n : n & current);
-    }
-    // match, absolute, ifdir
-    entries() {
-        return [...this.store.entries()].map(([path, n]) => [
-            path,
-            !!(n & 2),
-            !!(n & 1),
-        ]);
-    }
-}
-exports.MatchRecord = MatchRecord;
-/**
- * A collection of patterns that must be processed in a subsequent step
- * for a given path.
- */
-class SubWalks {
-    store = new Map();
-    add(target, pattern) {
-        if (!target.canReaddir()) {
-            return;
-        }
-        const subs = this.store.get(target);
-        if (subs) {
-            if (!subs.find(p => p.globString() === pattern.globString())) {
-                subs.push(pattern);
-            }
-        }
-        else
-            this.store.set(target, [pattern]);
-    }
-    get(target) {
-        const subs = this.store.get(target);
-        /* c8 ignore start */
-        if (!subs) {
-            throw new Error('attempting to walk unknown path');
-        }
-        /* c8 ignore stop */
-        return subs;
-    }
-    entries() {
-        return this.keys().map(k => [k, this.store.get(k)]);
-    }
-    keys() {
-        return [...this.store.keys()].filter(t => t.canReaddir());
-    }
-}
-exports.SubWalks = SubWalks;
-/**
- * The class that processes patterns for a given path.
- *
- * Handles child entry filtering, and determining whether a path's
- * directory contents must be read.
- */
-class Processor {
-    hasWalkedCache;
-    matches = new MatchRecord();
-    subwalks = new SubWalks();
-    patterns;
-    follow;
-    dot;
-    opts;
-    constructor(opts, hasWalkedCache) {
-        this.opts = opts;
-        this.follow = !!opts.follow;
-        this.dot = !!opts.dot;
-        this.hasWalkedCache =
-            hasWalkedCache ? hasWalkedCache.copy() : new HasWalkedCache();
-    }
-    processPatterns(target, patterns) {
-        this.patterns = patterns;
-        const processingSet = patterns.map(p => [target, p]);
-        // map of paths to the magic-starting subwalks they need to walk
-        // first item in patterns is the filter
-        for (let [t, pattern] of processingSet) {
-            this.hasWalkedCache.storeWalked(t, pattern);
-            const root = pattern.root();
-            const absolute = pattern.isAbsolute() && this.opts.absolute !== false;
-            // start absolute patterns at root
-            if (root) {
-                t = t.resolve(root === '/' && this.opts.root !== undefined ?
-                    this.opts.root
-                    : root);
-                const rest = pattern.rest();
-                if (!rest) {
-                    this.matches.add(t, true, false);
-                    continue;
-                }
-                else {
-                    pattern = rest;
-                }
-            }
-            if (t.isENOENT())
-                continue;
-            let p;
-            let rest;
-            let changed = false;
-            while (typeof (p = pattern.pattern()) === 'string' &&
-                (rest = pattern.rest())) {
-                const c = t.resolve(p);
-                t = c;
-                pattern = rest;
-                changed = true;
-            }
-            p = pattern.pattern();
-            rest = pattern.rest();
-            if (changed) {
-                if (this.hasWalkedCache.hasWalked(t, pattern))
-                    continue;
-                this.hasWalkedCache.storeWalked(t, pattern);
-            }
-            // now we have either a final string for a known entry,
-            // more strings for an unknown entry,
-            // or a pattern starting with magic, mounted on t.
-            if (typeof p === 'string') {
-                // must not be final entry, otherwise we would have
-                // concatenated it earlier.
-                const ifDir = p === '..' || p === '' || p === '.';
-                this.matches.add(t.resolve(p), absolute, ifDir);
-                continue;
-            }
-            else if (p === minimatch_1.GLOBSTAR) {
-                // if no rest, match and subwalk pattern
-                // if rest, process rest and subwalk pattern
-                // if it's a symlink, but we didn't get here by way of a
-                // globstar match (meaning it's the first time THIS globstar
-                // has traversed a symlink), then we follow it. Otherwise, stop.
-                if (!t.isSymbolicLink() ||
-                    this.follow ||
-                    pattern.checkFollowGlobstar()) {
-                    this.subwalks.add(t, pattern);
-                }
-                const rp = rest?.pattern();
-                const rrest = rest?.rest();
-                if (!rest || ((rp === '' || rp === '.') && !rrest)) {
-                    // only HAS to be a dir if it ends in **/ or **/.
-                    // but ending in ** will match files as well.
-                    this.matches.add(t, absolute, rp === '' || rp === '.');
-                }
-                else {
-                    if (rp === '..') {
-                        // this would mean you're matching **/.. at the fs root,
-                        // and no thanks, I'm not gonna test that specific case.
-                        /* c8 ignore start */
-                        const tp = t.parent || t;
-                        /* c8 ignore stop */
-                        if (!rrest)
-                            this.matches.add(tp, absolute, true);
-                        else if (!this.hasWalkedCache.hasWalked(tp, rrest)) {
-                            this.subwalks.add(tp, rrest);
-                        }
-                    }
-                }
-            }
-            else if (p instanceof RegExp) {
-                this.subwalks.add(t, pattern);
-            }
-        }
-        return this;
-    }
-    subwalkTargets() {
-        return this.subwalks.keys();
-    }
-    child() {
-        return new Processor(this.opts, this.hasWalkedCache);
-    }
-    // return a new Processor containing the subwalks for each
-    // child entry, and a set of matches, and
-    // a hasWalkedCache that's a copy of this one
-    // then we're going to call
-    filterEntries(parent, entries) {
-        const patterns = this.subwalks.get(parent);
-        // put matches and entry walks into the results processor
-        const results = this.child();
-        for (const e of entries) {
-            for (const pattern of patterns) {
-                const absolute = pattern.isAbsolute();
-                const p = pattern.pattern();
-                const rest = pattern.rest();
-                if (p === minimatch_1.GLOBSTAR) {
-                    results.testGlobstar(e, pattern, rest, absolute);
-                }
-                else if (p instanceof RegExp) {
-                    results.testRegExp(e, p, rest, absolute);
-                }
-                else {
-                    results.testString(e, p, rest, absolute);
-                }
-            }
-        }
-        return results;
-    }
-    testGlobstar(e, pattern, rest, absolute) {
-        if (this.dot || !e.name.startsWith('.')) {
-            if (!pattern.hasMore()) {
-                this.matches.add(e, absolute, false);
-            }
-            if (e.canReaddir()) {
-                // if we're in follow mode or it's not a symlink, just keep
-                // testing the same pattern. If there's more after the globstar,
-                // then this symlink consumes the globstar. If not, then we can
-                // follow at most ONE symlink along the way, so we mark it, which
-                // also checks to ensure that it wasn't already marked.
-                if (this.follow || !e.isSymbolicLink()) {
-                    this.subwalks.add(e, pattern);
-                }
-                else if (e.isSymbolicLink()) {
-                    if (rest && pattern.checkFollowGlobstar()) {
-                        this.subwalks.add(e, rest);
-                    }
-                    else if (pattern.markFollowGlobstar()) {
-                        this.subwalks.add(e, pattern);
-                    }
-                }
-            }
-        }
-        // if the NEXT thing matches this entry, then also add
-        // the rest.
-        if (rest) {
-            const rp = rest.pattern();
-            if (typeof rp === 'string' &&
-                // dots and empty were handled already
-                rp !== '..' &&
-                rp !== '' &&
-                rp !== '.') {
-                this.testString(e, rp, rest.rest(), absolute);
-            }
-            else if (rp === '..') {
-                /* c8 ignore start */
-                const ep = e.parent || e;
-                /* c8 ignore stop */
-                this.subwalks.add(ep, rest);
-            }
-            else if (rp instanceof RegExp) {
-                this.testRegExp(e, rp, rest.rest(), absolute);
-            }
-        }
-    }
-    testRegExp(e, p, rest, absolute) {
-        if (!p.test(e.name))
-            return;
-        if (!rest) {
-            this.matches.add(e, absolute, false);
-        }
-        else {
-            this.subwalks.add(e, rest);
-        }
-    }
-    testString(e, p, rest, absolute) {
-        // should never happen?
-        if (!e.isNamed(p))
-            return;
-        if (!rest) {
-            this.matches.add(e, absolute, false);
-        }
-        else {
-            this.subwalks.add(e, rest);
-        }
-    }
-}
-exports.Processor = Processor;
-//# sourceMappingURL=processor.js.map
-
-/***/ }),
-
-/***/ 95049:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GlobStream = exports.GlobWalker = exports.GlobUtil = void 0;
-/**
- * Single-use utility classes to provide functionality to the {@link Glob}
- * methods.
- *
- * @module
- */
-const minipass_1 = __nccwpck_require__(78275);
-const ignore_js_1 = __nccwpck_require__(4833);
-const processor_js_1 = __nccwpck_require__(48095);
-const makeIgnore = (ignore, opts) => typeof ignore === 'string' ? new ignore_js_1.Ignore([ignore], opts)
-    : Array.isArray(ignore) ? new ignore_js_1.Ignore(ignore, opts)
-        : ignore;
-/**
- * basic walking utilities that all the glob walker types use
- */
-class GlobUtil {
-    path;
-    patterns;
-    opts;
-    seen = new Set();
-    paused = false;
-    aborted = false;
-    #onResume = [];
-    #ignore;
-    #sep;
-    signal;
-    maxDepth;
-    includeChildMatches;
-    constructor(patterns, path, opts) {
-        this.patterns = patterns;
-        this.path = path;
-        this.opts = opts;
-        this.#sep = !opts.posix && opts.platform === 'win32' ? '\\' : '/';
-        this.includeChildMatches = opts.includeChildMatches !== false;
-        if (opts.ignore || !this.includeChildMatches) {
-            this.#ignore = makeIgnore(opts.ignore ?? [], opts);
-            if (!this.includeChildMatches &&
-                typeof this.#ignore.add !== 'function') {
-                const m = 'cannot ignore child matches, ignore lacks add() method.';
-                throw new Error(m);
-            }
-        }
-        // ignore, always set with maxDepth, but it's optional on the
-        // GlobOptions type
-        /* c8 ignore start */
-        this.maxDepth = opts.maxDepth || Infinity;
-        /* c8 ignore stop */
-        if (opts.signal) {
-            this.signal = opts.signal;
-            this.signal.addEventListener('abort', () => {
-                this.#onResume.length = 0;
-            });
-        }
-    }
-    #ignored(path) {
-        return this.seen.has(path) || !!this.#ignore?.ignored?.(path);
-    }
-    #childrenIgnored(path) {
-        return !!this.#ignore?.childrenIgnored?.(path);
-    }
-    // backpressure mechanism
-    pause() {
-        this.paused = true;
-    }
-    resume() {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            return;
-        /* c8 ignore stop */
-        this.paused = false;
-        let fn = undefined;
-        while (!this.paused && (fn = this.#onResume.shift())) {
-            fn();
-        }
-    }
-    onResume(fn) {
-        if (this.signal?.aborted)
-            return;
-        /* c8 ignore start */
-        if (!this.paused) {
-            fn();
-        }
-        else {
-            /* c8 ignore stop */
-            this.#onResume.push(fn);
-        }
-    }
-    // do the requisite realpath/stat checking, and return the path
-    // to add or undefined to filter it out.
-    async matchCheck(e, ifDir) {
-        if (ifDir && this.opts.nodir)
-            return undefined;
-        let rpc;
-        if (this.opts.realpath) {
-            rpc = e.realpathCached() || (await e.realpath());
-            if (!rpc)
-                return undefined;
-            e = rpc;
-        }
-        const needStat = e.isUnknown() || this.opts.stat;
-        const s = needStat ? await e.lstat() : e;
-        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
-            const target = await s.realpath();
-            /* c8 ignore start */
-            if (target && (target.isUnknown() || this.opts.stat)) {
-                await target.lstat();
-            }
-            /* c8 ignore stop */
-        }
-        return this.matchCheckTest(s, ifDir);
-    }
-    matchCheckTest(e, ifDir) {
-        return (e &&
-            (this.maxDepth === Infinity || e.depth() <= this.maxDepth) &&
-            (!ifDir || e.canReaddir()) &&
-            (!this.opts.nodir || !e.isDirectory()) &&
-            (!this.opts.nodir ||
-                !this.opts.follow ||
-                !e.isSymbolicLink() ||
-                !e.realpathCached()?.isDirectory()) &&
-            !this.#ignored(e)) ?
-            e
-            : undefined;
-    }
-    matchCheckSync(e, ifDir) {
-        if (ifDir && this.opts.nodir)
-            return undefined;
-        let rpc;
-        if (this.opts.realpath) {
-            rpc = e.realpathCached() || e.realpathSync();
-            if (!rpc)
-                return undefined;
-            e = rpc;
-        }
-        const needStat = e.isUnknown() || this.opts.stat;
-        const s = needStat ? e.lstatSync() : e;
-        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
-            const target = s.realpathSync();
-            if (target && (target?.isUnknown() || this.opts.stat)) {
-                target.lstatSync();
-            }
-        }
-        return this.matchCheckTest(s, ifDir);
-    }
-    matchFinish(e, absolute) {
-        if (this.#ignored(e))
-            return;
-        // we know we have an ignore if this is false, but TS doesn't
-        if (!this.includeChildMatches && this.#ignore?.add) {
-            const ign = `${e.relativePosix()}/**`;
-            this.#ignore.add(ign);
-        }
-        const abs = this.opts.absolute === undefined ? absolute : this.opts.absolute;
-        this.seen.add(e);
-        const mark = this.opts.mark && e.isDirectory() ? this.#sep : '';
-        // ok, we have what we need!
-        if (this.opts.withFileTypes) {
-            this.matchEmit(e);
-        }
-        else if (abs) {
-            const abs = this.opts.posix ? e.fullpathPosix() : e.fullpath();
-            this.matchEmit(abs + mark);
-        }
-        else {
-            const rel = this.opts.posix ? e.relativePosix() : e.relative();
-            const pre = this.opts.dotRelative && !rel.startsWith('..' + this.#sep) ?
-                '.' + this.#sep
-                : '';
-            this.matchEmit(!rel ? '.' + mark : pre + rel + mark);
-        }
-    }
-    async match(e, absolute, ifDir) {
-        const p = await this.matchCheck(e, ifDir);
-        if (p)
-            this.matchFinish(p, absolute);
-    }
-    matchSync(e, absolute, ifDir) {
-        const p = this.matchCheckSync(e, ifDir);
-        if (p)
-            this.matchFinish(p, absolute);
-    }
-    walkCB(target, patterns, cb) {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            cb();
-        /* c8 ignore stop */
-        this.walkCB2(target, patterns, new processor_js_1.Processor(this.opts), cb);
-    }
-    walkCB2(target, patterns, processor, cb) {
-        if (this.#childrenIgnored(target))
-            return cb();
-        if (this.signal?.aborted)
-            cb();
-        if (this.paused) {
-            this.onResume(() => this.walkCB2(target, patterns, processor, cb));
-            return;
-        }
-        processor.processPatterns(target, patterns);
-        // done processing.  all of the above is sync, can be abstracted out.
-        // subwalks is a map of paths to the entry filters they need
-        // matches is a map of paths to [absolute, ifDir] tuples.
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            tasks++;
-            this.match(m, absolute, ifDir).then(() => next());
-        }
-        for (const t of processor.subwalkTargets()) {
-            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
-                continue;
-            }
-            tasks++;
-            const childrenCached = t.readdirCached();
-            if (t.calledReaddir())
-                this.walkCB3(t, childrenCached, processor, next);
-            else {
-                t.readdirCB((_, entries) => this.walkCB3(t, entries, processor, next), true);
-            }
-        }
-        next();
-    }
-    walkCB3(target, entries, processor, cb) {
-        processor = processor.filterEntries(target, entries);
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            tasks++;
-            this.match(m, absolute, ifDir).then(() => next());
-        }
-        for (const [target, patterns] of processor.subwalks.entries()) {
-            tasks++;
-            this.walkCB2(target, patterns, processor.child(), next);
-        }
-        next();
-    }
-    walkCBSync(target, patterns, cb) {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            cb();
-        /* c8 ignore stop */
-        this.walkCB2Sync(target, patterns, new processor_js_1.Processor(this.opts), cb);
-    }
-    walkCB2Sync(target, patterns, processor, cb) {
-        if (this.#childrenIgnored(target))
-            return cb();
-        if (this.signal?.aborted)
-            cb();
-        if (this.paused) {
-            this.onResume(() => this.walkCB2Sync(target, patterns, processor, cb));
-            return;
-        }
-        processor.processPatterns(target, patterns);
-        // done processing.  all of the above is sync, can be abstracted out.
-        // subwalks is a map of paths to the entry filters they need
-        // matches is a map of paths to [absolute, ifDir] tuples.
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            this.matchSync(m, absolute, ifDir);
-        }
-        for (const t of processor.subwalkTargets()) {
-            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
-                continue;
-            }
-            tasks++;
-            const children = t.readdirSync();
-            this.walkCB3Sync(t, children, processor, next);
-        }
-        next();
-    }
-    walkCB3Sync(target, entries, processor, cb) {
-        processor = processor.filterEntries(target, entries);
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            this.matchSync(m, absolute, ifDir);
-        }
-        for (const [target, patterns] of processor.subwalks.entries()) {
-            tasks++;
-            this.walkCB2Sync(target, patterns, processor.child(), next);
-        }
-        next();
-    }
-}
-exports.GlobUtil = GlobUtil;
-class GlobWalker extends GlobUtil {
-    matches = new Set();
-    constructor(patterns, path, opts) {
-        super(patterns, path, opts);
-    }
-    matchEmit(e) {
-        this.matches.add(e);
-    }
-    async walk() {
-        if (this.signal?.aborted)
-            throw this.signal.reason;
-        if (this.path.isUnknown()) {
-            await this.path.lstat();
-        }
-        await new Promise((res, rej) => {
-            this.walkCB(this.path, this.patterns, () => {
-                if (this.signal?.aborted) {
-                    rej(this.signal.reason);
-                }
-                else {
-                    res(this.matches);
-                }
-            });
-        });
-        return this.matches;
-    }
-    walkSync() {
-        if (this.signal?.aborted)
-            throw this.signal.reason;
-        if (this.path.isUnknown()) {
-            this.path.lstatSync();
-        }
-        // nothing for the callback to do, because this never pauses
-        this.walkCBSync(this.path, this.patterns, () => {
-            if (this.signal?.aborted)
-                throw this.signal.reason;
-        });
-        return this.matches;
-    }
-}
-exports.GlobWalker = GlobWalker;
-class GlobStream extends GlobUtil {
-    results;
-    constructor(patterns, path, opts) {
-        super(patterns, path, opts);
-        this.results = new minipass_1.Minipass({
-            signal: this.signal,
-            objectMode: true,
-        });
-        this.results.on('drain', () => this.resume());
-        this.results.on('resume', () => this.resume());
-    }
-    matchEmit(e) {
-        this.results.write(e);
-        if (!this.results.flowing)
-            this.pause();
-    }
-    stream() {
-        const target = this.path;
-        if (target.isUnknown()) {
-            target.lstat().then(() => {
-                this.walkCB(target, this.patterns, () => this.results.end());
-            });
-        }
-        else {
-            this.walkCB(target, this.patterns, () => this.results.end());
-        }
-        return this.results;
-    }
-    streamSync() {
-        if (this.path.isUnknown()) {
-            this.path.lstatSync();
-        }
-        this.walkCBSync(this.path, this.patterns, () => this.results.end());
-        return this.results;
-    }
-}
-exports.GlobStream = GlobStream;
-//# sourceMappingURL=walker.js.map
-
-/***/ }),
-
 /***/ 83193:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -74318,7 +72901,1424 @@ exports.LRUCache = LRUCache;
 
 /***/ }),
 
-/***/ 30013:
+/***/ 72981:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Glob = void 0;
+const minimatch_1 = __nccwpck_require__(91409);
+const node_url_1 = __nccwpck_require__(73136);
+const path_scurry_1 = __nccwpck_require__(16577);
+const pattern_js_1 = __nccwpck_require__(47813);
+const walker_js_1 = __nccwpck_require__(11157);
+// if no process global, just call it linux.
+// so we default to case-sensitive, / separators
+const defaultPlatform = (typeof process === 'object' &&
+    process &&
+    typeof process.platform === 'string') ?
+    process.platform
+    : 'linux';
+/**
+ * An object that can perform glob pattern traversals.
+ */
+class Glob {
+    absolute;
+    cwd;
+    root;
+    dot;
+    dotRelative;
+    follow;
+    ignore;
+    magicalBraces;
+    mark;
+    matchBase;
+    maxDepth;
+    nobrace;
+    nocase;
+    nodir;
+    noext;
+    noglobstar;
+    pattern;
+    platform;
+    realpath;
+    scurry;
+    stat;
+    signal;
+    windowsPathsNoEscape;
+    withFileTypes;
+    includeChildMatches;
+    /**
+     * The options provided to the constructor.
+     */
+    opts;
+    /**
+     * An array of parsed immutable {@link Pattern} objects.
+     */
+    patterns;
+    /**
+     * All options are stored as properties on the `Glob` object.
+     *
+     * See {@link GlobOptions} for full options descriptions.
+     *
+     * Note that a previous `Glob` object can be passed as the
+     * `GlobOptions` to another `Glob` instantiation to re-use settings
+     * and caches with a new pattern.
+     *
+     * Traversal functions can be called multiple times to run the walk
+     * again.
+     */
+    constructor(pattern, opts) {
+        /* c8 ignore start */
+        if (!opts)
+            throw new TypeError('glob options required');
+        /* c8 ignore stop */
+        this.withFileTypes = !!opts.withFileTypes;
+        this.signal = opts.signal;
+        this.follow = !!opts.follow;
+        this.dot = !!opts.dot;
+        this.dotRelative = !!opts.dotRelative;
+        this.nodir = !!opts.nodir;
+        this.mark = !!opts.mark;
+        if (!opts.cwd) {
+            this.cwd = '';
+        }
+        else if (opts.cwd instanceof URL || opts.cwd.startsWith('file://')) {
+            opts.cwd = (0, node_url_1.fileURLToPath)(opts.cwd);
+        }
+        this.cwd = opts.cwd || '';
+        this.root = opts.root;
+        this.magicalBraces = !!opts.magicalBraces;
+        this.nobrace = !!opts.nobrace;
+        this.noext = !!opts.noext;
+        this.realpath = !!opts.realpath;
+        this.absolute = opts.absolute;
+        this.includeChildMatches = opts.includeChildMatches !== false;
+        this.noglobstar = !!opts.noglobstar;
+        this.matchBase = !!opts.matchBase;
+        this.maxDepth =
+            typeof opts.maxDepth === 'number' ? opts.maxDepth : Infinity;
+        this.stat = !!opts.stat;
+        this.ignore = opts.ignore;
+        if (this.withFileTypes && this.absolute !== undefined) {
+            throw new Error('cannot set absolute and withFileTypes:true');
+        }
+        if (typeof pattern === 'string') {
+            pattern = [pattern];
+        }
+        this.windowsPathsNoEscape =
+            !!opts.windowsPathsNoEscape ||
+                opts.allowWindowsEscape ===
+                    false;
+        if (this.windowsPathsNoEscape) {
+            pattern = pattern.map(p => p.replace(/\\/g, '/'));
+        }
+        if (this.matchBase) {
+            if (opts.noglobstar) {
+                throw new TypeError('base matching requires globstar');
+            }
+            pattern = pattern.map(p => (p.includes('/') ? p : `./**/${p}`));
+        }
+        this.pattern = pattern;
+        this.platform = opts.platform || defaultPlatform;
+        this.opts = { ...opts, platform: this.platform };
+        if (opts.scurry) {
+            this.scurry = opts.scurry;
+            if (opts.nocase !== undefined &&
+                opts.nocase !== opts.scurry.nocase) {
+                throw new Error('nocase option contradicts provided scurry option');
+            }
+        }
+        else {
+            const Scurry = opts.platform === 'win32' ? path_scurry_1.PathScurryWin32
+                : opts.platform === 'darwin' ? path_scurry_1.PathScurryDarwin
+                    : opts.platform ? path_scurry_1.PathScurryPosix
+                        : path_scurry_1.PathScurry;
+            this.scurry = new Scurry(this.cwd, {
+                nocase: opts.nocase,
+                fs: opts.fs,
+            });
+        }
+        this.nocase = this.scurry.nocase;
+        // If you do nocase:true on a case-sensitive file system, then
+        // we need to use regexps instead of strings for non-magic
+        // path portions, because statting `aBc` won't return results
+        // for the file `AbC` for example.
+        const nocaseMagicOnly = this.platform === 'darwin' || this.platform === 'win32';
+        const mmo = {
+            // default nocase based on platform
+            ...opts,
+            dot: this.dot,
+            matchBase: this.matchBase,
+            nobrace: this.nobrace,
+            nocase: this.nocase,
+            nocaseMagicOnly,
+            nocomment: true,
+            noext: this.noext,
+            nonegate: true,
+            optimizationLevel: 2,
+            platform: this.platform,
+            windowsPathsNoEscape: this.windowsPathsNoEscape,
+            debug: !!this.opts.debug,
+        };
+        const mms = this.pattern.map(p => new minimatch_1.Minimatch(p, mmo));
+        const [matchSet, globParts] = mms.reduce((set, m) => {
+            set[0].push(...m.set);
+            set[1].push(...m.globParts);
+            return set;
+        }, [[], []]);
+        this.patterns = matchSet.map((set, i) => {
+            const g = globParts[i];
+            /* c8 ignore start */
+            if (!g)
+                throw new Error('invalid pattern object');
+            /* c8 ignore stop */
+            return new pattern_js_1.Pattern(set, g, 0, this.platform);
+        });
+    }
+    async walk() {
+        // Walkers always return array of Path objects, so we just have to
+        // coerce them into the right shape.  It will have already called
+        // realpath() if the option was set to do so, so we know that's cached.
+        // start out knowing the cwd, at least
+        return [
+            ...(await new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
+                ...this.opts,
+                maxDepth: this.maxDepth !== Infinity ?
+                    this.maxDepth + this.scurry.cwd.depth()
+                    : Infinity,
+                platform: this.platform,
+                nocase: this.nocase,
+                includeChildMatches: this.includeChildMatches,
+            }).walk()),
+        ];
+    }
+    walkSync() {
+        return [
+            ...new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
+                ...this.opts,
+                maxDepth: this.maxDepth !== Infinity ?
+                    this.maxDepth + this.scurry.cwd.depth()
+                    : Infinity,
+                platform: this.platform,
+                nocase: this.nocase,
+                includeChildMatches: this.includeChildMatches,
+            }).walkSync(),
+        ];
+    }
+    stream() {
+        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
+            ...this.opts,
+            maxDepth: this.maxDepth !== Infinity ?
+                this.maxDepth + this.scurry.cwd.depth()
+                : Infinity,
+            platform: this.platform,
+            nocase: this.nocase,
+            includeChildMatches: this.includeChildMatches,
+        }).stream();
+    }
+    streamSync() {
+        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
+            ...this.opts,
+            maxDepth: this.maxDepth !== Infinity ?
+                this.maxDepth + this.scurry.cwd.depth()
+                : Infinity,
+            platform: this.platform,
+            nocase: this.nocase,
+            includeChildMatches: this.includeChildMatches,
+        }).streamSync();
+    }
+    /**
+     * Default sync iteration function. Returns a Generator that
+     * iterates over the results.
+     */
+    iterateSync() {
+        return this.streamSync()[Symbol.iterator]();
+    }
+    [Symbol.iterator]() {
+        return this.iterateSync();
+    }
+    /**
+     * Default async iteration function. Returns an AsyncGenerator that
+     * iterates over the results.
+     */
+    iterate() {
+        return this.stream()[Symbol.asyncIterator]();
+    }
+    [Symbol.asyncIterator]() {
+        return this.iterate();
+    }
+}
+exports.Glob = Glob;
+//# sourceMappingURL=glob.js.map
+
+/***/ }),
+
+/***/ 45197:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.hasMagic = void 0;
+const minimatch_1 = __nccwpck_require__(91409);
+/**
+ * Return true if the patterns provided contain any magic glob characters,
+ * given the options provided.
+ *
+ * Brace expansion is not considered "magic" unless the `magicalBraces` option
+ * is set, as brace expansion just turns one string into an array of strings.
+ * So a pattern like `'x{a,b}y'` would return `false`, because `'xay'` and
+ * `'xby'` both do not contain any magic glob characters, and it's treated the
+ * same as if you had called it on `['xay', 'xby']`. When `magicalBraces:true`
+ * is in the options, brace expansion _is_ treated as a pattern having magic.
+ */
+const hasMagic = (pattern, options = {}) => {
+    if (!Array.isArray(pattern)) {
+        pattern = [pattern];
+    }
+    for (const p of pattern) {
+        if (new minimatch_1.Minimatch(p, options).hasMagic())
+            return true;
+    }
+    return false;
+};
+exports.hasMagic = hasMagic;
+//# sourceMappingURL=has-magic.js.map
+
+/***/ }),
+
+/***/ 5637:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// give it a pattern, and it'll be able to tell you if
+// a given path should be ignored.
+// Ignoring a path ignores its children if the pattern ends in /**
+// Ignores are always parsed in dot:true mode
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Ignore = void 0;
+const minimatch_1 = __nccwpck_require__(91409);
+const pattern_js_1 = __nccwpck_require__(47813);
+const defaultPlatform = (typeof process === 'object' &&
+    process &&
+    typeof process.platform === 'string') ?
+    process.platform
+    : 'linux';
+/**
+ * Class used to process ignored patterns
+ */
+class Ignore {
+    relative;
+    relativeChildren;
+    absolute;
+    absoluteChildren;
+    platform;
+    mmopts;
+    constructor(ignored, { nobrace, nocase, noext, noglobstar, platform = defaultPlatform, }) {
+        this.relative = [];
+        this.absolute = [];
+        this.relativeChildren = [];
+        this.absoluteChildren = [];
+        this.platform = platform;
+        this.mmopts = {
+            dot: true,
+            nobrace,
+            nocase,
+            noext,
+            noglobstar,
+            optimizationLevel: 2,
+            platform,
+            nocomment: true,
+            nonegate: true,
+        };
+        for (const ign of ignored)
+            this.add(ign);
+    }
+    add(ign) {
+        // this is a little weird, but it gives us a clean set of optimized
+        // minimatch matchers, without getting tripped up if one of them
+        // ends in /** inside a brace section, and it's only inefficient at
+        // the start of the walk, not along it.
+        // It'd be nice if the Pattern class just had a .test() method, but
+        // handling globstars is a bit of a pita, and that code already lives
+        // in minimatch anyway.
+        // Another way would be if maybe Minimatch could take its set/globParts
+        // as an option, and then we could at least just use Pattern to test
+        // for absolute-ness.
+        // Yet another way, Minimatch could take an array of glob strings, and
+        // a cwd option, and do the right thing.
+        const mm = new minimatch_1.Minimatch(ign, this.mmopts);
+        for (let i = 0; i < mm.set.length; i++) {
+            const parsed = mm.set[i];
+            const globParts = mm.globParts[i];
+            /* c8 ignore start */
+            if (!parsed || !globParts) {
+                throw new Error('invalid pattern object');
+            }
+            // strip off leading ./ portions
+            // https://github.com/isaacs/node-glob/issues/570
+            while (parsed[0] === '.' && globParts[0] === '.') {
+                parsed.shift();
+                globParts.shift();
+            }
+            /* c8 ignore stop */
+            const p = new pattern_js_1.Pattern(parsed, globParts, 0, this.platform);
+            const m = new minimatch_1.Minimatch(p.globString(), this.mmopts);
+            const children = globParts[globParts.length - 1] === '**';
+            const absolute = p.isAbsolute();
+            if (absolute)
+                this.absolute.push(m);
+            else
+                this.relative.push(m);
+            if (children) {
+                if (absolute)
+                    this.absoluteChildren.push(m);
+                else
+                    this.relativeChildren.push(m);
+            }
+        }
+    }
+    ignored(p) {
+        const fullpath = p.fullpath();
+        const fullpaths = `${fullpath}/`;
+        const relative = p.relative() || '.';
+        const relatives = `${relative}/`;
+        for (const m of this.relative) {
+            if (m.match(relative) || m.match(relatives))
+                return true;
+        }
+        for (const m of this.absolute) {
+            if (m.match(fullpath) || m.match(fullpaths))
+                return true;
+        }
+        return false;
+    }
+    childrenIgnored(p) {
+        const fullpath = p.fullpath() + '/';
+        const relative = (p.relative() || '.') + '/';
+        for (const m of this.relativeChildren) {
+            if (m.match(relative))
+                return true;
+        }
+        for (const m of this.absoluteChildren) {
+            if (m.match(fullpath))
+                return true;
+        }
+        return false;
+    }
+}
+exports.Ignore = Ignore;
+//# sourceMappingURL=ignore.js.map
+
+/***/ }),
+
+/***/ 21363:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.glob = exports.sync = exports.iterate = exports.iterateSync = exports.stream = exports.streamSync = exports.Ignore = exports.hasMagic = exports.Glob = exports.unescape = exports.escape = void 0;
+exports.globStreamSync = globStreamSync;
+exports.globStream = globStream;
+exports.globSync = globSync;
+exports.globIterateSync = globIterateSync;
+exports.globIterate = globIterate;
+const minimatch_1 = __nccwpck_require__(91409);
+const glob_js_1 = __nccwpck_require__(72981);
+const has_magic_js_1 = __nccwpck_require__(45197);
+var minimatch_2 = __nccwpck_require__(91409);
+Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return minimatch_2.escape; } }));
+Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return minimatch_2.unescape; } }));
+var glob_js_2 = __nccwpck_require__(72981);
+Object.defineProperty(exports, "Glob", ({ enumerable: true, get: function () { return glob_js_2.Glob; } }));
+var has_magic_js_2 = __nccwpck_require__(45197);
+Object.defineProperty(exports, "hasMagic", ({ enumerable: true, get: function () { return has_magic_js_2.hasMagic; } }));
+var ignore_js_1 = __nccwpck_require__(5637);
+Object.defineProperty(exports, "Ignore", ({ enumerable: true, get: function () { return ignore_js_1.Ignore; } }));
+function globStreamSync(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).streamSync();
+}
+function globStream(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).stream();
+}
+function globSync(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).walkSync();
+}
+async function glob_(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).walk();
+}
+function globIterateSync(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).iterateSync();
+}
+function globIterate(pattern, options = {}) {
+    return new glob_js_1.Glob(pattern, options).iterate();
+}
+// aliases: glob.sync.stream() glob.stream.sync() glob.sync() etc
+exports.streamSync = globStreamSync;
+exports.stream = Object.assign(globStream, { sync: globStreamSync });
+exports.iterateSync = globIterateSync;
+exports.iterate = Object.assign(globIterate, {
+    sync: globIterateSync,
+});
+exports.sync = Object.assign(globSync, {
+    stream: globStreamSync,
+    iterate: globIterateSync,
+});
+exports.glob = Object.assign(glob_, {
+    glob: glob_,
+    globSync,
+    sync: exports.sync,
+    globStream,
+    stream: exports.stream,
+    globStreamSync,
+    streamSync: exports.streamSync,
+    globIterate,
+    iterate: exports.iterate,
+    globIterateSync,
+    iterateSync: exports.iterateSync,
+    Glob: glob_js_1.Glob,
+    hasMagic: has_magic_js_1.hasMagic,
+    escape: minimatch_1.escape,
+    unescape: minimatch_1.unescape,
+});
+exports.glob.glob = exports.glob;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 47813:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// this is just a very light wrapper around 2 arrays with an offset index
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Pattern = void 0;
+const minimatch_1 = __nccwpck_require__(91409);
+const isPatternList = (pl) => pl.length >= 1;
+const isGlobList = (gl) => gl.length >= 1;
+/**
+ * An immutable-ish view on an array of glob parts and their parsed
+ * results
+ */
+class Pattern {
+    #patternList;
+    #globList;
+    #index;
+    length;
+    #platform;
+    #rest;
+    #globString;
+    #isDrive;
+    #isUNC;
+    #isAbsolute;
+    #followGlobstar = true;
+    constructor(patternList, globList, index, platform) {
+        if (!isPatternList(patternList)) {
+            throw new TypeError('empty pattern list');
+        }
+        if (!isGlobList(globList)) {
+            throw new TypeError('empty glob list');
+        }
+        if (globList.length !== patternList.length) {
+            throw new TypeError('mismatched pattern list and glob list lengths');
+        }
+        this.length = patternList.length;
+        if (index < 0 || index >= this.length) {
+            throw new TypeError('index out of range');
+        }
+        this.#patternList = patternList;
+        this.#globList = globList;
+        this.#index = index;
+        this.#platform = platform;
+        // normalize root entries of absolute patterns on initial creation.
+        if (this.#index === 0) {
+            // c: => ['c:/']
+            // C:/ => ['C:/']
+            // C:/x => ['C:/', 'x']
+            // //host/share => ['//host/share/']
+            // //host/share/ => ['//host/share/']
+            // //host/share/x => ['//host/share/', 'x']
+            // /etc => ['/', 'etc']
+            // / => ['/']
+            if (this.isUNC()) {
+                // '' / '' / 'host' / 'share'
+                const [p0, p1, p2, p3, ...prest] = this.#patternList;
+                const [g0, g1, g2, g3, ...grest] = this.#globList;
+                if (prest[0] === '') {
+                    // ends in /
+                    prest.shift();
+                    grest.shift();
+                }
+                const p = [p0, p1, p2, p3, ''].join('/');
+                const g = [g0, g1, g2, g3, ''].join('/');
+                this.#patternList = [p, ...prest];
+                this.#globList = [g, ...grest];
+                this.length = this.#patternList.length;
+            }
+            else if (this.isDrive() || this.isAbsolute()) {
+                const [p1, ...prest] = this.#patternList;
+                const [g1, ...grest] = this.#globList;
+                if (prest[0] === '') {
+                    // ends in /
+                    prest.shift();
+                    grest.shift();
+                }
+                const p = p1 + '/';
+                const g = g1 + '/';
+                this.#patternList = [p, ...prest];
+                this.#globList = [g, ...grest];
+                this.length = this.#patternList.length;
+            }
+        }
+    }
+    /**
+     * The first entry in the parsed list of patterns
+     */
+    pattern() {
+        return this.#patternList[this.#index];
+    }
+    /**
+     * true of if pattern() returns a string
+     */
+    isString() {
+        return typeof this.#patternList[this.#index] === 'string';
+    }
+    /**
+     * true of if pattern() returns GLOBSTAR
+     */
+    isGlobstar() {
+        return this.#patternList[this.#index] === minimatch_1.GLOBSTAR;
+    }
+    /**
+     * true if pattern() returns a regexp
+     */
+    isRegExp() {
+        return this.#patternList[this.#index] instanceof RegExp;
+    }
+    /**
+     * The /-joined set of glob parts that make up this pattern
+     */
+    globString() {
+        return (this.#globString =
+            this.#globString ||
+                (this.#index === 0 ?
+                    this.isAbsolute() ?
+                        this.#globList[0] + this.#globList.slice(1).join('/')
+                        : this.#globList.join('/')
+                    : this.#globList.slice(this.#index).join('/')));
+    }
+    /**
+     * true if there are more pattern parts after this one
+     */
+    hasMore() {
+        return this.length > this.#index + 1;
+    }
+    /**
+     * The rest of the pattern after this part, or null if this is the end
+     */
+    rest() {
+        if (this.#rest !== undefined)
+            return this.#rest;
+        if (!this.hasMore())
+            return (this.#rest = null);
+        this.#rest = new Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
+        this.#rest.#isAbsolute = this.#isAbsolute;
+        this.#rest.#isUNC = this.#isUNC;
+        this.#rest.#isDrive = this.#isDrive;
+        return this.#rest;
+    }
+    /**
+     * true if the pattern represents a //unc/path/ on windows
+     */
+    isUNC() {
+        const pl = this.#patternList;
+        return this.#isUNC !== undefined ?
+            this.#isUNC
+            : (this.#isUNC =
+                this.#platform === 'win32' &&
+                    this.#index === 0 &&
+                    pl[0] === '' &&
+                    pl[1] === '' &&
+                    typeof pl[2] === 'string' &&
+                    !!pl[2] &&
+                    typeof pl[3] === 'string' &&
+                    !!pl[3]);
+    }
+    // pattern like C:/...
+    // split = ['C:', ...]
+    // XXX: would be nice to handle patterns like `c:*` to test the cwd
+    // in c: for *, but I don't know of a way to even figure out what that
+    // cwd is without actually chdir'ing into it?
+    /**
+     * True if the pattern starts with a drive letter on Windows
+     */
+    isDrive() {
+        const pl = this.#patternList;
+        return this.#isDrive !== undefined ?
+            this.#isDrive
+            : (this.#isDrive =
+                this.#platform === 'win32' &&
+                    this.#index === 0 &&
+                    this.length > 1 &&
+                    typeof pl[0] === 'string' &&
+                    /^[a-z]:$/i.test(pl[0]));
+    }
+    // pattern = '/' or '/...' or '/x/...'
+    // split = ['', ''] or ['', ...] or ['', 'x', ...]
+    // Drive and UNC both considered absolute on windows
+    /**
+     * True if the pattern is rooted on an absolute path
+     */
+    isAbsolute() {
+        const pl = this.#patternList;
+        return this.#isAbsolute !== undefined ?
+            this.#isAbsolute
+            : (this.#isAbsolute =
+                (pl[0] === '' && pl.length > 1) ||
+                    this.isDrive() ||
+                    this.isUNC());
+    }
+    /**
+     * consume the root of the pattern, and return it
+     */
+    root() {
+        const p = this.#patternList[0];
+        return (typeof p === 'string' && this.isAbsolute() && this.#index === 0) ?
+            p
+            : '';
+    }
+    /**
+     * Check to see if the current globstar pattern is allowed to follow
+     * a symbolic link.
+     */
+    checkFollowGlobstar() {
+        return !(this.#index === 0 ||
+            !this.isGlobstar() ||
+            !this.#followGlobstar);
+    }
+    /**
+     * Mark that the current globstar pattern is following a symbolic link
+     */
+    markFollowGlobstar() {
+        if (this.#index === 0 || !this.isGlobstar() || !this.#followGlobstar)
+            return false;
+        this.#followGlobstar = false;
+        return true;
+    }
+}
+exports.Pattern = Pattern;
+//# sourceMappingURL=pattern.js.map
+
+/***/ }),
+
+/***/ 37843:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// synchronous utility for filtering entries and calculating subwalks
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Processor = exports.SubWalks = exports.MatchRecord = exports.HasWalkedCache = void 0;
+const minimatch_1 = __nccwpck_require__(91409);
+/**
+ * A cache of which patterns have been processed for a given Path
+ */
+class HasWalkedCache {
+    store;
+    constructor(store = new Map()) {
+        this.store = store;
+    }
+    copy() {
+        return new HasWalkedCache(new Map(this.store));
+    }
+    hasWalked(target, pattern) {
+        return this.store.get(target.fullpath())?.has(pattern.globString());
+    }
+    storeWalked(target, pattern) {
+        const fullpath = target.fullpath();
+        const cached = this.store.get(fullpath);
+        if (cached)
+            cached.add(pattern.globString());
+        else
+            this.store.set(fullpath, new Set([pattern.globString()]));
+    }
+}
+exports.HasWalkedCache = HasWalkedCache;
+/**
+ * A record of which paths have been matched in a given walk step,
+ * and whether they only are considered a match if they are a directory,
+ * and whether their absolute or relative path should be returned.
+ */
+class MatchRecord {
+    store = new Map();
+    add(target, absolute, ifDir) {
+        const n = (absolute ? 2 : 0) | (ifDir ? 1 : 0);
+        const current = this.store.get(target);
+        this.store.set(target, current === undefined ? n : n & current);
+    }
+    // match, absolute, ifdir
+    entries() {
+        return [...this.store.entries()].map(([path, n]) => [
+            path,
+            !!(n & 2),
+            !!(n & 1),
+        ]);
+    }
+}
+exports.MatchRecord = MatchRecord;
+/**
+ * A collection of patterns that must be processed in a subsequent step
+ * for a given path.
+ */
+class SubWalks {
+    store = new Map();
+    add(target, pattern) {
+        if (!target.canReaddir()) {
+            return;
+        }
+        const subs = this.store.get(target);
+        if (subs) {
+            if (!subs.find(p => p.globString() === pattern.globString())) {
+                subs.push(pattern);
+            }
+        }
+        else
+            this.store.set(target, [pattern]);
+    }
+    get(target) {
+        const subs = this.store.get(target);
+        /* c8 ignore start */
+        if (!subs) {
+            throw new Error('attempting to walk unknown path');
+        }
+        /* c8 ignore stop */
+        return subs;
+    }
+    entries() {
+        return this.keys().map(k => [k, this.store.get(k)]);
+    }
+    keys() {
+        return [...this.store.keys()].filter(t => t.canReaddir());
+    }
+}
+exports.SubWalks = SubWalks;
+/**
+ * The class that processes patterns for a given path.
+ *
+ * Handles child entry filtering, and determining whether a path's
+ * directory contents must be read.
+ */
+class Processor {
+    hasWalkedCache;
+    matches = new MatchRecord();
+    subwalks = new SubWalks();
+    patterns;
+    follow;
+    dot;
+    opts;
+    constructor(opts, hasWalkedCache) {
+        this.opts = opts;
+        this.follow = !!opts.follow;
+        this.dot = !!opts.dot;
+        this.hasWalkedCache =
+            hasWalkedCache ? hasWalkedCache.copy() : new HasWalkedCache();
+    }
+    processPatterns(target, patterns) {
+        this.patterns = patterns;
+        const processingSet = patterns.map(p => [target, p]);
+        // map of paths to the magic-starting subwalks they need to walk
+        // first item in patterns is the filter
+        for (let [t, pattern] of processingSet) {
+            this.hasWalkedCache.storeWalked(t, pattern);
+            const root = pattern.root();
+            const absolute = pattern.isAbsolute() && this.opts.absolute !== false;
+            // start absolute patterns at root
+            if (root) {
+                t = t.resolve(root === '/' && this.opts.root !== undefined ?
+                    this.opts.root
+                    : root);
+                const rest = pattern.rest();
+                if (!rest) {
+                    this.matches.add(t, true, false);
+                    continue;
+                }
+                else {
+                    pattern = rest;
+                }
+            }
+            if (t.isENOENT())
+                continue;
+            let p;
+            let rest;
+            let changed = false;
+            while (typeof (p = pattern.pattern()) === 'string' &&
+                (rest = pattern.rest())) {
+                const c = t.resolve(p);
+                t = c;
+                pattern = rest;
+                changed = true;
+            }
+            p = pattern.pattern();
+            rest = pattern.rest();
+            if (changed) {
+                if (this.hasWalkedCache.hasWalked(t, pattern))
+                    continue;
+                this.hasWalkedCache.storeWalked(t, pattern);
+            }
+            // now we have either a final string for a known entry,
+            // more strings for an unknown entry,
+            // or a pattern starting with magic, mounted on t.
+            if (typeof p === 'string') {
+                // must not be final entry, otherwise we would have
+                // concatenated it earlier.
+                const ifDir = p === '..' || p === '' || p === '.';
+                this.matches.add(t.resolve(p), absolute, ifDir);
+                continue;
+            }
+            else if (p === minimatch_1.GLOBSTAR) {
+                // if no rest, match and subwalk pattern
+                // if rest, process rest and subwalk pattern
+                // if it's a symlink, but we didn't get here by way of a
+                // globstar match (meaning it's the first time THIS globstar
+                // has traversed a symlink), then we follow it. Otherwise, stop.
+                if (!t.isSymbolicLink() ||
+                    this.follow ||
+                    pattern.checkFollowGlobstar()) {
+                    this.subwalks.add(t, pattern);
+                }
+                const rp = rest?.pattern();
+                const rrest = rest?.rest();
+                if (!rest || ((rp === '' || rp === '.') && !rrest)) {
+                    // only HAS to be a dir if it ends in **/ or **/.
+                    // but ending in ** will match files as well.
+                    this.matches.add(t, absolute, rp === '' || rp === '.');
+                }
+                else {
+                    if (rp === '..') {
+                        // this would mean you're matching **/.. at the fs root,
+                        // and no thanks, I'm not gonna test that specific case.
+                        /* c8 ignore start */
+                        const tp = t.parent || t;
+                        /* c8 ignore stop */
+                        if (!rrest)
+                            this.matches.add(tp, absolute, true);
+                        else if (!this.hasWalkedCache.hasWalked(tp, rrest)) {
+                            this.subwalks.add(tp, rrest);
+                        }
+                    }
+                }
+            }
+            else if (p instanceof RegExp) {
+                this.subwalks.add(t, pattern);
+            }
+        }
+        return this;
+    }
+    subwalkTargets() {
+        return this.subwalks.keys();
+    }
+    child() {
+        return new Processor(this.opts, this.hasWalkedCache);
+    }
+    // return a new Processor containing the subwalks for each
+    // child entry, and a set of matches, and
+    // a hasWalkedCache that's a copy of this one
+    // then we're going to call
+    filterEntries(parent, entries) {
+        const patterns = this.subwalks.get(parent);
+        // put matches and entry walks into the results processor
+        const results = this.child();
+        for (const e of entries) {
+            for (const pattern of patterns) {
+                const absolute = pattern.isAbsolute();
+                const p = pattern.pattern();
+                const rest = pattern.rest();
+                if (p === minimatch_1.GLOBSTAR) {
+                    results.testGlobstar(e, pattern, rest, absolute);
+                }
+                else if (p instanceof RegExp) {
+                    results.testRegExp(e, p, rest, absolute);
+                }
+                else {
+                    results.testString(e, p, rest, absolute);
+                }
+            }
+        }
+        return results;
+    }
+    testGlobstar(e, pattern, rest, absolute) {
+        if (this.dot || !e.name.startsWith('.')) {
+            if (!pattern.hasMore()) {
+                this.matches.add(e, absolute, false);
+            }
+            if (e.canReaddir()) {
+                // if we're in follow mode or it's not a symlink, just keep
+                // testing the same pattern. If there's more after the globstar,
+                // then this symlink consumes the globstar. If not, then we can
+                // follow at most ONE symlink along the way, so we mark it, which
+                // also checks to ensure that it wasn't already marked.
+                if (this.follow || !e.isSymbolicLink()) {
+                    this.subwalks.add(e, pattern);
+                }
+                else if (e.isSymbolicLink()) {
+                    if (rest && pattern.checkFollowGlobstar()) {
+                        this.subwalks.add(e, rest);
+                    }
+                    else if (pattern.markFollowGlobstar()) {
+                        this.subwalks.add(e, pattern);
+                    }
+                }
+            }
+        }
+        // if the NEXT thing matches this entry, then also add
+        // the rest.
+        if (rest) {
+            const rp = rest.pattern();
+            if (typeof rp === 'string' &&
+                // dots and empty were handled already
+                rp !== '..' &&
+                rp !== '' &&
+                rp !== '.') {
+                this.testString(e, rp, rest.rest(), absolute);
+            }
+            else if (rp === '..') {
+                /* c8 ignore start */
+                const ep = e.parent || e;
+                /* c8 ignore stop */
+                this.subwalks.add(ep, rest);
+            }
+            else if (rp instanceof RegExp) {
+                this.testRegExp(e, rp, rest.rest(), absolute);
+            }
+        }
+    }
+    testRegExp(e, p, rest, absolute) {
+        if (!p.test(e.name))
+            return;
+        if (!rest) {
+            this.matches.add(e, absolute, false);
+        }
+        else {
+            this.subwalks.add(e, rest);
+        }
+    }
+    testString(e, p, rest, absolute) {
+        // should never happen?
+        if (!e.isNamed(p))
+            return;
+        if (!rest) {
+            this.matches.add(e, absolute, false);
+        }
+        else {
+            this.subwalks.add(e, rest);
+        }
+    }
+}
+exports.Processor = Processor;
+//# sourceMappingURL=processor.js.map
+
+/***/ }),
+
+/***/ 11157:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GlobStream = exports.GlobWalker = exports.GlobUtil = void 0;
+/**
+ * Single-use utility classes to provide functionality to the {@link Glob}
+ * methods.
+ *
+ * @module
+ */
+const minipass_1 = __nccwpck_require__(78275);
+const ignore_js_1 = __nccwpck_require__(5637);
+const processor_js_1 = __nccwpck_require__(37843);
+const makeIgnore = (ignore, opts) => typeof ignore === 'string' ? new ignore_js_1.Ignore([ignore], opts)
+    : Array.isArray(ignore) ? new ignore_js_1.Ignore(ignore, opts)
+        : ignore;
+/**
+ * basic walking utilities that all the glob walker types use
+ */
+class GlobUtil {
+    path;
+    patterns;
+    opts;
+    seen = new Set();
+    paused = false;
+    aborted = false;
+    #onResume = [];
+    #ignore;
+    #sep;
+    signal;
+    maxDepth;
+    includeChildMatches;
+    constructor(patterns, path, opts) {
+        this.patterns = patterns;
+        this.path = path;
+        this.opts = opts;
+        this.#sep = !opts.posix && opts.platform === 'win32' ? '\\' : '/';
+        this.includeChildMatches = opts.includeChildMatches !== false;
+        if (opts.ignore || !this.includeChildMatches) {
+            this.#ignore = makeIgnore(opts.ignore ?? [], opts);
+            if (!this.includeChildMatches &&
+                typeof this.#ignore.add !== 'function') {
+                const m = 'cannot ignore child matches, ignore lacks add() method.';
+                throw new Error(m);
+            }
+        }
+        // ignore, always set with maxDepth, but it's optional on the
+        // GlobOptions type
+        /* c8 ignore start */
+        this.maxDepth = opts.maxDepth || Infinity;
+        /* c8 ignore stop */
+        if (opts.signal) {
+            this.signal = opts.signal;
+            this.signal.addEventListener('abort', () => {
+                this.#onResume.length = 0;
+            });
+        }
+    }
+    #ignored(path) {
+        return this.seen.has(path) || !!this.#ignore?.ignored?.(path);
+    }
+    #childrenIgnored(path) {
+        return !!this.#ignore?.childrenIgnored?.(path);
+    }
+    // backpressure mechanism
+    pause() {
+        this.paused = true;
+    }
+    resume() {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            return;
+        /* c8 ignore stop */
+        this.paused = false;
+        let fn = undefined;
+        while (!this.paused && (fn = this.#onResume.shift())) {
+            fn();
+        }
+    }
+    onResume(fn) {
+        if (this.signal?.aborted)
+            return;
+        /* c8 ignore start */
+        if (!this.paused) {
+            fn();
+        }
+        else {
+            /* c8 ignore stop */
+            this.#onResume.push(fn);
+        }
+    }
+    // do the requisite realpath/stat checking, and return the path
+    // to add or undefined to filter it out.
+    async matchCheck(e, ifDir) {
+        if (ifDir && this.opts.nodir)
+            return undefined;
+        let rpc;
+        if (this.opts.realpath) {
+            rpc = e.realpathCached() || (await e.realpath());
+            if (!rpc)
+                return undefined;
+            e = rpc;
+        }
+        const needStat = e.isUnknown() || this.opts.stat;
+        const s = needStat ? await e.lstat() : e;
+        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+            const target = await s.realpath();
+            /* c8 ignore start */
+            if (target && (target.isUnknown() || this.opts.stat)) {
+                await target.lstat();
+            }
+            /* c8 ignore stop */
+        }
+        return this.matchCheckTest(s, ifDir);
+    }
+    matchCheckTest(e, ifDir) {
+        return (e &&
+            (this.maxDepth === Infinity || e.depth() <= this.maxDepth) &&
+            (!ifDir || e.canReaddir()) &&
+            (!this.opts.nodir || !e.isDirectory()) &&
+            (!this.opts.nodir ||
+                !this.opts.follow ||
+                !e.isSymbolicLink() ||
+                !e.realpathCached()?.isDirectory()) &&
+            !this.#ignored(e)) ?
+            e
+            : undefined;
+    }
+    matchCheckSync(e, ifDir) {
+        if (ifDir && this.opts.nodir)
+            return undefined;
+        let rpc;
+        if (this.opts.realpath) {
+            rpc = e.realpathCached() || e.realpathSync();
+            if (!rpc)
+                return undefined;
+            e = rpc;
+        }
+        const needStat = e.isUnknown() || this.opts.stat;
+        const s = needStat ? e.lstatSync() : e;
+        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+            const target = s.realpathSync();
+            if (target && (target?.isUnknown() || this.opts.stat)) {
+                target.lstatSync();
+            }
+        }
+        return this.matchCheckTest(s, ifDir);
+    }
+    matchFinish(e, absolute) {
+        if (this.#ignored(e))
+            return;
+        // we know we have an ignore if this is false, but TS doesn't
+        if (!this.includeChildMatches && this.#ignore?.add) {
+            const ign = `${e.relativePosix()}/**`;
+            this.#ignore.add(ign);
+        }
+        const abs = this.opts.absolute === undefined ? absolute : this.opts.absolute;
+        this.seen.add(e);
+        const mark = this.opts.mark && e.isDirectory() ? this.#sep : '';
+        // ok, we have what we need!
+        if (this.opts.withFileTypes) {
+            this.matchEmit(e);
+        }
+        else if (abs) {
+            const abs = this.opts.posix ? e.fullpathPosix() : e.fullpath();
+            this.matchEmit(abs + mark);
+        }
+        else {
+            const rel = this.opts.posix ? e.relativePosix() : e.relative();
+            const pre = this.opts.dotRelative && !rel.startsWith('..' + this.#sep) ?
+                '.' + this.#sep
+                : '';
+            this.matchEmit(!rel ? '.' + mark : pre + rel + mark);
+        }
+    }
+    async match(e, absolute, ifDir) {
+        const p = await this.matchCheck(e, ifDir);
+        if (p)
+            this.matchFinish(p, absolute);
+    }
+    matchSync(e, absolute, ifDir) {
+        const p = this.matchCheckSync(e, ifDir);
+        if (p)
+            this.matchFinish(p, absolute);
+    }
+    walkCB(target, patterns, cb) {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            cb();
+        /* c8 ignore stop */
+        this.walkCB2(target, patterns, new processor_js_1.Processor(this.opts), cb);
+    }
+    walkCB2(target, patterns, processor, cb) {
+        if (this.#childrenIgnored(target))
+            return cb();
+        if (this.signal?.aborted)
+            cb();
+        if (this.paused) {
+            this.onResume(() => this.walkCB2(target, patterns, processor, cb));
+            return;
+        }
+        processor.processPatterns(target, patterns);
+        // done processing.  all of the above is sync, can be abstracted out.
+        // subwalks is a map of paths to the entry filters they need
+        // matches is a map of paths to [absolute, ifDir] tuples.
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            tasks++;
+            this.match(m, absolute, ifDir).then(() => next());
+        }
+        for (const t of processor.subwalkTargets()) {
+            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
+                continue;
+            }
+            tasks++;
+            const childrenCached = t.readdirCached();
+            if (t.calledReaddir())
+                this.walkCB3(t, childrenCached, processor, next);
+            else {
+                t.readdirCB((_, entries) => this.walkCB3(t, entries, processor, next), true);
+            }
+        }
+        next();
+    }
+    walkCB3(target, entries, processor, cb) {
+        processor = processor.filterEntries(target, entries);
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            tasks++;
+            this.match(m, absolute, ifDir).then(() => next());
+        }
+        for (const [target, patterns] of processor.subwalks.entries()) {
+            tasks++;
+            this.walkCB2(target, patterns, processor.child(), next);
+        }
+        next();
+    }
+    walkCBSync(target, patterns, cb) {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            cb();
+        /* c8 ignore stop */
+        this.walkCB2Sync(target, patterns, new processor_js_1.Processor(this.opts), cb);
+    }
+    walkCB2Sync(target, patterns, processor, cb) {
+        if (this.#childrenIgnored(target))
+            return cb();
+        if (this.signal?.aborted)
+            cb();
+        if (this.paused) {
+            this.onResume(() => this.walkCB2Sync(target, patterns, processor, cb));
+            return;
+        }
+        processor.processPatterns(target, patterns);
+        // done processing.  all of the above is sync, can be abstracted out.
+        // subwalks is a map of paths to the entry filters they need
+        // matches is a map of paths to [absolute, ifDir] tuples.
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            this.matchSync(m, absolute, ifDir);
+        }
+        for (const t of processor.subwalkTargets()) {
+            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
+                continue;
+            }
+            tasks++;
+            const children = t.readdirSync();
+            this.walkCB3Sync(t, children, processor, next);
+        }
+        next();
+    }
+    walkCB3Sync(target, entries, processor, cb) {
+        processor = processor.filterEntries(target, entries);
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            this.matchSync(m, absolute, ifDir);
+        }
+        for (const [target, patterns] of processor.subwalks.entries()) {
+            tasks++;
+            this.walkCB2Sync(target, patterns, processor.child(), next);
+        }
+        next();
+    }
+}
+exports.GlobUtil = GlobUtil;
+class GlobWalker extends GlobUtil {
+    matches = new Set();
+    constructor(patterns, path, opts) {
+        super(patterns, path, opts);
+    }
+    matchEmit(e) {
+        this.matches.add(e);
+    }
+    async walk() {
+        if (this.signal?.aborted)
+            throw this.signal.reason;
+        if (this.path.isUnknown()) {
+            await this.path.lstat();
+        }
+        await new Promise((res, rej) => {
+            this.walkCB(this.path, this.patterns, () => {
+                if (this.signal?.aborted) {
+                    rej(this.signal.reason);
+                }
+                else {
+                    res(this.matches);
+                }
+            });
+        });
+        return this.matches;
+    }
+    walkSync() {
+        if (this.signal?.aborted)
+            throw this.signal.reason;
+        if (this.path.isUnknown()) {
+            this.path.lstatSync();
+        }
+        // nothing for the callback to do, because this never pauses
+        this.walkCBSync(this.path, this.patterns, () => {
+            if (this.signal?.aborted)
+                throw this.signal.reason;
+        });
+        return this.matches;
+    }
+}
+exports.GlobWalker = GlobWalker;
+class GlobStream extends GlobUtil {
+    results;
+    constructor(patterns, path, opts) {
+        super(patterns, path, opts);
+        this.results = new minipass_1.Minipass({
+            signal: this.signal,
+            objectMode: true,
+        });
+        this.results.on('drain', () => this.resume());
+        this.results.on('resume', () => this.resume());
+    }
+    matchEmit(e) {
+        this.results.write(e);
+        if (!this.results.flowing)
+            this.pause();
+    }
+    stream() {
+        const target = this.path;
+        if (target.isUnknown()) {
+            target.lstat().then(() => {
+                this.walkCB(target, this.patterns, () => this.results.end());
+            });
+        }
+        else {
+            this.walkCB(target, this.patterns, () => this.results.end());
+        }
+        return this.results;
+    }
+    streamSync() {
+        if (this.path.isUnknown()) {
+            this.path.lstatSync();
+        }
+        this.walkCBSync(this.path, this.patterns, () => this.results.end());
+        return this.results;
+    }
+}
+exports.GlobStream = GlobStream;
+//# sourceMappingURL=walker.js.map
+
+/***/ }),
+
+/***/ 8895:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -74339,7 +74339,7 @@ exports.assertValidPattern = assertValidPattern;
 
 /***/ }),
 
-/***/ 6215:
+/***/ 20857:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -74347,8 +74347,8 @@ exports.assertValidPattern = assertValidPattern;
 // parse a single path portion
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AST = void 0;
-const brace_expressions_js_1 = __nccwpck_require__(10038);
-const unescape_js_1 = __nccwpck_require__(18047);
+const brace_expressions_js_1 = __nccwpck_require__(65192);
+const unescape_js_1 = __nccwpck_require__(9829);
 const types = new Set(['!', '?', '+', '*', '@']);
 const isExtglobType = (c) => types.has(c);
 // Patterns that get prepended to bind to the start of either the
@@ -74938,7 +74938,7 @@ exports.AST = AST;
 
 /***/ }),
 
-/***/ 10038:
+/***/ 65192:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -75097,7 +75097,7 @@ exports.parseClass = parseClass;
 
 /***/ }),
 
-/***/ 96076:
+/***/ 76726:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -75126,7 +75126,7 @@ exports.escape = escape;
 
 /***/ }),
 
-/***/ 85207:
+/***/ 91409:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -75136,11 +75136,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
-const brace_expansion_1 = __importDefault(__nccwpck_require__(45177));
-const assert_valid_pattern_js_1 = __nccwpck_require__(30013);
-const ast_js_1 = __nccwpck_require__(6215);
-const escape_js_1 = __nccwpck_require__(96076);
-const unescape_js_1 = __nccwpck_require__(18047);
+const brace_expansion_1 = __importDefault(__nccwpck_require__(68497));
+const assert_valid_pattern_js_1 = __nccwpck_require__(8895);
+const ast_js_1 = __nccwpck_require__(20857);
+const escape_js_1 = __nccwpck_require__(76726);
+const unescape_js_1 = __nccwpck_require__(9829);
 const minimatch = (p, pattern, options = {}) => {
     (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
     // shortcut: comments match nothing.
@@ -76135,11 +76135,11 @@ class Minimatch {
 }
 exports.Minimatch = Minimatch;
 /* c8 ignore start */
-var ast_js_2 = __nccwpck_require__(6215);
+var ast_js_2 = __nccwpck_require__(20857);
 Object.defineProperty(exports, "AST", ({ enumerable: true, get: function () { return ast_js_2.AST; } }));
-var escape_js_2 = __nccwpck_require__(96076);
+var escape_js_2 = __nccwpck_require__(76726);
 Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return escape_js_2.escape; } }));
-var unescape_js_2 = __nccwpck_require__(18047);
+var unescape_js_2 = __nccwpck_require__(9829);
 Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return unescape_js_2.unescape; } }));
 /* c8 ignore stop */
 exports.minimatch.AST = ast_js_1.AST;
@@ -76150,7 +76150,7 @@ exports.minimatch.unescape = unescape_js_1.unescape;
 
 /***/ }),
 
-/***/ 18047:
+/***/ 9829:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
