@@ -21,7 +21,7 @@
     ".": "./dist/index.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",
@@ -76,7 +76,7 @@
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.15",
+    "@types/node": "^24.1.0",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.31.0",
     "eslint-plugin-import": "^2.32.0",
