@@ -21,7 +21,7 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: 2023,
       parserOptions: {
-        project: ['./tsconfig.json']
+        project: ['./.github/linters/tsconfig.json']
       }
     },
     rules: {
