@@ -48,7 +48,7 @@ jobs:
 
       - name: Report attestation prober success
         if: ${{ success() }}
-        uses: masci/datadog@6889e9d060f5368eeee51f8a3f06a52f65d04da3 # v1.9.1
+        uses: masci/datadog@f0cad7cba58a34e65535732564c9bf174ee89006 # v1.9.2
         with:
           api-key: "${{ secrets.DATADOG_API_KEY }}"
           service-checks: |
@@ -66,7 +66,7 @@ jobs:
 
       - name: Report attestation prober failure
         if: ${{ failure() }}
-        uses: masci/datadog@6889e9d060f5368eeee51f8a3f06a52f65d04da3 # v1.9.1
+        uses: masci/datadog@f0cad7cba58a34e65535732564c9bf174ee89006 # v1.9.2
         with:
           api-key: "${{ secrets.DATADOG_API_KEY }}"
           service-checks: |
