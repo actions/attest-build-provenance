@@ -121,6 +121,10 @@ Attestations are saved in the JSON-serialized [Sigstore bundle][6] format.
 If multiple subjects are being attested at the same time, a single attestation
 will be created with references to each of the supplied subjects.
 
+The absolute path to the generated attestation is appended to the file
+`${RUNNER_TEMP}/created_attestation_paths.txt`. This file will accumulate the
+paths to all attestations created over the course of a single workflow.
+
 ## Attestation Limits
 
 ### Subject Limits
