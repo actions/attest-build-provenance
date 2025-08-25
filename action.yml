@@ -66,6 +66,8 @@ runs:
       id: generate-build-provenance-predicate
     - uses: actions/attest@ce27ba3b4a9a139d9a20a4a07d69fabb52f1e5bc # v2.4.0
       id: attest
+      env:
+        NODE_OPTIONS: "--max-http-header-size=32768"
       with:
         subject-path: ${{ inputs.subject-path }}
         subject-digest: ${{ inputs.subject-digest }}
