@@ -10,5 +10,5 @@ outputs:
     description: >
       URI identifying the type of the predicate.
 runs:
-  using: node20
+  using: node24
   main: ../dist/index.js
