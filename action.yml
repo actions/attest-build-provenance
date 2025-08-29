@@ -62,10 +62,12 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/attest-build-provenance/predicate@1176ef556905f349f669722abf30bce1a6e16e01 # predicate@1.1.5
+    - uses: actions/attest-build-provenance/predicate@864457a58d4733d7f1574bd8821fa24e02cf7538 # predicate@2.0.0
       id: generate-build-provenance-predicate
-    - uses: actions/attest@ce27ba3b4a9a139d9a20a4a07d69fabb52f1e5bc # v2.4.0
+    - uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1 # v3.0.0
       id: attest
+      env:
+        NODE_OPTIONS: "--max-http-header-size=32768"
       with:
         subject-path: ${{ inputs.subject-path }}
         subject-digest: ${{ inputs.subject-digest }}

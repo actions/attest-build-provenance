@@ -7,7 +7,7 @@ export default tseslint.config(
   // Ignore non-project files
   {
     name: 'ignore',
-    ignores: ['.github', 'dist', 'coverage', '**/*.json', 'jest.setup.js']
+    ignores: ['.github', 'dist', 'coverage', '**/*.json', 'jest.setup.js', 'eslint.config.mjs']
   },
   // Use recommended rules from ESLint, TypeScript, and other plugins
   eslint.configs.recommended,
@@ -21,7 +21,7 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: 2023,
       parserOptions: {
-        project: ['./.github/linters/tsconfig.json']
+        project: ['./tsconfig.lint.json']
       }
     },
     rules: {
