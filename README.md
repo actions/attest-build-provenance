@@ -161,7 +161,7 @@ jobs:
       - name: Attest
         uses: actions/attest-build-provenance@v3
         with:
-          subject-path: '${{ github.workspace }}/my-app'
+          subject-path: '${{ github.workspace }}/my-pyi-app'
 ```
 
 ### Identify Multiple Subjects
