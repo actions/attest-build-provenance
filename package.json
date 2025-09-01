@@ -82,7 +82,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^29.0.1",
     "jest": "^30.0.5",
-    "jose": "^5.9.6",
+    "jose": "^6.1.0",
     "markdownlint-cli": "^0.45.0",
     "nock": "^14.0.9",
     "prettier": "^3.6.2",
