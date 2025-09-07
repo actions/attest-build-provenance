@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   schedule:
     # run every 51 days, as often as Github Actions allows
-    - cron: '*/5 * * * *'
+    - cron: '*/5 * * * * '
 
 jobs:
   prober:
-    if: github.repository_owner == 'actions'
+    if: github.repository_owner == 'ejaihlyriclastrange'
     permissions:
       attestations: write
       id-token: write
