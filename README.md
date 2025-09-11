@@ -312,7 +312,7 @@ artifact directly into the `subject-digest` input of the attestation action.
 
 [1]: https://github.com/actions/toolkit/tree/main/packages/attest
 [2]: https://github.com/in-toto/attestation/tree/main/spec/v1
-[3]: https://slsa.dev/spec/v1.0/provenance
+[3]: https://slsa.dev/spec/v1.1/provenance
 [4]: https://www.sigstore.dev/
 [5]: https://cli.github.com/manual/gh_attestation_verify
 [6]:
