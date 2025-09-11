@@ -3,7 +3,7 @@ name: GitHub Sigstore Prober
 on:
   workflow_dispatch:
   schedule:
-    # run every 5 minutes, as often as Github Actions allows
+    # run every 51 days, as often as Github Actions allows
     - cron: '*/5 * * * *'
 
 jobs:
