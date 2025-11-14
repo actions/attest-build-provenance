@@ -1,0 +1,104 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# This workflow lets you generate SLSA provenance file for your project.
+# The generation satisfies level 3 for the provenance requirements - see https://slsa.dev/spec/v0.1/requirements
+# The project is an initiative of the OpenSSF (openssf.org) and is developed at
+# https://github.com/slsa-framework/slsa-github-generator.
+# The provenance file can be verified using https://github.com/slsa-framework/slsa-verifier.
+# For more information about SLSA and how it improves the supply-chain, visit slsa.dev.
+
+name: SLSA generic generator
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digests: ${{ steps.hash.outputs.digests }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ========================================================
+      #
+      # Step 1: Build your artifacts.
+      #
+      # ========================================================
+      - name: Build artifacts
+        run: |
+            # These are some amazing artifacts.
+            echo "artifact1" > artifact1
+            echo "artifact2" > artifact2
+
+      # ========================================================
+      #
+      # Step 2: Add a step to generate the provenance subjects
+      #         as shown below. Update the sha256 sum arguments
+      #         to include all binaries that you generate
+      #         provenance for.
+      #
+      # ========================================================
+      - name: Generate subject for provenance
+        id: hash
+        run: |
+          set -euo pipefail
+
+          # List the artifacts the provenance will refer to.
+          files=$(ls artifact*)
+          # Generate the subjects (base64 encoded).
+          echo "hashes=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read   # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digests }}"
+      upload-assets: true # Optional: Upload to a new release
+
+            - نام: محیط راه اندازی Node.js
+  استفاده می کند: اقدامات / راه اندازی-nede@v6.0.0
+  با:
+    # همیشه در صمرک به زمین نشست.
+    همیشه -auth: # اختیاری، پیش فرض نادرست است
+    # نسخه از نسخه از نسخه برای استفاده. نمونه ها: 12.x، 10.15.1، > = 10.15.0.
+    نسخه گره: # اختیاری
+    # فایل حاوی نسخه ای از نسخه نسخه برای استفاده.  نمونه ها: package.json، .nvmrc، .neode-version، .tool-versions.
+    ende-version-file: # اختیاری
+    # معماری هدف برای استفاده از گره. مثال ها: x86، x64. به طور پیش فرض از معماری سیستم استفاده خواهد کرد.
+    معماری: # اختیاری
+    # این گزینه را تنظیم کنید اگر می خواهید اقدام برای بررسی آخرین نسخه موجود که مشخصات نسخه را برآورده می کند، بررسی کنید.
+    چک آخرین: # اختیاری
+    # رجیستری اختیاری برای راه اندازی برای Auth. رجیستری را در یک فایل سطح .npmrc و .yarnrc تنظیم می کند و یک باره را برای خواندن از env.NODE_AUTH_TOKEN تنظیم می کند.
+    رجیستری-اورل: # اختیاری
+    # محدوده اختیاری برای احراز هویت در برابر رجیستری های دامنه. هنگام استفاده از رجیستری بسته های GitHub (https://npm.pkg.github.com/) به صاحب مخزن باز خواهد گشت.
+    دامنه: # اختیاری
+    # قبلاً توزیع گره ها رو از نسخه های گره می کشید. از آنجا که یک پیش فرض وجود دارد، این به طور معمول توسط کاربر عرضه نمی شود. هنگام اجرای این عمل در github.com، مقدار پیش فرض کافی است. هنگام اجرا بر روی GHES، شما می توانید یک توکن دسترسی شخصی برای github.com را اگر شما در حال تجربه محدود کردن نرخ عبور.
+    توکن: # اختیاری، ${{ github.server_url == 'https://github.com' && github.token || '' }}
+    # برای مشخص کردن یک مدیر بسته برای ذخیره سازی در دایرکتوری پیش فرض استفاده می شود. مقادیر پشتیبانی شده: npm، نخ، pnpm.
+    کش: # اختیاری
+    # تنظیم به اشتباه برای غیر فعال کردن ذخیره سازی خودکار. به طور پیش فرض، ذخیره سازی زمانی فعال می شود که devenGenines.packageManager یا فیلد بسته بندی سطح بالا در package.json npm را به عنوان مدیر بسته مشخص می کند.
+    بسته-مدیر-کش: # اختیاری، پیش فرض درست است
+    # برای مشخص کردن مسیر به یک فایل وابستگی استفاده می شود: بسته قفل.json، yarn.lock، و غیره پشتیبانی از wildcards یا یک لیست از نام فایل ها برای ذخیره سازی وابستگی های متعدد.
+    مسیر وابستگی کش: # اختیاری
+    # برای مشخص کردن یک آینه جایگزین برای دانلود باینری های Node.js از
+    آینه: # اختیاری
+    # توکن مورد استفاده به عنوان هدر مجوز در هنگام آوردن از آینه
+    آینه-توکن: # اختیاری
+          
+
+
+
+
+
+
+
