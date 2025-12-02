@@ -42,6 +42,7 @@
     "verbose": true,
     "clearMocks": true,
     "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [".ts"],
     "moduleFileExtensions": [
       "js",
       "ts"
@@ -56,8 +57,12 @@
       "/node_modules/",
       "/dist/"
     ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!jose/)"
+    ],
     "transform": {
-      "^.+\\.ts$": "ts-jest"
+      "^.+\\.ts$": "ts-jest",
+      "^.+\\.js$": "ts-jest"
     },
     "coverageReporters": [
       "json-summary",
