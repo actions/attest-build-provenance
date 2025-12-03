@@ -16,7 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.attest = void 0;
+exports.attest = attest;
 const bundle_1 = __nccwpck_require__(61040);
 const crypto_1 = __nccwpck_require__(76982);
 const endpoints_1 = __nccwpck_require__(60223);
@@ -63,7 +63,6 @@ function attest(options) {
         return toAttestation(bundle, attestationID);
     });
 }
-exports.attest = attest;
 function toAttestation(bundle, attestationID) {
     let certBytes;
     switch (bundle.verificationMaterial.content.$case) {
@@ -114,13 +113,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.signingEndpoints = exports.SIGSTORE_PUBLIC_GOOD = void 0;
 const github = __importStar(__nccwpck_require__(93228));
@@ -233,13 +242,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -357,7 +376,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.attestProvenance = exports.buildSLSAProvenancePredicate = void 0;
+exports.buildSLSAProvenancePredicate = void 0;
+exports.attestProvenance = attestProvenance;
 const attest_1 = __nccwpck_require__(17492);
 const oidc_1 = __nccwpck_require__(85292);
 const SLSA_PREDICATE_V1_TYPE = 'https://slsa.dev/provenance/v1';
@@ -435,7 +455,6 @@ function attestProvenance(options) {
         return (0, attest_1.attest)(Object.assign(Object.assign({}, options), { predicateType: predicate.type, predicate: predicate.params }));
     });
 }
-exports.attestProvenance = attestProvenance;
 //# sourceMappingURL=provenance.js.map
 
 /***/ }),
@@ -532,13 +551,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -561,7 +590,7 @@ const DEFAULT_RETRY_COUNT = 5;
  * @returns The ID of the attestation.
  * @throws Error if the attestation fails to persist.
  */
-const writeAttestation = (attestation, token, options = {}) => __awaiter(void 0, void 0, void 0, function* () {
+const writeAttestation = (attestation_1, token_1, ...args_1) => __awaiter(void 0, [attestation_1, token_1, ...args_1], void 0, function* (attestation, token, options = {}) {
     var _a;
     const retries = (_a = options.retry) !== null && _a !== void 0 ? _a : DEFAULT_RETRY_COUNT;
     const octokit = github.getOctokit(token, { retry: { retries } }, plugin_retry_1.retry);
@@ -570,7 +599,7 @@ const writeAttestation = (attestation, token, options = {}) => __awaiter(void 0,
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             headers: options.headers,
-            data: { bundle: attestation }
+            bundle: attestation
         });
         const data = typeof response.data == 'string'
             ? JSON.parse(response.data)
@@ -11657,90 +11686,60 @@ exports.SignedCertificateTimestamp = SignedCertificateTimestamp;
 
 "use strict";
 
-/* eslint-disable */
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: envelope.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Signature = exports.Envelope = void 0;
-function createBaseEnvelope() {
-    return { payload: Buffer.alloc(0), payloadType: "", signatures: [] };
-}
 exports.Envelope = {
     fromJSON(object) {
         return {
             payload: isSet(object.payload) ? Buffer.from(bytesFromBase64(object.payload)) : Buffer.alloc(0),
-            payloadType: isSet(object.payloadType) ? String(object.payloadType) : "",
-            signatures: Array.isArray(object?.signatures) ? object.signatures.map((e) => exports.Signature.fromJSON(e)) : [],
+            payloadType: isSet(object.payloadType) ? globalThis.String(object.payloadType) : "",
+            signatures: globalThis.Array.isArray(object?.signatures)
+                ? object.signatures.map((e) => exports.Signature.fromJSON(e))
+                : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        message.payload !== undefined &&
-            (obj.payload = base64FromBytes(message.payload !== undefined ? message.payload : Buffer.alloc(0)));
-        message.payloadType !== undefined && (obj.payloadType = message.payloadType);
-        if (message.signatures) {
-            obj.signatures = message.signatures.map((e) => e ? exports.Signature.toJSON(e) : undefined);
+        if (message.payload.length !== 0) {
+            obj.payload = base64FromBytes(message.payload);
         }
-        else {
-            obj.signatures = [];
+        if (message.payloadType !== "") {
+            obj.payloadType = message.payloadType;
+        }
+        if (message.signatures?.length) {
+            obj.signatures = message.signatures.map((e) => exports.Signature.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseSignature() {
-    return { sig: Buffer.alloc(0), keyid: "" };
-}
 exports.Signature = {
     fromJSON(object) {
         return {
             sig: isSet(object.sig) ? Buffer.from(bytesFromBase64(object.sig)) : Buffer.alloc(0),
-            keyid: isSet(object.keyid) ? String(object.keyid) : "",
+            keyid: isSet(object.keyid) ? globalThis.String(object.keyid) : "",
         };
     },
     toJSON(message) {
         const obj = {};
-        message.sig !== undefined && (obj.sig = base64FromBytes(message.sig !== undefined ? message.sig : Buffer.alloc(0)));
-        message.keyid !== undefined && (obj.keyid = message.keyid);
+        if (message.sig.length !== 0) {
+            obj.sig = base64FromBytes(message.sig);
+        }
+        if (message.keyid !== "") {
+            obj.keyid = message.keyid;
+        }
         return obj;
     },
 };
-var tsProtoGlobalThis = (() => {
-    if (typeof globalThis !== "undefined") {
-        return globalThis;
-    }
-    if (typeof self !== "undefined") {
-        return self;
-    }
-    if (typeof window !== "undefined") {
-        return window;
-    }
-    if (typeof global !== "undefined") {
-        return global;
-    }
-    throw "Unable to locate global object";
-})();
 function bytesFromBase64(b64) {
-    if (tsProtoGlobalThis.Buffer) {
-        return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
-    }
-    else {
-        const bin = tsProtoGlobalThis.atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; ++i) {
-            arr[i] = bin.charCodeAt(i);
-        }
-        return arr;
-    }
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
 }
 function base64FromBytes(arr) {
-    if (tsProtoGlobalThis.Buffer) {
-        return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
-    }
-    else {
-        const bin = [];
-        arr.forEach((byte) => {
-            bin.push(String.fromCharCode(byte));
-        });
-        return tsProtoGlobalThis.btoa(bin.join(""));
-    }
+    return globalThis.Buffer.from(arr).toString("base64");
 }
 function isSet(value) {
     return value !== null && value !== undefined;
@@ -11754,23 +11753,28 @@ function isSet(value) {
 
 "use strict";
 
-/* eslint-disable */
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: google/protobuf/timestamp.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Timestamp = void 0;
-function createBaseTimestamp() {
-    return { seconds: "0", nanos: 0 };
-}
 exports.Timestamp = {
     fromJSON(object) {
         return {
-            seconds: isSet(object.seconds) ? String(object.seconds) : "0",
-            nanos: isSet(object.nanos) ? Number(object.nanos) : 0,
+            seconds: isSet(object.seconds) ? globalThis.String(object.seconds) : "0",
+            nanos: isSet(object.nanos) ? globalThis.Number(object.nanos) : 0,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.seconds !== undefined && (obj.seconds = message.seconds);
-        message.nanos !== undefined && (obj.nanos = Math.round(message.nanos));
+        if (message.seconds !== "0") {
+            obj.seconds = message.seconds;
+        }
+        if (message.nanos !== 0) {
+            obj.nanos = Math.round(message.nanos);
+        }
         return obj;
     },
 };
@@ -11786,37 +11790,33 @@ function isSet(value) {
 
 "use strict";
 
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: sigstore_bundle.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Bundle = exports.VerificationMaterial = exports.TimestampVerificationData = void 0;
 /* eslint-disable */
 const envelope_1 = __nccwpck_require__(47030);
 const sigstore_common_1 = __nccwpck_require__(5334);
 const sigstore_rekor_1 = __nccwpck_require__(85204);
-function createBaseTimestampVerificationData() {
-    return { rfc3161Timestamps: [] };
-}
 exports.TimestampVerificationData = {
     fromJSON(object) {
         return {
-            rfc3161Timestamps: Array.isArray(object?.rfc3161Timestamps)
+            rfc3161Timestamps: globalThis.Array.isArray(object?.rfc3161Timestamps)
                 ? object.rfc3161Timestamps.map((e) => sigstore_common_1.RFC3161SignedTimestamp.fromJSON(e))
                 : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        if (message.rfc3161Timestamps) {
-            obj.rfc3161Timestamps = message.rfc3161Timestamps.map((e) => e ? sigstore_common_1.RFC3161SignedTimestamp.toJSON(e) : undefined);
-        }
-        else {
-            obj.rfc3161Timestamps = [];
+        if (message.rfc3161Timestamps?.length) {
+            obj.rfc3161Timestamps = message.rfc3161Timestamps.map((e) => sigstore_common_1.RFC3161SignedTimestamp.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseVerificationMaterial() {
-    return { content: undefined, tlogEntries: [], timestampVerificationData: undefined };
-}
 exports.VerificationMaterial = {
     fromJSON(object) {
         return {
@@ -11830,7 +11830,7 @@ exports.VerificationMaterial = {
                     : isSet(object.certificate)
                         ? { $case: "certificate", certificate: sigstore_common_1.X509Certificate.fromJSON(object.certificate) }
                         : undefined,
-            tlogEntries: Array.isArray(object?.tlogEntries)
+            tlogEntries: globalThis.Array.isArray(object?.tlogEntries)
                 ? object.tlogEntries.map((e) => sigstore_rekor_1.TransparencyLogEntry.fromJSON(e))
                 : [],
             timestampVerificationData: isSet(object.timestampVerificationData)
@@ -11840,36 +11840,28 @@ exports.VerificationMaterial = {
     },
     toJSON(message) {
         const obj = {};
-        message.content?.$case === "publicKey" &&
-            (obj.publicKey = message.content?.publicKey ? sigstore_common_1.PublicKeyIdentifier.toJSON(message.content?.publicKey) : undefined);
-        message.content?.$case === "x509CertificateChain" &&
-            (obj.x509CertificateChain = message.content?.x509CertificateChain
-                ? sigstore_common_1.X509CertificateChain.toJSON(message.content?.x509CertificateChain)
-                : undefined);
-        message.content?.$case === "certificate" &&
-            (obj.certificate = message.content?.certificate
-                ? sigstore_common_1.X509Certificate.toJSON(message.content?.certificate)
-                : undefined);
-        if (message.tlogEntries) {
-            obj.tlogEntries = message.tlogEntries.map((e) => e ? sigstore_rekor_1.TransparencyLogEntry.toJSON(e) : undefined);
+        if (message.content?.$case === "publicKey") {
+            obj.publicKey = sigstore_common_1.PublicKeyIdentifier.toJSON(message.content.publicKey);
         }
-        else {
-            obj.tlogEntries = [];
+        else if (message.content?.$case === "x509CertificateChain") {
+            obj.x509CertificateChain = sigstore_common_1.X509CertificateChain.toJSON(message.content.x509CertificateChain);
         }
-        message.timestampVerificationData !== undefined &&
-            (obj.timestampVerificationData = message.timestampVerificationData
-                ? exports.TimestampVerificationData.toJSON(message.timestampVerificationData)
-                : undefined);
+        else if (message.content?.$case === "certificate") {
+            obj.certificate = sigstore_common_1.X509Certificate.toJSON(message.content.certificate);
+        }
+        if (message.tlogEntries?.length) {
+            obj.tlogEntries = message.tlogEntries.map((e) => sigstore_rekor_1.TransparencyLogEntry.toJSON(e));
+        }
+        if (message.timestampVerificationData !== undefined) {
+            obj.timestampVerificationData = exports.TimestampVerificationData.toJSON(message.timestampVerificationData);
+        }
         return obj;
     },
 };
-function createBaseBundle() {
-    return { mediaType: "", verificationMaterial: undefined, content: undefined };
-}
 exports.Bundle = {
     fromJSON(object) {
         return {
-            mediaType: isSet(object.mediaType) ? String(object.mediaType) : "",
+            mediaType: isSet(object.mediaType) ? globalThis.String(object.mediaType) : "",
             verificationMaterial: isSet(object.verificationMaterial)
                 ? exports.VerificationMaterial.fromJSON(object.verificationMaterial)
                 : undefined,
@@ -11882,15 +11874,18 @@ exports.Bundle = {
     },
     toJSON(message) {
         const obj = {};
-        message.mediaType !== undefined && (obj.mediaType = message.mediaType);
-        message.verificationMaterial !== undefined && (obj.verificationMaterial = message.verificationMaterial
-            ? exports.VerificationMaterial.toJSON(message.verificationMaterial)
-            : undefined);
-        message.content?.$case === "messageSignature" && (obj.messageSignature = message.content?.messageSignature
-            ? sigstore_common_1.MessageSignature.toJSON(message.content?.messageSignature)
-            : undefined);
-        message.content?.$case === "dsseEnvelope" &&
-            (obj.dsseEnvelope = message.content?.dsseEnvelope ? envelope_1.Envelope.toJSON(message.content?.dsseEnvelope) : undefined);
+        if (message.mediaType !== "") {
+            obj.mediaType = message.mediaType;
+        }
+        if (message.verificationMaterial !== undefined) {
+            obj.verificationMaterial = exports.VerificationMaterial.toJSON(message.verificationMaterial);
+        }
+        if (message.content?.$case === "messageSignature") {
+            obj.messageSignature = sigstore_common_1.MessageSignature.toJSON(message.content.messageSignature);
+        }
+        else if (message.content?.$case === "dsseEnvelope") {
+            obj.dsseEnvelope = envelope_1.Envelope.toJSON(message.content.dsseEnvelope);
+        }
         return obj;
     },
 };
@@ -11906,8 +11901,19 @@ function isSet(value) {
 
 "use strict";
 
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: sigstore_common.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TimeRange = exports.X509CertificateChain = exports.SubjectAlternativeName = exports.X509Certificate = exports.DistinguishedName = exports.ObjectIdentifierValuePair = exports.ObjectIdentifier = exports.PublicKeyIdentifier = exports.PublicKey = exports.RFC3161SignedTimestamp = exports.LogId = exports.MessageSignature = exports.HashOutput = exports.subjectAlternativeNameTypeToJSON = exports.subjectAlternativeNameTypeFromJSON = exports.SubjectAlternativeNameType = exports.publicKeyDetailsToJSON = exports.publicKeyDetailsFromJSON = exports.PublicKeyDetails = exports.hashAlgorithmToJSON = exports.hashAlgorithmFromJSON = exports.HashAlgorithm = void 0;
+exports.TimeRange = exports.X509CertificateChain = exports.SubjectAlternativeName = exports.X509Certificate = exports.DistinguishedName = exports.ObjectIdentifierValuePair = exports.ObjectIdentifier = exports.PublicKeyIdentifier = exports.PublicKey = exports.RFC3161SignedTimestamp = exports.LogId = exports.MessageSignature = exports.HashOutput = exports.SubjectAlternativeNameType = exports.PublicKeyDetails = exports.HashAlgorithm = void 0;
+exports.hashAlgorithmFromJSON = hashAlgorithmFromJSON;
+exports.hashAlgorithmToJSON = hashAlgorithmToJSON;
+exports.publicKeyDetailsFromJSON = publicKeyDetailsFromJSON;
+exports.publicKeyDetailsToJSON = publicKeyDetailsToJSON;
+exports.subjectAlternativeNameTypeFromJSON = subjectAlternativeNameTypeFromJSON;
+exports.subjectAlternativeNameTypeToJSON = subjectAlternativeNameTypeToJSON;
 /* eslint-disable */
 const timestamp_1 = __nccwpck_require__(45000);
 /**
@@ -11927,7 +11933,7 @@ var HashAlgorithm;
     HashAlgorithm[HashAlgorithm["SHA2_512"] = 3] = "SHA2_512";
     HashAlgorithm[HashAlgorithm["SHA3_256"] = 4] = "SHA3_256";
     HashAlgorithm[HashAlgorithm["SHA3_384"] = 5] = "SHA3_384";
-})(HashAlgorithm = exports.HashAlgorithm || (exports.HashAlgorithm = {}));
+})(HashAlgorithm || (exports.HashAlgorithm = HashAlgorithm = {}));
 function hashAlgorithmFromJSON(object) {
     switch (object) {
         case 0:
@@ -11949,10 +11955,9 @@ function hashAlgorithmFromJSON(object) {
         case "SHA3_384":
             return HashAlgorithm.SHA3_384;
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum HashAlgorithm");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum HashAlgorithm");
     }
 }
-exports.hashAlgorithmFromJSON = hashAlgorithmFromJSON;
 function hashAlgorithmToJSON(object) {
     switch (object) {
         case HashAlgorithm.HASH_ALGORITHM_UNSPECIFIED:
@@ -11968,10 +11973,9 @@ function hashAlgorithmToJSON(object) {
         case HashAlgorithm.SHA3_384:
             return "SHA3_384";
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum HashAlgorithm");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum HashAlgorithm");
     }
 }
-exports.hashAlgorithmToJSON = hashAlgorithmToJSON;
 /**
  * Details of a specific public key, capturing the the key encoding method,
  * and signature algorithm.
@@ -11983,7 +11987,8 @@ exports.hashAlgorithmToJSON = hashAlgorithmToJSON;
  * opinionated options instead of allowing every possible permutation.
  *
  * Any changes to this enum MUST be reflected in the algorithm registry.
- * See: docs/algorithm-registry.md
+ *
+ * See: <https://github.com/sigstore/architecture-docs/blob/main/algorithm-registry.md>
  *
  * To avoid the possibility of contradicting formats such as PKCS1 with
  * ED25519 the valid permutations are listed as a linear set instead of a
@@ -12031,10 +12036,20 @@ var PublicKeyDetails;
     PublicKeyDetails[PublicKeyDetails["PKIX_ED25519"] = 7] = "PKIX_ED25519";
     PublicKeyDetails[PublicKeyDetails["PKIX_ED25519_PH"] = 8] = "PKIX_ED25519_PH";
     /**
+     * PKIX_ECDSA_P384_SHA_256 - These algorithms are deprecated and should not be used, but they
+     * were/are being used by most Sigstore clients implementations.
+     *
+     * @deprecated
+     */
+    PublicKeyDetails[PublicKeyDetails["PKIX_ECDSA_P384_SHA_256"] = 19] = "PKIX_ECDSA_P384_SHA_256";
+    /** @deprecated */
+    PublicKeyDetails[PublicKeyDetails["PKIX_ECDSA_P521_SHA_256"] = 20] = "PKIX_ECDSA_P521_SHA_256";
+    /**
      * LMS_SHA256 - LMS and LM-OTS
      *
-     * These keys and signatures may be used by private Sigstore
-     * deployments, but are not currently supported by the public
+     * These algorithms are deprecated and should not be used.
+     * Keys and signatures MAY be used by private Sigstore
+     * deployments, but will not be supported by the public
      * good instance.
      *
      * USER WARNING: LMS and LM-OTS are both stateful signature schemes.
@@ -12044,10 +12059,30 @@ var PublicKeyDetails;
      * MUST NOT be used for more than one signature per LM-OTS key.
      * If you cannot maintain these invariants, you MUST NOT use these
      * schemes.
+     *
+     * @deprecated
      */
     PublicKeyDetails[PublicKeyDetails["LMS_SHA256"] = 14] = "LMS_SHA256";
+    /** @deprecated */
     PublicKeyDetails[PublicKeyDetails["LMOTS_SHA256"] = 15] = "LMOTS_SHA256";
-})(PublicKeyDetails = exports.PublicKeyDetails || (exports.PublicKeyDetails = {}));
+    /**
+     * ML_DSA_65 - ML-DSA
+     *
+     * These ML_DSA_65 and ML-DSA_87 algorithms are the pure variants that
+     * take data to sign rather than the prehash variants (HashML-DSA), which
+     * take digests.  While considered quantum-resistant, their usage
+     * involves tradeoffs in that signatures and keys are much larger, and
+     * this makes deployments more costly.
+     *
+     * USER WARNING: ML_DSA_65 and ML_DSA_87 are experimental algorithms.
+     * In the future they MAY be used by private Sigstore deployments, but
+     * they are not yet fully functional.  This warning will be removed when
+     * these algorithms are widely supported by Sigstore clients and servers,
+     * but care should still be taken for production environments.
+     */
+    PublicKeyDetails[PublicKeyDetails["ML_DSA_65"] = 21] = "ML_DSA_65";
+    PublicKeyDetails[PublicKeyDetails["ML_DSA_87"] = 22] = "ML_DSA_87";
+})(PublicKeyDetails || (exports.PublicKeyDetails = PublicKeyDetails = {}));
 function publicKeyDetailsFromJSON(object) {
     switch (object) {
         case 0:
@@ -12101,17 +12136,28 @@ function publicKeyDetailsFromJSON(object) {
         case 8:
         case "PKIX_ED25519_PH":
             return PublicKeyDetails.PKIX_ED25519_PH;
+        case 19:
+        case "PKIX_ECDSA_P384_SHA_256":
+            return PublicKeyDetails.PKIX_ECDSA_P384_SHA_256;
+        case 20:
+        case "PKIX_ECDSA_P521_SHA_256":
+            return PublicKeyDetails.PKIX_ECDSA_P521_SHA_256;
         case 14:
         case "LMS_SHA256":
             return PublicKeyDetails.LMS_SHA256;
         case 15:
         case "LMOTS_SHA256":
             return PublicKeyDetails.LMOTS_SHA256;
+        case 21:
+        case "ML_DSA_65":
+            return PublicKeyDetails.ML_DSA_65;
+        case 22:
+        case "ML_DSA_87":
+            return PublicKeyDetails.ML_DSA_87;
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum PublicKeyDetails");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum PublicKeyDetails");
     }
 }
-exports.publicKeyDetailsFromJSON = publicKeyDetailsFromJSON;
 function publicKeyDetailsToJSON(object) {
     switch (object) {
         case PublicKeyDetails.PUBLIC_KEY_DETAILS_UNSPECIFIED:
@@ -12148,15 +12194,22 @@ function publicKeyDetailsToJSON(object) {
             return "PKIX_ED25519";
         case PublicKeyDetails.PKIX_ED25519_PH:
             return "PKIX_ED25519_PH";
+        case PublicKeyDetails.PKIX_ECDSA_P384_SHA_256:
+            return "PKIX_ECDSA_P384_SHA_256";
+        case PublicKeyDetails.PKIX_ECDSA_P521_SHA_256:
+            return "PKIX_ECDSA_P521_SHA_256";
         case PublicKeyDetails.LMS_SHA256:
             return "LMS_SHA256";
         case PublicKeyDetails.LMOTS_SHA256:
             return "LMOTS_SHA256";
+        case PublicKeyDetails.ML_DSA_65:
+            return "ML_DSA_65";
+        case PublicKeyDetails.ML_DSA_87:
+            return "ML_DSA_87";
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum PublicKeyDetails");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum PublicKeyDetails");
     }
 }
-exports.publicKeyDetailsToJSON = publicKeyDetailsToJSON;
 var SubjectAlternativeNameType;
 (function (SubjectAlternativeNameType) {
     SubjectAlternativeNameType[SubjectAlternativeNameType["SUBJECT_ALTERNATIVE_NAME_TYPE_UNSPECIFIED"] = 0] = "SUBJECT_ALTERNATIVE_NAME_TYPE_UNSPECIFIED";
@@ -12168,7 +12221,7 @@ var SubjectAlternativeNameType;
      * for more details.
      */
     SubjectAlternativeNameType[SubjectAlternativeNameType["OTHER_NAME"] = 3] = "OTHER_NAME";
-})(SubjectAlternativeNameType = exports.SubjectAlternativeNameType || (exports.SubjectAlternativeNameType = {}));
+})(SubjectAlternativeNameType || (exports.SubjectAlternativeNameType = SubjectAlternativeNameType = {}));
 function subjectAlternativeNameTypeFromJSON(object) {
     switch (object) {
         case 0:
@@ -12184,10 +12237,9 @@ function subjectAlternativeNameTypeFromJSON(object) {
         case "OTHER_NAME":
             return SubjectAlternativeNameType.OTHER_NAME;
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SubjectAlternativeNameType");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum SubjectAlternativeNameType");
     }
 }
-exports.subjectAlternativeNameTypeFromJSON = subjectAlternativeNameTypeFromJSON;
 function subjectAlternativeNameTypeToJSON(object) {
     switch (object) {
         case SubjectAlternativeNameType.SUBJECT_ALTERNATIVE_NAME_TYPE_UNSPECIFIED:
@@ -12199,12 +12251,8 @@ function subjectAlternativeNameTypeToJSON(object) {
         case SubjectAlternativeNameType.OTHER_NAME:
             return "OTHER_NAME";
         default:
-            throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SubjectAlternativeNameType");
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum SubjectAlternativeNameType");
     }
-}
-exports.subjectAlternativeNameTypeToJSON = subjectAlternativeNameTypeToJSON;
-function createBaseHashOutput() {
-    return { algorithm: 0, digest: Buffer.alloc(0) };
 }
 exports.HashOutput = {
     fromJSON(object) {
@@ -12215,15 +12263,15 @@ exports.HashOutput = {
     },
     toJSON(message) {
         const obj = {};
-        message.algorithm !== undefined && (obj.algorithm = hashAlgorithmToJSON(message.algorithm));
-        message.digest !== undefined &&
-            (obj.digest = base64FromBytes(message.digest !== undefined ? message.digest : Buffer.alloc(0)));
+        if (message.algorithm !== 0) {
+            obj.algorithm = hashAlgorithmToJSON(message.algorithm);
+        }
+        if (message.digest.length !== 0) {
+            obj.digest = base64FromBytes(message.digest);
+        }
         return obj;
     },
 };
-function createBaseMessageSignature() {
-    return { messageDigest: undefined, signature: Buffer.alloc(0) };
-}
 exports.MessageSignature = {
     fromJSON(object) {
         return {
@@ -12233,30 +12281,27 @@ exports.MessageSignature = {
     },
     toJSON(message) {
         const obj = {};
-        message.messageDigest !== undefined &&
-            (obj.messageDigest = message.messageDigest ? exports.HashOutput.toJSON(message.messageDigest) : undefined);
-        message.signature !== undefined &&
-            (obj.signature = base64FromBytes(message.signature !== undefined ? message.signature : Buffer.alloc(0)));
+        if (message.messageDigest !== undefined) {
+            obj.messageDigest = exports.HashOutput.toJSON(message.messageDigest);
+        }
+        if (message.signature.length !== 0) {
+            obj.signature = base64FromBytes(message.signature);
+        }
         return obj;
     },
 };
-function createBaseLogId() {
-    return { keyId: Buffer.alloc(0) };
-}
 exports.LogId = {
     fromJSON(object) {
         return { keyId: isSet(object.keyId) ? Buffer.from(bytesFromBase64(object.keyId)) : Buffer.alloc(0) };
     },
     toJSON(message) {
         const obj = {};
-        message.keyId !== undefined &&
-            (obj.keyId = base64FromBytes(message.keyId !== undefined ? message.keyId : Buffer.alloc(0)));
+        if (message.keyId.length !== 0) {
+            obj.keyId = base64FromBytes(message.keyId);
+        }
         return obj;
     },
 };
-function createBaseRFC3161SignedTimestamp() {
-    return { signedTimestamp: Buffer.alloc(0) };
-}
 exports.RFC3161SignedTimestamp = {
     fromJSON(object) {
         return {
@@ -12267,14 +12312,12 @@ exports.RFC3161SignedTimestamp = {
     },
     toJSON(message) {
         const obj = {};
-        message.signedTimestamp !== undefined &&
-            (obj.signedTimestamp = base64FromBytes(message.signedTimestamp !== undefined ? message.signedTimestamp : Buffer.alloc(0)));
+        if (message.signedTimestamp.length !== 0) {
+            obj.signedTimestamp = base64FromBytes(message.signedTimestamp);
+        }
         return obj;
     },
 };
-function createBasePublicKey() {
-    return { rawBytes: undefined, keyDetails: 0, validFor: undefined };
-}
 exports.PublicKey = {
     fromJSON(object) {
         return {
@@ -12285,48 +12328,42 @@ exports.PublicKey = {
     },
     toJSON(message) {
         const obj = {};
-        message.rawBytes !== undefined &&
-            (obj.rawBytes = message.rawBytes !== undefined ? base64FromBytes(message.rawBytes) : undefined);
-        message.keyDetails !== undefined && (obj.keyDetails = publicKeyDetailsToJSON(message.keyDetails));
-        message.validFor !== undefined &&
-            (obj.validFor = message.validFor ? exports.TimeRange.toJSON(message.validFor) : undefined);
+        if (message.rawBytes !== undefined) {
+            obj.rawBytes = base64FromBytes(message.rawBytes);
+        }
+        if (message.keyDetails !== 0) {
+            obj.keyDetails = publicKeyDetailsToJSON(message.keyDetails);
+        }
+        if (message.validFor !== undefined) {
+            obj.validFor = exports.TimeRange.toJSON(message.validFor);
+        }
         return obj;
     },
 };
-function createBasePublicKeyIdentifier() {
-    return { hint: "" };
-}
 exports.PublicKeyIdentifier = {
     fromJSON(object) {
-        return { hint: isSet(object.hint) ? String(object.hint) : "" };
+        return { hint: isSet(object.hint) ? globalThis.String(object.hint) : "" };
     },
     toJSON(message) {
         const obj = {};
-        message.hint !== undefined && (obj.hint = message.hint);
+        if (message.hint !== "") {
+            obj.hint = message.hint;
+        }
         return obj;
     },
 };
-function createBaseObjectIdentifier() {
-    return { id: [] };
-}
 exports.ObjectIdentifier = {
     fromJSON(object) {
-        return { id: Array.isArray(object?.id) ? object.id.map((e) => Number(e)) : [] };
+        return { id: globalThis.Array.isArray(object?.id) ? object.id.map((e) => globalThis.Number(e)) : [] };
     },
     toJSON(message) {
         const obj = {};
-        if (message.id) {
+        if (message.id?.length) {
             obj.id = message.id.map((e) => Math.round(e));
-        }
-        else {
-            obj.id = [];
         }
         return obj;
     },
 };
-function createBaseObjectIdentifierValuePair() {
-    return { oid: undefined, value: Buffer.alloc(0) };
-}
 exports.ObjectIdentifierValuePair = {
     fromJSON(object) {
         return {
@@ -12336,90 +12373,86 @@ exports.ObjectIdentifierValuePair = {
     },
     toJSON(message) {
         const obj = {};
-        message.oid !== undefined && (obj.oid = message.oid ? exports.ObjectIdentifier.toJSON(message.oid) : undefined);
-        message.value !== undefined &&
-            (obj.value = base64FromBytes(message.value !== undefined ? message.value : Buffer.alloc(0)));
+        if (message.oid !== undefined) {
+            obj.oid = exports.ObjectIdentifier.toJSON(message.oid);
+        }
+        if (message.value.length !== 0) {
+            obj.value = base64FromBytes(message.value);
+        }
         return obj;
     },
 };
-function createBaseDistinguishedName() {
-    return { organization: "", commonName: "" };
-}
 exports.DistinguishedName = {
     fromJSON(object) {
         return {
-            organization: isSet(object.organization) ? String(object.organization) : "",
-            commonName: isSet(object.commonName) ? String(object.commonName) : "",
+            organization: isSet(object.organization) ? globalThis.String(object.organization) : "",
+            commonName: isSet(object.commonName) ? globalThis.String(object.commonName) : "",
         };
     },
     toJSON(message) {
         const obj = {};
-        message.organization !== undefined && (obj.organization = message.organization);
-        message.commonName !== undefined && (obj.commonName = message.commonName);
+        if (message.organization !== "") {
+            obj.organization = message.organization;
+        }
+        if (message.commonName !== "") {
+            obj.commonName = message.commonName;
+        }
         return obj;
     },
 };
-function createBaseX509Certificate() {
-    return { rawBytes: Buffer.alloc(0) };
-}
 exports.X509Certificate = {
     fromJSON(object) {
         return { rawBytes: isSet(object.rawBytes) ? Buffer.from(bytesFromBase64(object.rawBytes)) : Buffer.alloc(0) };
     },
     toJSON(message) {
         const obj = {};
-        message.rawBytes !== undefined &&
-            (obj.rawBytes = base64FromBytes(message.rawBytes !== undefined ? message.rawBytes : Buffer.alloc(0)));
+        if (message.rawBytes.length !== 0) {
+            obj.rawBytes = base64FromBytes(message.rawBytes);
+        }
         return obj;
     },
 };
-function createBaseSubjectAlternativeName() {
-    return { type: 0, identity: undefined };
-}
 exports.SubjectAlternativeName = {
     fromJSON(object) {
         return {
             type: isSet(object.type) ? subjectAlternativeNameTypeFromJSON(object.type) : 0,
             identity: isSet(object.regexp)
-                ? { $case: "regexp", regexp: String(object.regexp) }
+                ? { $case: "regexp", regexp: globalThis.String(object.regexp) }
                 : isSet(object.value)
-                    ? { $case: "value", value: String(object.value) }
+                    ? { $case: "value", value: globalThis.String(object.value) }
                     : undefined,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.type !== undefined && (obj.type = subjectAlternativeNameTypeToJSON(message.type));
-        message.identity?.$case === "regexp" && (obj.regexp = message.identity?.regexp);
-        message.identity?.$case === "value" && (obj.value = message.identity?.value);
+        if (message.type !== 0) {
+            obj.type = subjectAlternativeNameTypeToJSON(message.type);
+        }
+        if (message.identity?.$case === "regexp") {
+            obj.regexp = message.identity.regexp;
+        }
+        else if (message.identity?.$case === "value") {
+            obj.value = message.identity.value;
+        }
         return obj;
     },
 };
-function createBaseX509CertificateChain() {
-    return { certificates: [] };
-}
 exports.X509CertificateChain = {
     fromJSON(object) {
         return {
-            certificates: Array.isArray(object?.certificates)
+            certificates: globalThis.Array.isArray(object?.certificates)
                 ? object.certificates.map((e) => exports.X509Certificate.fromJSON(e))
                 : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        if (message.certificates) {
-            obj.certificates = message.certificates.map((e) => e ? exports.X509Certificate.toJSON(e) : undefined);
-        }
-        else {
-            obj.certificates = [];
+        if (message.certificates?.length) {
+            obj.certificates = message.certificates.map((e) => exports.X509Certificate.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseTimeRange() {
-    return { start: undefined, end: undefined };
-}
 exports.TimeRange = {
     fromJSON(object) {
         return {
@@ -12429,62 +12462,32 @@ exports.TimeRange = {
     },
     toJSON(message) {
         const obj = {};
-        message.start !== undefined && (obj.start = message.start.toISOString());
-        message.end !== undefined && (obj.end = message.end.toISOString());
+        if (message.start !== undefined) {
+            obj.start = message.start.toISOString();
+        }
+        if (message.end !== undefined) {
+            obj.end = message.end.toISOString();
+        }
         return obj;
     },
 };
-var tsProtoGlobalThis = (() => {
-    if (typeof globalThis !== "undefined") {
-        return globalThis;
-    }
-    if (typeof self !== "undefined") {
-        return self;
-    }
-    if (typeof window !== "undefined") {
-        return window;
-    }
-    if (typeof global !== "undefined") {
-        return global;
-    }
-    throw "Unable to locate global object";
-})();
 function bytesFromBase64(b64) {
-    if (tsProtoGlobalThis.Buffer) {
-        return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
-    }
-    else {
-        const bin = tsProtoGlobalThis.atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; ++i) {
-            arr[i] = bin.charCodeAt(i);
-        }
-        return arr;
-    }
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
 }
 function base64FromBytes(arr) {
-    if (tsProtoGlobalThis.Buffer) {
-        return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
-    }
-    else {
-        const bin = [];
-        arr.forEach((byte) => {
-            bin.push(String.fromCharCode(byte));
-        });
-        return tsProtoGlobalThis.btoa(bin.join(""));
-    }
+    return globalThis.Buffer.from(arr).toString("base64");
 }
 function fromTimestamp(t) {
-    let millis = Number(t.seconds) * 1000;
-    millis += t.nanos / 1000000;
-    return new Date(millis);
+    let millis = (globalThis.Number(t.seconds) || 0) * 1_000;
+    millis += (t.nanos || 0) / 1_000_000;
+    return new globalThis.Date(millis);
 }
 function fromJsonTimestamp(o) {
-    if (o instanceof Date) {
+    if (o instanceof globalThis.Date) {
         return o;
     }
     else if (typeof o === "string") {
-        return new Date(o);
+        return new globalThis.Date(o);
     }
     else {
         return fromTimestamp(timestamp_1.Timestamp.fromJSON(o));
@@ -12502,73 +12505,77 @@ function isSet(value) {
 
 "use strict";
 
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: sigstore_rekor.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TransparencyLogEntry = exports.InclusionPromise = exports.InclusionProof = exports.Checkpoint = exports.KindVersion = void 0;
 /* eslint-disable */
 const sigstore_common_1 = __nccwpck_require__(5334);
-function createBaseKindVersion() {
-    return { kind: "", version: "" };
-}
 exports.KindVersion = {
     fromJSON(object) {
         return {
-            kind: isSet(object.kind) ? String(object.kind) : "",
-            version: isSet(object.version) ? String(object.version) : "",
+            kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+            version: isSet(object.version) ? globalThis.String(object.version) : "",
         };
     },
     toJSON(message) {
         const obj = {};
-        message.kind !== undefined && (obj.kind = message.kind);
-        message.version !== undefined && (obj.version = message.version);
+        if (message.kind !== "") {
+            obj.kind = message.kind;
+        }
+        if (message.version !== "") {
+            obj.version = message.version;
+        }
         return obj;
     },
 };
-function createBaseCheckpoint() {
-    return { envelope: "" };
-}
 exports.Checkpoint = {
     fromJSON(object) {
-        return { envelope: isSet(object.envelope) ? String(object.envelope) : "" };
+        return { envelope: isSet(object.envelope) ? globalThis.String(object.envelope) : "" };
     },
     toJSON(message) {
         const obj = {};
-        message.envelope !== undefined && (obj.envelope = message.envelope);
+        if (message.envelope !== "") {
+            obj.envelope = message.envelope;
+        }
         return obj;
     },
 };
-function createBaseInclusionProof() {
-    return { logIndex: "0", rootHash: Buffer.alloc(0), treeSize: "0", hashes: [], checkpoint: undefined };
-}
 exports.InclusionProof = {
     fromJSON(object) {
         return {
-            logIndex: isSet(object.logIndex) ? String(object.logIndex) : "0",
+            logIndex: isSet(object.logIndex) ? globalThis.String(object.logIndex) : "0",
             rootHash: isSet(object.rootHash) ? Buffer.from(bytesFromBase64(object.rootHash)) : Buffer.alloc(0),
-            treeSize: isSet(object.treeSize) ? String(object.treeSize) : "0",
-            hashes: Array.isArray(object?.hashes) ? object.hashes.map((e) => Buffer.from(bytesFromBase64(e))) : [],
+            treeSize: isSet(object.treeSize) ? globalThis.String(object.treeSize) : "0",
+            hashes: globalThis.Array.isArray(object?.hashes)
+                ? object.hashes.map((e) => Buffer.from(bytesFromBase64(e)))
+                : [],
             checkpoint: isSet(object.checkpoint) ? exports.Checkpoint.fromJSON(object.checkpoint) : undefined,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.logIndex !== undefined && (obj.logIndex = message.logIndex);
-        message.rootHash !== undefined &&
-            (obj.rootHash = base64FromBytes(message.rootHash !== undefined ? message.rootHash : Buffer.alloc(0)));
-        message.treeSize !== undefined && (obj.treeSize = message.treeSize);
-        if (message.hashes) {
-            obj.hashes = message.hashes.map((e) => base64FromBytes(e !== undefined ? e : Buffer.alloc(0)));
+        if (message.logIndex !== "0") {
+            obj.logIndex = message.logIndex;
         }
-        else {
-            obj.hashes = [];
+        if (message.rootHash.length !== 0) {
+            obj.rootHash = base64FromBytes(message.rootHash);
         }
-        message.checkpoint !== undefined &&
-            (obj.checkpoint = message.checkpoint ? exports.Checkpoint.toJSON(message.checkpoint) : undefined);
+        if (message.treeSize !== "0") {
+            obj.treeSize = message.treeSize;
+        }
+        if (message.hashes?.length) {
+            obj.hashes = message.hashes.map((e) => base64FromBytes(e));
+        }
+        if (message.checkpoint !== undefined) {
+            obj.checkpoint = exports.Checkpoint.toJSON(message.checkpoint);
+        }
         return obj;
     },
 };
-function createBaseInclusionPromise() {
-    return { signedEntryTimestamp: Buffer.alloc(0) };
-}
 exports.InclusionPromise = {
     fromJSON(object) {
         return {
@@ -12579,29 +12586,19 @@ exports.InclusionPromise = {
     },
     toJSON(message) {
         const obj = {};
-        message.signedEntryTimestamp !== undefined &&
-            (obj.signedEntryTimestamp = base64FromBytes(message.signedEntryTimestamp !== undefined ? message.signedEntryTimestamp : Buffer.alloc(0)));
+        if (message.signedEntryTimestamp.length !== 0) {
+            obj.signedEntryTimestamp = base64FromBytes(message.signedEntryTimestamp);
+        }
         return obj;
     },
 };
-function createBaseTransparencyLogEntry() {
-    return {
-        logIndex: "0",
-        logId: undefined,
-        kindVersion: undefined,
-        integratedTime: "0",
-        inclusionPromise: undefined,
-        inclusionProof: undefined,
-        canonicalizedBody: Buffer.alloc(0),
-    };
-}
 exports.TransparencyLogEntry = {
     fromJSON(object) {
         return {
-            logIndex: isSet(object.logIndex) ? String(object.logIndex) : "0",
+            logIndex: isSet(object.logIndex) ? globalThis.String(object.logIndex) : "0",
             logId: isSet(object.logId) ? sigstore_common_1.LogId.fromJSON(object.logId) : undefined,
             kindVersion: isSet(object.kindVersion) ? exports.KindVersion.fromJSON(object.kindVersion) : undefined,
-            integratedTime: isSet(object.integratedTime) ? String(object.integratedTime) : "0",
+            integratedTime: isSet(object.integratedTime) ? globalThis.String(object.integratedTime) : "0",
             inclusionPromise: isSet(object.inclusionPromise) ? exports.InclusionPromise.fromJSON(object.inclusionPromise) : undefined,
             inclusionProof: isSet(object.inclusionProof) ? exports.InclusionProof.fromJSON(object.inclusionProof) : undefined,
             canonicalizedBody: isSet(object.canonicalizedBody)
@@ -12611,59 +12608,35 @@ exports.TransparencyLogEntry = {
     },
     toJSON(message) {
         const obj = {};
-        message.logIndex !== undefined && (obj.logIndex = message.logIndex);
-        message.logId !== undefined && (obj.logId = message.logId ? sigstore_common_1.LogId.toJSON(message.logId) : undefined);
-        message.kindVersion !== undefined &&
-            (obj.kindVersion = message.kindVersion ? exports.KindVersion.toJSON(message.kindVersion) : undefined);
-        message.integratedTime !== undefined && (obj.integratedTime = message.integratedTime);
-        message.inclusionPromise !== undefined &&
-            (obj.inclusionPromise = message.inclusionPromise ? exports.InclusionPromise.toJSON(message.inclusionPromise) : undefined);
-        message.inclusionProof !== undefined &&
-            (obj.inclusionProof = message.inclusionProof ? exports.InclusionProof.toJSON(message.inclusionProof) : undefined);
-        message.canonicalizedBody !== undefined &&
-            (obj.canonicalizedBody = base64FromBytes(message.canonicalizedBody !== undefined ? message.canonicalizedBody : Buffer.alloc(0)));
+        if (message.logIndex !== "0") {
+            obj.logIndex = message.logIndex;
+        }
+        if (message.logId !== undefined) {
+            obj.logId = sigstore_common_1.LogId.toJSON(message.logId);
+        }
+        if (message.kindVersion !== undefined) {
+            obj.kindVersion = exports.KindVersion.toJSON(message.kindVersion);
+        }
+        if (message.integratedTime !== "0") {
+            obj.integratedTime = message.integratedTime;
+        }
+        if (message.inclusionPromise !== undefined) {
+            obj.inclusionPromise = exports.InclusionPromise.toJSON(message.inclusionPromise);
+        }
+        if (message.inclusionProof !== undefined) {
+            obj.inclusionProof = exports.InclusionProof.toJSON(message.inclusionProof);
+        }
+        if (message.canonicalizedBody.length !== 0) {
+            obj.canonicalizedBody = base64FromBytes(message.canonicalizedBody);
+        }
         return obj;
     },
 };
-var tsProtoGlobalThis = (() => {
-    if (typeof globalThis !== "undefined") {
-        return globalThis;
-    }
-    if (typeof self !== "undefined") {
-        return self;
-    }
-    if (typeof window !== "undefined") {
-        return window;
-    }
-    if (typeof global !== "undefined") {
-        return global;
-    }
-    throw "Unable to locate global object";
-})();
 function bytesFromBase64(b64) {
-    if (tsProtoGlobalThis.Buffer) {
-        return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
-    }
-    else {
-        const bin = tsProtoGlobalThis.atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; ++i) {
-            arr[i] = bin.charCodeAt(i);
-        }
-        return arr;
-    }
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
 }
 function base64FromBytes(arr) {
-    if (tsProtoGlobalThis.Buffer) {
-        return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
-    }
-    else {
-        const bin = [];
-        arr.forEach((byte) => {
-            bin.push(String.fromCharCode(byte));
-        });
-        return tsProtoGlobalThis.btoa(bin.join(""));
-    }
+    return globalThis.Buffer.from(arr).toString("base64");
 }
 function isSet(value) {
     return value !== null && value !== undefined;
@@ -12677,157 +12650,283 @@ function isSet(value) {
 
 "use strict";
 
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: sigstore_trustroot.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ClientTrustConfig = exports.SigningConfig = exports.TrustedRoot = exports.CertificateAuthority = exports.TransparencyLogInstance = void 0;
+exports.ClientTrustConfig = exports.ServiceConfiguration = exports.Service = exports.SigningConfig = exports.TrustedRoot = exports.CertificateAuthority = exports.TransparencyLogInstance = exports.ServiceSelector = void 0;
+exports.serviceSelectorFromJSON = serviceSelectorFromJSON;
+exports.serviceSelectorToJSON = serviceSelectorToJSON;
 /* eslint-disable */
 const sigstore_common_1 = __nccwpck_require__(5334);
-function createBaseTransparencyLogInstance() {
-    return { baseUrl: "", hashAlgorithm: 0, publicKey: undefined, logId: undefined, checkpointKeyId: undefined };
+/**
+ * ServiceSelector specifies how a client SHOULD select a set of
+ * Services to connect to. A client SHOULD throw an error if
+ * the value is SERVICE_SELECTOR_UNDEFINED.
+ */
+var ServiceSelector;
+(function (ServiceSelector) {
+    ServiceSelector[ServiceSelector["SERVICE_SELECTOR_UNDEFINED"] = 0] = "SERVICE_SELECTOR_UNDEFINED";
+    /**
+     * ALL - Clients SHOULD select all Services based on supported API version
+     * and validity window.
+     */
+    ServiceSelector[ServiceSelector["ALL"] = 1] = "ALL";
+    /**
+     * ANY - Clients SHOULD select one Service based on supported API version
+     * and validity window. It is up to the client implementation to
+     * decide how to select the Service, e.g. random or round-robin.
+     */
+    ServiceSelector[ServiceSelector["ANY"] = 2] = "ANY";
+    /**
+     * EXACT - Clients SHOULD select a specific number of Services based on
+     * supported API version and validity window, using the provided
+     * `count`. It is up to the client implementation to decide how to
+     * select the Service, e.g. random or round-robin.
+     */
+    ServiceSelector[ServiceSelector["EXACT"] = 3] = "EXACT";
+})(ServiceSelector || (exports.ServiceSelector = ServiceSelector = {}));
+function serviceSelectorFromJSON(object) {
+    switch (object) {
+        case 0:
+        case "SERVICE_SELECTOR_UNDEFINED":
+            return ServiceSelector.SERVICE_SELECTOR_UNDEFINED;
+        case 1:
+        case "ALL":
+            return ServiceSelector.ALL;
+        case 2:
+        case "ANY":
+            return ServiceSelector.ANY;
+        case 3:
+        case "EXACT":
+            return ServiceSelector.EXACT;
+        default:
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum ServiceSelector");
+    }
+}
+function serviceSelectorToJSON(object) {
+    switch (object) {
+        case ServiceSelector.SERVICE_SELECTOR_UNDEFINED:
+            return "SERVICE_SELECTOR_UNDEFINED";
+        case ServiceSelector.ALL:
+            return "ALL";
+        case ServiceSelector.ANY:
+            return "ANY";
+        case ServiceSelector.EXACT:
+            return "EXACT";
+        default:
+            throw new globalThis.Error("Unrecognized enum value " + object + " for enum ServiceSelector");
+    }
 }
 exports.TransparencyLogInstance = {
     fromJSON(object) {
         return {
-            baseUrl: isSet(object.baseUrl) ? String(object.baseUrl) : "",
+            baseUrl: isSet(object.baseUrl) ? globalThis.String(object.baseUrl) : "",
             hashAlgorithm: isSet(object.hashAlgorithm) ? (0, sigstore_common_1.hashAlgorithmFromJSON)(object.hashAlgorithm) : 0,
             publicKey: isSet(object.publicKey) ? sigstore_common_1.PublicKey.fromJSON(object.publicKey) : undefined,
             logId: isSet(object.logId) ? sigstore_common_1.LogId.fromJSON(object.logId) : undefined,
             checkpointKeyId: isSet(object.checkpointKeyId) ? sigstore_common_1.LogId.fromJSON(object.checkpointKeyId) : undefined,
+            operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
         };
     },
     toJSON(message) {
         const obj = {};
-        message.baseUrl !== undefined && (obj.baseUrl = message.baseUrl);
-        message.hashAlgorithm !== undefined && (obj.hashAlgorithm = (0, sigstore_common_1.hashAlgorithmToJSON)(message.hashAlgorithm));
-        message.publicKey !== undefined &&
-            (obj.publicKey = message.publicKey ? sigstore_common_1.PublicKey.toJSON(message.publicKey) : undefined);
-        message.logId !== undefined && (obj.logId = message.logId ? sigstore_common_1.LogId.toJSON(message.logId) : undefined);
-        message.checkpointKeyId !== undefined &&
-            (obj.checkpointKeyId = message.checkpointKeyId ? sigstore_common_1.LogId.toJSON(message.checkpointKeyId) : undefined);
+        if (message.baseUrl !== "") {
+            obj.baseUrl = message.baseUrl;
+        }
+        if (message.hashAlgorithm !== 0) {
+            obj.hashAlgorithm = (0, sigstore_common_1.hashAlgorithmToJSON)(message.hashAlgorithm);
+        }
+        if (message.publicKey !== undefined) {
+            obj.publicKey = sigstore_common_1.PublicKey.toJSON(message.publicKey);
+        }
+        if (message.logId !== undefined) {
+            obj.logId = sigstore_common_1.LogId.toJSON(message.logId);
+        }
+        if (message.checkpointKeyId !== undefined) {
+            obj.checkpointKeyId = sigstore_common_1.LogId.toJSON(message.checkpointKeyId);
+        }
+        if (message.operator !== "") {
+            obj.operator = message.operator;
+        }
         return obj;
     },
 };
-function createBaseCertificateAuthority() {
-    return { subject: undefined, uri: "", certChain: undefined, validFor: undefined };
-}
 exports.CertificateAuthority = {
     fromJSON(object) {
         return {
             subject: isSet(object.subject) ? sigstore_common_1.DistinguishedName.fromJSON(object.subject) : undefined,
-            uri: isSet(object.uri) ? String(object.uri) : "",
+            uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
             certChain: isSet(object.certChain) ? sigstore_common_1.X509CertificateChain.fromJSON(object.certChain) : undefined,
             validFor: isSet(object.validFor) ? sigstore_common_1.TimeRange.fromJSON(object.validFor) : undefined,
+            operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
         };
     },
     toJSON(message) {
         const obj = {};
-        message.subject !== undefined &&
-            (obj.subject = message.subject ? sigstore_common_1.DistinguishedName.toJSON(message.subject) : undefined);
-        message.uri !== undefined && (obj.uri = message.uri);
-        message.certChain !== undefined &&
-            (obj.certChain = message.certChain ? sigstore_common_1.X509CertificateChain.toJSON(message.certChain) : undefined);
-        message.validFor !== undefined &&
-            (obj.validFor = message.validFor ? sigstore_common_1.TimeRange.toJSON(message.validFor) : undefined);
+        if (message.subject !== undefined) {
+            obj.subject = sigstore_common_1.DistinguishedName.toJSON(message.subject);
+        }
+        if (message.uri !== "") {
+            obj.uri = message.uri;
+        }
+        if (message.certChain !== undefined) {
+            obj.certChain = sigstore_common_1.X509CertificateChain.toJSON(message.certChain);
+        }
+        if (message.validFor !== undefined) {
+            obj.validFor = sigstore_common_1.TimeRange.toJSON(message.validFor);
+        }
+        if (message.operator !== "") {
+            obj.operator = message.operator;
+        }
         return obj;
     },
 };
-function createBaseTrustedRoot() {
-    return { mediaType: "", tlogs: [], certificateAuthorities: [], ctlogs: [], timestampAuthorities: [] };
-}
 exports.TrustedRoot = {
     fromJSON(object) {
         return {
-            mediaType: isSet(object.mediaType) ? String(object.mediaType) : "",
-            tlogs: Array.isArray(object?.tlogs) ? object.tlogs.map((e) => exports.TransparencyLogInstance.fromJSON(e)) : [],
-            certificateAuthorities: Array.isArray(object?.certificateAuthorities)
+            mediaType: isSet(object.mediaType) ? globalThis.String(object.mediaType) : "",
+            tlogs: globalThis.Array.isArray(object?.tlogs)
+                ? object.tlogs.map((e) => exports.TransparencyLogInstance.fromJSON(e))
+                : [],
+            certificateAuthorities: globalThis.Array.isArray(object?.certificateAuthorities)
                 ? object.certificateAuthorities.map((e) => exports.CertificateAuthority.fromJSON(e))
                 : [],
-            ctlogs: Array.isArray(object?.ctlogs)
+            ctlogs: globalThis.Array.isArray(object?.ctlogs)
                 ? object.ctlogs.map((e) => exports.TransparencyLogInstance.fromJSON(e))
                 : [],
-            timestampAuthorities: Array.isArray(object?.timestampAuthorities)
+            timestampAuthorities: globalThis.Array.isArray(object?.timestampAuthorities)
                 ? object.timestampAuthorities.map((e) => exports.CertificateAuthority.fromJSON(e))
                 : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        message.mediaType !== undefined && (obj.mediaType = message.mediaType);
-        if (message.tlogs) {
-            obj.tlogs = message.tlogs.map((e) => e ? exports.TransparencyLogInstance.toJSON(e) : undefined);
+        if (message.mediaType !== "") {
+            obj.mediaType = message.mediaType;
         }
-        else {
-            obj.tlogs = [];
+        if (message.tlogs?.length) {
+            obj.tlogs = message.tlogs.map((e) => exports.TransparencyLogInstance.toJSON(e));
         }
-        if (message.certificateAuthorities) {
-            obj.certificateAuthorities = message.certificateAuthorities.map((e) => e ? exports.CertificateAuthority.toJSON(e) : undefined);
+        if (message.certificateAuthorities?.length) {
+            obj.certificateAuthorities = message.certificateAuthorities.map((e) => exports.CertificateAuthority.toJSON(e));
         }
-        else {
-            obj.certificateAuthorities = [];
+        if (message.ctlogs?.length) {
+            obj.ctlogs = message.ctlogs.map((e) => exports.TransparencyLogInstance.toJSON(e));
         }
-        if (message.ctlogs) {
-            obj.ctlogs = message.ctlogs.map((e) => e ? exports.TransparencyLogInstance.toJSON(e) : undefined);
-        }
-        else {
-            obj.ctlogs = [];
-        }
-        if (message.timestampAuthorities) {
-            obj.timestampAuthorities = message.timestampAuthorities.map((e) => e ? exports.CertificateAuthority.toJSON(e) : undefined);
-        }
-        else {
-            obj.timestampAuthorities = [];
+        if (message.timestampAuthorities?.length) {
+            obj.timestampAuthorities = message.timestampAuthorities.map((e) => exports.CertificateAuthority.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseSigningConfig() {
-    return { caUrl: "", oidcUrl: "", tlogUrls: [], tsaUrls: [] };
-}
 exports.SigningConfig = {
     fromJSON(object) {
         return {
-            caUrl: isSet(object.caUrl) ? String(object.caUrl) : "",
-            oidcUrl: isSet(object.oidcUrl) ? String(object.oidcUrl) : "",
-            tlogUrls: Array.isArray(object?.tlogUrls) ? object.tlogUrls.map((e) => String(e)) : [],
-            tsaUrls: Array.isArray(object?.tsaUrls) ? object.tsaUrls.map((e) => String(e)) : [],
+            mediaType: isSet(object.mediaType) ? globalThis.String(object.mediaType) : "",
+            caUrls: globalThis.Array.isArray(object?.caUrls) ? object.caUrls.map((e) => exports.Service.fromJSON(e)) : [],
+            oidcUrls: globalThis.Array.isArray(object?.oidcUrls) ? object.oidcUrls.map((e) => exports.Service.fromJSON(e)) : [],
+            rekorTlogUrls: globalThis.Array.isArray(object?.rekorTlogUrls)
+                ? object.rekorTlogUrls.map((e) => exports.Service.fromJSON(e))
+                : [],
+            rekorTlogConfig: isSet(object.rekorTlogConfig)
+                ? exports.ServiceConfiguration.fromJSON(object.rekorTlogConfig)
+                : undefined,
+            tsaUrls: globalThis.Array.isArray(object?.tsaUrls) ? object.tsaUrls.map((e) => exports.Service.fromJSON(e)) : [],
+            tsaConfig: isSet(object.tsaConfig) ? exports.ServiceConfiguration.fromJSON(object.tsaConfig) : undefined,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.caUrl !== undefined && (obj.caUrl = message.caUrl);
-        message.oidcUrl !== undefined && (obj.oidcUrl = message.oidcUrl);
-        if (message.tlogUrls) {
-            obj.tlogUrls = message.tlogUrls.map((e) => e);
+        if (message.mediaType !== "") {
+            obj.mediaType = message.mediaType;
         }
-        else {
-            obj.tlogUrls = [];
+        if (message.caUrls?.length) {
+            obj.caUrls = message.caUrls.map((e) => exports.Service.toJSON(e));
         }
-        if (message.tsaUrls) {
-            obj.tsaUrls = message.tsaUrls.map((e) => e);
+        if (message.oidcUrls?.length) {
+            obj.oidcUrls = message.oidcUrls.map((e) => exports.Service.toJSON(e));
         }
-        else {
-            obj.tsaUrls = [];
+        if (message.rekorTlogUrls?.length) {
+            obj.rekorTlogUrls = message.rekorTlogUrls.map((e) => exports.Service.toJSON(e));
+        }
+        if (message.rekorTlogConfig !== undefined) {
+            obj.rekorTlogConfig = exports.ServiceConfiguration.toJSON(message.rekorTlogConfig);
+        }
+        if (message.tsaUrls?.length) {
+            obj.tsaUrls = message.tsaUrls.map((e) => exports.Service.toJSON(e));
+        }
+        if (message.tsaConfig !== undefined) {
+            obj.tsaConfig = exports.ServiceConfiguration.toJSON(message.tsaConfig);
         }
         return obj;
     },
 };
-function createBaseClientTrustConfig() {
-    return { mediaType: "", trustedRoot: undefined, signingConfig: undefined };
-}
+exports.Service = {
+    fromJSON(object) {
+        return {
+            url: isSet(object.url) ? globalThis.String(object.url) : "",
+            majorApiVersion: isSet(object.majorApiVersion) ? globalThis.Number(object.majorApiVersion) : 0,
+            validFor: isSet(object.validFor) ? sigstore_common_1.TimeRange.fromJSON(object.validFor) : undefined,
+            operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
+        };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.url !== "") {
+            obj.url = message.url;
+        }
+        if (message.majorApiVersion !== 0) {
+            obj.majorApiVersion = Math.round(message.majorApiVersion);
+        }
+        if (message.validFor !== undefined) {
+            obj.validFor = sigstore_common_1.TimeRange.toJSON(message.validFor);
+        }
+        if (message.operator !== "") {
+            obj.operator = message.operator;
+        }
+        return obj;
+    },
+};
+exports.ServiceConfiguration = {
+    fromJSON(object) {
+        return {
+            selector: isSet(object.selector) ? serviceSelectorFromJSON(object.selector) : 0,
+            count: isSet(object.count) ? globalThis.Number(object.count) : 0,
+        };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.selector !== 0) {
+            obj.selector = serviceSelectorToJSON(message.selector);
+        }
+        if (message.count !== 0) {
+            obj.count = Math.round(message.count);
+        }
+        return obj;
+    },
+};
 exports.ClientTrustConfig = {
     fromJSON(object) {
         return {
-            mediaType: isSet(object.mediaType) ? String(object.mediaType) : "",
+            mediaType: isSet(object.mediaType) ? globalThis.String(object.mediaType) : "",
             trustedRoot: isSet(object.trustedRoot) ? exports.TrustedRoot.fromJSON(object.trustedRoot) : undefined,
             signingConfig: isSet(object.signingConfig) ? exports.SigningConfig.fromJSON(object.signingConfig) : undefined,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.mediaType !== undefined && (obj.mediaType = message.mediaType);
-        message.trustedRoot !== undefined &&
-            (obj.trustedRoot = message.trustedRoot ? exports.TrustedRoot.toJSON(message.trustedRoot) : undefined);
-        message.signingConfig !== undefined &&
-            (obj.signingConfig = message.signingConfig ? exports.SigningConfig.toJSON(message.signingConfig) : undefined);
+        if (message.mediaType !== "") {
+            obj.mediaType = message.mediaType;
+        }
+        if (message.trustedRoot !== undefined) {
+            obj.trustedRoot = exports.TrustedRoot.toJSON(message.trustedRoot);
+        }
+        if (message.signingConfig !== undefined) {
+            obj.signingConfig = exports.SigningConfig.toJSON(message.signingConfig);
+        }
         return obj;
     },
 };
@@ -12843,88 +12942,73 @@ function isSet(value) {
 
 "use strict";
 
+// Code generated by protoc-gen-ts_proto. DO NOT EDIT.
+// versions:
+//   protoc-gen-ts_proto  v2.7.0
+//   protoc               v6.30.2
+// source: sigstore_verification.proto
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Input = exports.Artifact = exports.ArtifactVerificationOptions_ObserverTimestampOptions = exports.ArtifactVerificationOptions_TlogIntegratedTimestampOptions = exports.ArtifactVerificationOptions_TimestampAuthorityOptions = exports.ArtifactVerificationOptions_CtlogOptions = exports.ArtifactVerificationOptions_TlogOptions = exports.ArtifactVerificationOptions = exports.PublicKeyIdentities = exports.CertificateIdentities = exports.CertificateIdentity = void 0;
 /* eslint-disable */
 const sigstore_bundle_1 = __nccwpck_require__(70715);
 const sigstore_common_1 = __nccwpck_require__(5334);
 const sigstore_trustroot_1 = __nccwpck_require__(61997);
-function createBaseCertificateIdentity() {
-    return { issuer: "", san: undefined, oids: [] };
-}
 exports.CertificateIdentity = {
     fromJSON(object) {
         return {
-            issuer: isSet(object.issuer) ? String(object.issuer) : "",
+            issuer: isSet(object.issuer) ? globalThis.String(object.issuer) : "",
             san: isSet(object.san) ? sigstore_common_1.SubjectAlternativeName.fromJSON(object.san) : undefined,
-            oids: Array.isArray(object?.oids) ? object.oids.map((e) => sigstore_common_1.ObjectIdentifierValuePair.fromJSON(e)) : [],
+            oids: globalThis.Array.isArray(object?.oids)
+                ? object.oids.map((e) => sigstore_common_1.ObjectIdentifierValuePair.fromJSON(e))
+                : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        message.issuer !== undefined && (obj.issuer = message.issuer);
-        message.san !== undefined && (obj.san = message.san ? sigstore_common_1.SubjectAlternativeName.toJSON(message.san) : undefined);
-        if (message.oids) {
-            obj.oids = message.oids.map((e) => e ? sigstore_common_1.ObjectIdentifierValuePair.toJSON(e) : undefined);
+        if (message.issuer !== "") {
+            obj.issuer = message.issuer;
         }
-        else {
-            obj.oids = [];
+        if (message.san !== undefined) {
+            obj.san = sigstore_common_1.SubjectAlternativeName.toJSON(message.san);
+        }
+        if (message.oids?.length) {
+            obj.oids = message.oids.map((e) => sigstore_common_1.ObjectIdentifierValuePair.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseCertificateIdentities() {
-    return { identities: [] };
-}
 exports.CertificateIdentities = {
     fromJSON(object) {
         return {
-            identities: Array.isArray(object?.identities)
+            identities: globalThis.Array.isArray(object?.identities)
                 ? object.identities.map((e) => exports.CertificateIdentity.fromJSON(e))
                 : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        if (message.identities) {
-            obj.identities = message.identities.map((e) => e ? exports.CertificateIdentity.toJSON(e) : undefined);
-        }
-        else {
-            obj.identities = [];
+        if (message.identities?.length) {
+            obj.identities = message.identities.map((e) => exports.CertificateIdentity.toJSON(e));
         }
         return obj;
     },
 };
-function createBasePublicKeyIdentities() {
-    return { publicKeys: [] };
-}
 exports.PublicKeyIdentities = {
     fromJSON(object) {
         return {
-            publicKeys: Array.isArray(object?.publicKeys) ? object.publicKeys.map((e) => sigstore_common_1.PublicKey.fromJSON(e)) : [],
+            publicKeys: globalThis.Array.isArray(object?.publicKeys)
+                ? object.publicKeys.map((e) => sigstore_common_1.PublicKey.fromJSON(e))
+                : [],
         };
     },
     toJSON(message) {
         const obj = {};
-        if (message.publicKeys) {
-            obj.publicKeys = message.publicKeys.map((e) => e ? sigstore_common_1.PublicKey.toJSON(e) : undefined);
-        }
-        else {
-            obj.publicKeys = [];
+        if (message.publicKeys?.length) {
+            obj.publicKeys = message.publicKeys.map((e) => sigstore_common_1.PublicKey.toJSON(e));
         }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions() {
-    return {
-        signers: undefined,
-        tlogOptions: undefined,
-        ctlogOptions: undefined,
-        tsaOptions: undefined,
-        integratedTsOptions: undefined,
-        observerOptions: undefined,
-    };
-}
 exports.ArtifactVerificationOptions = {
     fromJSON(object) {
         return {
@@ -12955,150 +13039,152 @@ exports.ArtifactVerificationOptions = {
     },
     toJSON(message) {
         const obj = {};
-        message.signers?.$case === "certificateIdentities" &&
-            (obj.certificateIdentities = message.signers?.certificateIdentities
-                ? exports.CertificateIdentities.toJSON(message.signers?.certificateIdentities)
-                : undefined);
-        message.signers?.$case === "publicKeys" && (obj.publicKeys = message.signers?.publicKeys
-            ? exports.PublicKeyIdentities.toJSON(message.signers?.publicKeys)
-            : undefined);
-        message.tlogOptions !== undefined && (obj.tlogOptions = message.tlogOptions
-            ? exports.ArtifactVerificationOptions_TlogOptions.toJSON(message.tlogOptions)
-            : undefined);
-        message.ctlogOptions !== undefined && (obj.ctlogOptions = message.ctlogOptions
-            ? exports.ArtifactVerificationOptions_CtlogOptions.toJSON(message.ctlogOptions)
-            : undefined);
-        message.tsaOptions !== undefined && (obj.tsaOptions = message.tsaOptions
-            ? exports.ArtifactVerificationOptions_TimestampAuthorityOptions.toJSON(message.tsaOptions)
-            : undefined);
-        message.integratedTsOptions !== undefined && (obj.integratedTsOptions = message.integratedTsOptions
-            ? exports.ArtifactVerificationOptions_TlogIntegratedTimestampOptions.toJSON(message.integratedTsOptions)
-            : undefined);
-        message.observerOptions !== undefined && (obj.observerOptions = message.observerOptions
-            ? exports.ArtifactVerificationOptions_ObserverTimestampOptions.toJSON(message.observerOptions)
-            : undefined);
+        if (message.signers?.$case === "certificateIdentities") {
+            obj.certificateIdentities = exports.CertificateIdentities.toJSON(message.signers.certificateIdentities);
+        }
+        else if (message.signers?.$case === "publicKeys") {
+            obj.publicKeys = exports.PublicKeyIdentities.toJSON(message.signers.publicKeys);
+        }
+        if (message.tlogOptions !== undefined) {
+            obj.tlogOptions = exports.ArtifactVerificationOptions_TlogOptions.toJSON(message.tlogOptions);
+        }
+        if (message.ctlogOptions !== undefined) {
+            obj.ctlogOptions = exports.ArtifactVerificationOptions_CtlogOptions.toJSON(message.ctlogOptions);
+        }
+        if (message.tsaOptions !== undefined) {
+            obj.tsaOptions = exports.ArtifactVerificationOptions_TimestampAuthorityOptions.toJSON(message.tsaOptions);
+        }
+        if (message.integratedTsOptions !== undefined) {
+            obj.integratedTsOptions = exports.ArtifactVerificationOptions_TlogIntegratedTimestampOptions.toJSON(message.integratedTsOptions);
+        }
+        if (message.observerOptions !== undefined) {
+            obj.observerOptions = exports.ArtifactVerificationOptions_ObserverTimestampOptions.toJSON(message.observerOptions);
+        }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions_TlogOptions() {
-    return { threshold: 0, performOnlineVerification: false, disable: false };
-}
 exports.ArtifactVerificationOptions_TlogOptions = {
     fromJSON(object) {
         return {
-            threshold: isSet(object.threshold) ? Number(object.threshold) : 0,
+            threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
             performOnlineVerification: isSet(object.performOnlineVerification)
-                ? Boolean(object.performOnlineVerification)
+                ? globalThis.Boolean(object.performOnlineVerification)
                 : false,
-            disable: isSet(object.disable) ? Boolean(object.disable) : false,
+            disable: isSet(object.disable) ? globalThis.Boolean(object.disable) : false,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-        message.performOnlineVerification !== undefined &&
-            (obj.performOnlineVerification = message.performOnlineVerification);
-        message.disable !== undefined && (obj.disable = message.disable);
+        if (message.threshold !== 0) {
+            obj.threshold = Math.round(message.threshold);
+        }
+        if (message.performOnlineVerification !== false) {
+            obj.performOnlineVerification = message.performOnlineVerification;
+        }
+        if (message.disable !== false) {
+            obj.disable = message.disable;
+        }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions_CtlogOptions() {
-    return { threshold: 0, disable: false };
-}
 exports.ArtifactVerificationOptions_CtlogOptions = {
     fromJSON(object) {
         return {
-            threshold: isSet(object.threshold) ? Number(object.threshold) : 0,
-            disable: isSet(object.disable) ? Boolean(object.disable) : false,
+            threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
+            disable: isSet(object.disable) ? globalThis.Boolean(object.disable) : false,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-        message.disable !== undefined && (obj.disable = message.disable);
+        if (message.threshold !== 0) {
+            obj.threshold = Math.round(message.threshold);
+        }
+        if (message.disable !== false) {
+            obj.disable = message.disable;
+        }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions_TimestampAuthorityOptions() {
-    return { threshold: 0, disable: false };
-}
 exports.ArtifactVerificationOptions_TimestampAuthorityOptions = {
     fromJSON(object) {
         return {
-            threshold: isSet(object.threshold) ? Number(object.threshold) : 0,
-            disable: isSet(object.disable) ? Boolean(object.disable) : false,
+            threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
+            disable: isSet(object.disable) ? globalThis.Boolean(object.disable) : false,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-        message.disable !== undefined && (obj.disable = message.disable);
+        if (message.threshold !== 0) {
+            obj.threshold = Math.round(message.threshold);
+        }
+        if (message.disable !== false) {
+            obj.disable = message.disable;
+        }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions_TlogIntegratedTimestampOptions() {
-    return { threshold: 0, disable: false };
-}
 exports.ArtifactVerificationOptions_TlogIntegratedTimestampOptions = {
     fromJSON(object) {
         return {
-            threshold: isSet(object.threshold) ? Number(object.threshold) : 0,
-            disable: isSet(object.disable) ? Boolean(object.disable) : false,
+            threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
+            disable: isSet(object.disable) ? globalThis.Boolean(object.disable) : false,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-        message.disable !== undefined && (obj.disable = message.disable);
+        if (message.threshold !== 0) {
+            obj.threshold = Math.round(message.threshold);
+        }
+        if (message.disable !== false) {
+            obj.disable = message.disable;
+        }
         return obj;
     },
 };
-function createBaseArtifactVerificationOptions_ObserverTimestampOptions() {
-    return { threshold: 0, disable: false };
-}
 exports.ArtifactVerificationOptions_ObserverTimestampOptions = {
     fromJSON(object) {
         return {
-            threshold: isSet(object.threshold) ? Number(object.threshold) : 0,
-            disable: isSet(object.disable) ? Boolean(object.disable) : false,
+            threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
+            disable: isSet(object.disable) ? globalThis.Boolean(object.disable) : false,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-        message.disable !== undefined && (obj.disable = message.disable);
+        if (message.threshold !== 0) {
+            obj.threshold = Math.round(message.threshold);
+        }
+        if (message.disable !== false) {
+            obj.disable = message.disable;
+        }
         return obj;
     },
 };
-function createBaseArtifact() {
-    return { data: undefined };
-}
 exports.Artifact = {
     fromJSON(object) {
         return {
             data: isSet(object.artifactUri)
-                ? { $case: "artifactUri", artifactUri: String(object.artifactUri) }
+                ? { $case: "artifactUri", artifactUri: globalThis.String(object.artifactUri) }
                 : isSet(object.artifact)
                     ? { $case: "artifact", artifact: Buffer.from(bytesFromBase64(object.artifact)) }
-                    : undefined,
+                    : isSet(object.artifactDigest)
+                        ? { $case: "artifactDigest", artifactDigest: sigstore_common_1.HashOutput.fromJSON(object.artifactDigest) }
+                        : undefined,
         };
     },
     toJSON(message) {
         const obj = {};
-        message.data?.$case === "artifactUri" && (obj.artifactUri = message.data?.artifactUri);
-        message.data?.$case === "artifact" &&
-            (obj.artifact = message.data?.artifact !== undefined ? base64FromBytes(message.data?.artifact) : undefined);
+        if (message.data?.$case === "artifactUri") {
+            obj.artifactUri = message.data.artifactUri;
+        }
+        else if (message.data?.$case === "artifact") {
+            obj.artifact = base64FromBytes(message.data.artifact);
+        }
+        else if (message.data?.$case === "artifactDigest") {
+            obj.artifactDigest = sigstore_common_1.HashOutput.toJSON(message.data.artifactDigest);
+        }
         return obj;
     },
 };
-function createBaseInput() {
-    return {
-        artifactTrustRoot: undefined,
-        artifactVerificationOptions: undefined,
-        bundle: undefined,
-        artifact: undefined,
-    };
-}
 exports.Input = {
     fromJSON(object) {
         return {
@@ -13112,56 +13198,26 @@ exports.Input = {
     },
     toJSON(message) {
         const obj = {};
-        message.artifactTrustRoot !== undefined &&
-            (obj.artifactTrustRoot = message.artifactTrustRoot ? sigstore_trustroot_1.TrustedRoot.toJSON(message.artifactTrustRoot) : undefined);
-        message.artifactVerificationOptions !== undefined &&
-            (obj.artifactVerificationOptions = message.artifactVerificationOptions
-                ? exports.ArtifactVerificationOptions.toJSON(message.artifactVerificationOptions)
-                : undefined);
-        message.bundle !== undefined && (obj.bundle = message.bundle ? sigstore_bundle_1.Bundle.toJSON(message.bundle) : undefined);
-        message.artifact !== undefined && (obj.artifact = message.artifact ? exports.Artifact.toJSON(message.artifact) : undefined);
+        if (message.artifactTrustRoot !== undefined) {
+            obj.artifactTrustRoot = sigstore_trustroot_1.TrustedRoot.toJSON(message.artifactTrustRoot);
+        }
+        if (message.artifactVerificationOptions !== undefined) {
+            obj.artifactVerificationOptions = exports.ArtifactVerificationOptions.toJSON(message.artifactVerificationOptions);
+        }
+        if (message.bundle !== undefined) {
+            obj.bundle = sigstore_bundle_1.Bundle.toJSON(message.bundle);
+        }
+        if (message.artifact !== undefined) {
+            obj.artifact = exports.Artifact.toJSON(message.artifact);
+        }
         return obj;
     },
 };
-var tsProtoGlobalThis = (() => {
-    if (typeof globalThis !== "undefined") {
-        return globalThis;
-    }
-    if (typeof self !== "undefined") {
-        return self;
-    }
-    if (typeof window !== "undefined") {
-        return window;
-    }
-    if (typeof global !== "undefined") {
-        return global;
-    }
-    throw "Unable to locate global object";
-})();
 function bytesFromBase64(b64) {
-    if (tsProtoGlobalThis.Buffer) {
-        return Uint8Array.from(tsProtoGlobalThis.Buffer.from(b64, "base64"));
-    }
-    else {
-        const bin = tsProtoGlobalThis.atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; ++i) {
-            arr[i] = bin.charCodeAt(i);
-        }
-        return arr;
-    }
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
 }
 function base64FromBytes(arr) {
-    if (tsProtoGlobalThis.Buffer) {
-        return tsProtoGlobalThis.Buffer.from(arr).toString("base64");
-    }
-    else {
-        const bin = [];
-        arr.forEach((byte) => {
-            bin.push(String.fromCharCode(byte));
-        });
-        return tsProtoGlobalThis.btoa(bin.join(""));
-    }
+    return globalThis.Buffer.from(arr).toString("base64");
 }
 function isSet(value) {
     return value !== null && value !== undefined;
@@ -13294,13 +13350,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.toMessageSignatureBundle = toMessageSignatureBundle;
 exports.toDSSEBundle = toDSSEBundle;
@@ -14229,13 +14295,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ua = exports.oidc = exports.pem = exports.json = exports.encoding = exports.dsse = exports.crypto = void 0;
 /*
@@ -14978,9 +15054,7 @@ class Agent extends http.Agent {
     // In order to properly update the socket pool, we need to call `getName()` on
     // the core `https.Agent` if it is a secureEndpoint.
     getName(options) {
-        const secureEndpoint = typeof options.secureEndpoint === 'boolean'
-            ? options.secureEndpoint
-            : this.isSecureEndpoint(options);
+        const secureEndpoint = this.isSecureEndpoint(options);
         if (secureEndpoint) {
             // @ts-expect-error `getName()` isn't defined in `@types/node`
             return https_1.Agent.prototype.getName.call(this, options);
@@ -20088,7 +20162,24 @@ module.exports = (flag, argv = process.argv) => {
 
 "use strict";
 
-// rfc7231 6.1
+
+/**
+ * @typedef {Object} HttpRequest
+ * @property {Record<string, string>} headers - Request headers
+ * @property {string} [method] - HTTP method
+ * @property {string} [url] - Request URL
+ */
+
+/**
+ * @typedef {Object} HttpResponse
+ * @property {Record<string, string>} headers - Response headers
+ * @property {number} [status] - HTTP status code
+ */
+
+/**
+ * Set of default cacheable status codes per RFC 7231 section 6.1.
+ * @type {Set<number>}
+ */
 const statusCodeCacheableByDefault = new Set([
     200,
     203,
@@ -20104,7 +20195,11 @@ const statusCodeCacheableByDefault = new Set([
     501,
 ]);
 
-// This implementation does not understand partial responses (206)
+/**
+ * Set of HTTP status codes that the cache implementation understands.
+ * Note: This implementation does not understand partial responses (206).
+ * @type {Set<number>}
+ */
 const understoodStatuses = new Set([
     200,
     203,
@@ -20122,13 +20217,21 @@ const understoodStatuses = new Set([
     501,
 ]);
 
+/**
+ * Set of HTTP error status codes.
+ * @type {Set<number>}
+ */
 const errorStatusCodes = new Set([
     500,
     502,
-    503, 
+    503,
     504,
 ]);
 
+/**
+ * Object representing hop-by-hop headers that should be removed.
+ * @type {Record<string, boolean>}
+ */
 const hopByHopHeaders = {
     date: true, // included, because we add Age update Date
     connection: true,
@@ -20141,6 +20244,10 @@ const hopByHopHeaders = {
     upgrade: true,
 };
 
+/**
+ * Headers that are excluded from revalidation update.
+ * @type {Record<string, boolean>}
+ */
 const excludedFromRevalidationUpdate = {
     // Since the old body is reused, it doesn't make sense to change properties of the body
     'content-length': true,
@@ -20149,21 +20256,37 @@ const excludedFromRevalidationUpdate = {
     'content-range': true,
 };
 
+/**
+ * Converts a string to a number or returns zero if the conversion fails.
+ * @param {string} s - The string to convert.
+ * @returns {number} The parsed number or 0.
+ */
 function toNumberOrZero(s) {
     const n = parseInt(s, 10);
     return isFinite(n) ? n : 0;
 }
 
-// RFC 5861
+/**
+ * Determines if the given response is an error response.
+ * Implements RFC 5861 behavior.
+ * @param {HttpResponse|undefined} response - The HTTP response object.
+ * @returns {boolean} true if the response is an error or undefined, false otherwise.
+ */
 function isErrorResponse(response) {
     // consider undefined response as faulty
-    if(!response) {
-        return true
+    if (!response) {
+        return true;
     }
     return errorStatusCodes.has(response.status);
 }
 
+/**
+ * Parses a Cache-Control header string into an object.
+ * @param {string} [header] - The Cache-Control header value.
+ * @returns {Record<string, string|boolean>} An object representing Cache-Control directives.
+ */
 function parseCacheControl(header) {
+    /** @type {Record<string, string|boolean>} */
     const cc = {};
     if (!header) return cc;
 
@@ -20178,6 +20301,11 @@ function parseCacheControl(header) {
     return cc;
 }
 
+/**
+ * Formats a Cache-Control directives object into a header string.
+ * @param {Record<string, string|boolean>} cc - The Cache-Control directives.
+ * @returns {string|undefined} A formatted Cache-Control header string or undefined if empty.
+ */
 function formatCacheControl(cc) {
     let parts = [];
     for (const k in cc) {
@@ -20191,6 +20319,17 @@ function formatCacheControl(cc) {
 }
 
 module.exports = class CachePolicy {
+    /**
+     * Creates a new CachePolicy instance.
+     * @param {HttpRequest} req - Incoming client request.
+     * @param {HttpResponse} res - Received server response.
+     * @param {Object} [options={}] - Configuration options.
+     * @param {boolean} [options.shared=true] - Is the cache shared (a public proxy)? `false` for personal browser caches.
+     * @param {number} [options.cacheHeuristic=0.1] - Fallback heuristic (age fraction) for cache duration.
+     * @param {number} [options.immutableMinTimeToLive=86400000] - Minimum TTL for immutable responses in milliseconds.
+     * @param {boolean} [options.ignoreCargoCult=false] - Detect nonsense cache headers, and override them.
+     * @param {any} [options._fromObject] - Internal parameter for deserialization. Do not use.
+     */
     constructor(
         req,
         res,
@@ -20212,29 +20351,44 @@ module.exports = class CachePolicy {
         }
         this._assertRequestHasHeaders(req);
 
+        /** @type {number} Timestamp when the response was received */
         this._responseTime = this.now();
+        /** @type {boolean} Indicates if the cache is shared */
         this._isShared = shared !== false;
+        /** @type {boolean} Indicates if legacy cargo cult directives should be ignored */
+        this._ignoreCargoCult = !!ignoreCargoCult;
+        /** @type {number} Heuristic cache fraction */
         this._cacheHeuristic =
             undefined !== cacheHeuristic ? cacheHeuristic : 0.1; // 10% matches IE
+        /** @type {number} Minimum TTL for immutable responses in ms */
         this._immutableMinTtl =
             undefined !== immutableMinTimeToLive
                 ? immutableMinTimeToLive
                 : 24 * 3600 * 1000;
 
+        /** @type {number} HTTP status code */
         this._status = 'status' in res ? res.status : 200;
+        /** @type {Record<string, string>} Response headers */
         this._resHeaders = res.headers;
+        /** @type {Record<string, string|boolean>} Parsed Cache-Control directives from response */
         this._rescc = parseCacheControl(res.headers['cache-control']);
+        /** @type {string} HTTP method (e.g., GET, POST) */
         this._method = 'method' in req ? req.method : 'GET';
+        /** @type {string} Request URL */
         this._url = req.url;
+        /** @type {string} Host header from the request */
         this._host = req.headers.host;
+        /** @type {boolean} Whether the request does not include an Authorization header */
         this._noAuthorization = !req.headers.authorization;
+        /** @type {Record<string, string>|null} Request headers used for Vary matching */
         this._reqHeaders = res.headers.vary ? req.headers : null; // Don't keep all request headers if they won't be used
+        /** @type {Record<string, string|boolean>} Parsed Cache-Control directives from request */
         this._reqcc = parseCacheControl(req.headers['cache-control']);
 
         // Assume that if someone uses legacy, non-standard uncecessary options they don't understand caching,
         // so there's no point stricly adhering to the blindly copy&pasted directives.
         if (
-            ignoreCargoCult &&
+            this._ignoreCargoCult &&
             'pre-check' in this._rescc &&
             'post-check' in this._rescc
         ) {
@@ -20260,10 +20414,18 @@ module.exports = class CachePolicy {
         }
     }
 
+    /**
+     * You can monkey-patch it for testing.
+     * @returns {number} Current time in milliseconds.
+     */
     now() {
         return Date.now();
     }
 
+    /**
+     * Determines if the response is storable in a cache.
+     * @returns {boolean} `false` if can never be cached.
+     */
     storable() {
         // The "no-store" request directive indicates that a cache MUST NOT store any part of either this request or any response to it.
         return !!(
@@ -20297,62 +20459,160 @@ module.exports = class CachePolicy {
         );
     }
 
+    /**
+     * @returns {boolean} true if expiration is explicitly defined.
+     */
     _hasExplicitExpiration() {
         // 4.2.1 Calculating Freshness Lifetime
-        return (
+        return !!(
             (this._isShared && this._rescc['s-maxage']) ||
             this._rescc['max-age'] ||
             this._resHeaders.expires
         );
     }
 
+    /**
+     * @param {HttpRequest} req - a request
+     * @throws {Error} if the headers are missing.
+     */
     _assertRequestHasHeaders(req) {
         if (!req || !req.headers) {
             throw Error('Request headers missing');
         }
     }
 
+    /**
+     * Checks if the request matches the cache and can be satisfied from the cache immediately,
+     * without having to make a request to the server.
+     *
+     * This doesn't support `stale-while-revalidate`. See `evaluateRequest()` for a more complete solution.
+     *
+     * @param {HttpRequest} req - The new incoming HTTP request.
+     * @returns {boolean} `true`` if the cached response used to construct this cache policy satisfies the request without revalidation.
+     */
     satisfiesWithoutRevalidation(req) {
+        const result = this.evaluateRequest(req);
+        return !result.revalidation;
+    }
+
+    /**
+     * @param {{headers: Record<string, string>, synchronous: boolean}|undefined} revalidation - Revalidation information, if any.
+     * @returns {{response: {headers: Record<string, string>}, revalidation: {headers: Record<string, string>, synchronous: boolean}|undefined}} An object with a cached response headers and revalidation info.
+     */
+    _evaluateRequestHitResult(revalidation) {
+        return {
+            response: {
+                headers: this.responseHeaders(),
+            },
+            revalidation,
+        };
+    }
+
+    /**
+     * @param {HttpRequest} request - new incoming
+     * @param {boolean} synchronous - whether revalidation must be synchronous (not s-w-r).
+     * @returns {{headers: Record<string, string>, synchronous: boolean}} An object with revalidation headers and a synchronous flag.
+     */
+    _evaluateRequestRevalidation(request, synchronous) {
+        return {
+            synchronous,
+            headers: this.revalidationHeaders(request),
+        };
+    }
+
+    /**
+     * @param {HttpRequest} request - new incoming
+     * @returns {{response: undefined, revalidation: {headers: Record<string, string>, synchronous: boolean}}} An object indicating no cached response and revalidation details.
+     */
+    _evaluateRequestMissResult(request) {
+        return {
+            response: undefined,
+            revalidation: this._evaluateRequestRevalidation(request, true),
+        };
+    }
+
+    /**
+     * Checks if the given request matches this cache entry, and how the cache can be used to satisfy it. Returns an object with:
+     *
+     * ```
+     * {
+     *     // If defined, you must send a request to the server.
+     *     revalidation: {
+     *         headers: {}, // HTTP headers to use when sending the revalidation response
+     *         // If true, you MUST wait for a response from the server before using the cache
+     *         // If false, this is stale-while-revalidate. The cache is stale, but you can use it while you update it asynchronously.
+     *         synchronous: bool,
+     *     },
+     *     // If defined, you can use this cached response.
+     *     response: {
+     *         headers: {}, // Updated cached HTTP headers you must use when responding to the client
+     *     },
+     * }
+     * ```
+     * @param {HttpRequest} req - new incoming HTTP request
+     * @returns {{response: {headers: Record<string, string>}|undefined, revalidation: {headers: Record<string, string>, synchronous: boolean}|undefined}} An object containing keys:
+     *   - revalidation: { headers: Record<string, string>, synchronous: boolean } Set if you should send this to the origin server
+     *   - response: { headers: Record<string, string> } Set if you can respond to the client with these cached headers
+     */
+    evaluateRequest(req) {
         this._assertRequestHasHeaders(req);
+
+        // In all circumstances, a cache MUST NOT ignore the must-revalidate directive
+        if (this._rescc['must-revalidate']) {
+            return this._evaluateRequestMissResult(req);
+        }
+
+        if (!this._requestMatches(req, false)) {
+            return this._evaluateRequestMissResult(req);
+        }
 
         // When presented with a request, a cache MUST NOT reuse a stored response, unless:
         // the presented request does not contain the no-cache pragma (Section 5.4), nor the no-cache cache directive,
         // unless the stored response is successfully validated (Section 4.3), and
         const requestCC = parseCacheControl(req.headers['cache-control']);
+
         if (requestCC['no-cache'] || /no-cache/.test(req.headers.pragma)) {
-            return false;
+            return this._evaluateRequestMissResult(req);
         }
 
-        if (requestCC['max-age'] && this.age() > requestCC['max-age']) {
-            return false;
+        if (requestCC['max-age'] && this.age() > toNumberOrZero(requestCC['max-age'])) {
+            return this._evaluateRequestMissResult(req);
         }
 
-        if (
-            requestCC['min-fresh'] &&
-            this.timeToLive() < 1000 * requestCC['min-fresh']
-        ) {
-            return false;
+        if (requestCC['min-fresh'] && this.maxAge() - this.age() < toNumberOrZero(requestCC['min-fresh'])) {
+            return this._evaluateRequestMissResult(req);
         }
 
         // the stored response is either:
         // fresh, or allowed to be served stale
         if (this.stale()) {
-            const allowsStale =
-                requestCC['max-stale'] &&
-                !this._rescc['must-revalidate'] &&
-                (true === requestCC['max-stale'] ||
-                    requestCC['max-stale'] > this.age() - this.maxAge());
-            if (!allowsStale) {
-                return false;
+            // If a value is present, then the client is willing to accept a response that has
+            // exceeded its freshness lifetime by no more than the specified number of seconds
+            const allowsStaleWithoutRevalidation = 'max-stale' in requestCC &&
+                (true === requestCC['max-stale'] || requestCC['max-stale'] > this.age() - this.maxAge());
+
+            if (allowsStaleWithoutRevalidation) {
+                return this._evaluateRequestHitResult(undefined);
             }
+
+            if (this.useStaleWhileRevalidate()) {
+                return this._evaluateRequestHitResult(this._evaluateRequestRevalidation(req, false));
+            }
+
+            return this._evaluateRequestMissResult(req);
         }
 
-        return this._requestMatches(req, false);
+        return this._evaluateRequestHitResult(undefined);
     }
 
+    /**
+     * @param {HttpRequest} req - check if this is for the same cache entry
+     * @param {boolean} allowHeadMethod - allow a HEAD method to match.
+     * @returns {boolean} `true` if the request matches.
+     */
     _requestMatches(req, allowHeadMethod) {
         // The presented effective request URI and that of the stored response match, and
-        return (
+        return !!(
             (!this._url || this._url === req.url) &&
             this._host === req.headers.host &&
             // the request method associated with the stored response allows it to be used for the presented request, and
@@ -20364,15 +20624,24 @@ module.exports = class CachePolicy {
         );
     }
 
+    /**
+     * Determines whether storing authenticated responses is allowed.
+     * @returns {boolean} `true` if allowed.
+     */
     _allowsStoringAuthenticated() {
-        //  following Cache-Control response directives (Section 5.2.2) have such an effect: must-revalidate, public, and s-maxage.
-        return (
+        // following Cache-Control response directives (Section 5.2.2) have such an effect: must-revalidate, public, and s-maxage.
+        return !!(
             this._rescc['must-revalidate'] ||
             this._rescc.public ||
             this._rescc['s-maxage']
         );
     }
 
+    /**
+     * Checks whether the Vary header in the response matches the new request.
+     * @param {HttpRequest} req - incoming HTTP request
+     * @returns {boolean} `true` if the vary headers match.
+     */
     _varyMatches(req) {
         if (!this._resHeaders.vary) {
             return true;
@@ -20393,7 +20662,13 @@ module.exports = class CachePolicy {
         return true;
     }
 
+    /**
+     * Creates a copy of the given headers without any hop-by-hop headers.
+     * @param {Record<string, string>} inHeaders - old headers from the cached response
+     * @returns {Record<string, string>} A new headers object without hop-by-hop headers.
+     */
     _copyWithoutHopByHopHeaders(inHeaders) {
+        /** @type {Record<string, string>} */
         const headers = {};
         for (const name in inHeaders) {
             if (hopByHopHeaders[name]) continue;
@@ -20419,6 +20694,11 @@ module.exports = class CachePolicy {
         return headers;
     }
 
+    /**
+     * Returns the response headers adjusted for serving the cached response.
+     * Removes hop-by-hop headers and updates the Age and Date headers.
+     * @returns {Record<string, string>} The adjusted response headers.
+     */
     responseHeaders() {
         const headers = this._copyWithoutHopByHopHeaders(this._resHeaders);
         const age = this.age();
@@ -20440,8 +20720,8 @@ module.exports = class CachePolicy {
     }
 
     /**
-     * Value of the Date response header or current time if Date was invalid
-     * @return timestamp
+     * Returns the Date header value from the response or the current time if invalid.
+     * @returns {number} Timestamp (in milliseconds) representing the Date header or response time.
      */
     date() {
         const serverDate = Date.parse(this._resHeaders.date);
@@ -20454,8 +20734,7 @@ module.exports = class CachePolicy {
     /**
      * Value of the Age header, in seconds, updated for the current time.
      * May be fractional.
-     *
-     * @return Number
+     * @returns {number} The age in seconds.
      */
     age() {
         let age = this._ageValue();
@@ -20464,16 +20743,21 @@ module.exports = class CachePolicy {
         return age + residentTime;
     }
 
+    /**
+     * @returns {number} The Age header value as a number.
+     */
     _ageValue() {
         return toNumberOrZero(this._resHeaders.age);
     }
 
     /**
-     * Value of applicable max-age (or heuristic equivalent) in seconds. This counts since response's `Date`.
+     * Possibly outdated value of applicable max-age (or heuristic equivalent) in seconds.
+     * This counts since response's `Date`.
      *
      * For an up-to-date value, see `timeToLive()`.
      *
-     * @return Number
+     * Returns the maximum age (freshness lifetime) of the response in seconds.
+     * @returns {number} The max-age value in seconds.
      */
     maxAge() {
         if (!this.storable() || this._rescc['no-cache']) {
@@ -20535,29 +20819,57 @@ module.exports = class CachePolicy {
         return defaultMinTtl;
     }
 
+    /**
+     * Remaining time this cache entry may be useful for, in *milliseconds*.
+     * You can use this as an expiration time for your cache storage.
+     *
+     * Prefer this method over `maxAge()`, because it includes other factors like `age` and `stale-while-revalidate`.
+     * @returns {number} Time-to-live in milliseconds.
+     */
     timeToLive() {
         const age = this.maxAge() - this.age();
         const staleIfErrorAge = age + toNumberOrZero(this._rescc['stale-if-error']);
         const staleWhileRevalidateAge = age + toNumberOrZero(this._rescc['stale-while-revalidate']);
-        return Math.max(0, age, staleIfErrorAge, staleWhileRevalidateAge) * 1000;
+        return Math.round(Math.max(0, age, staleIfErrorAge, staleWhileRevalidateAge) * 1000);
     }
 
+    /**
+     * If true, this cache entry is past its expiration date.
+     * Note that stale cache may be useful sometimes, see `evaluateRequest()`.
+     * @returns {boolean} `false` doesn't mean it's fresh nor usable
+     */
     stale() {
         return this.maxAge() <= this.age();
     }
 
+    /**
+     * @returns {boolean} `true` if `stale-if-error` condition allows use of a stale response.
+     */
     _useStaleIfError() {
         return this.maxAge() + toNumberOrZero(this._rescc['stale-if-error']) > this.age();
     }
 
+    /** See `evaluateRequest()` for a more complete solution
+     * @returns {boolean} `true` if `stale-while-revalidate` is currently allowed.
+     */
     useStaleWhileRevalidate() {
-        return this.maxAge() + toNumberOrZero(this._rescc['stale-while-revalidate']) > this.age();
+        const swr = toNumberOrZero(this._rescc['stale-while-revalidate']);
+        return swr > 0 && this.maxAge() + swr > this.age();
     }
 
+    /**
+     * Creates a `CachePolicy` instance from a serialized object.
+     * @param {Object} obj - The serialized object.
+     * @returns {CachePolicy} A new CachePolicy instance.
+     */
     static fromObject(obj) {
         return new this(undefined, undefined, { _fromObject: obj });
     }
 
+    /**
+     * @param {any} obj - The serialized object.
+     * @throws {Error} If already initialized or if the object is invalid.
+     */
     _fromObject(obj) {
         if (this._responseTime) throw Error('Reinitialized');
         if (!obj || obj.v !== 1) throw Error('Invalid serialization');
@@ -20567,6 +20879,7 @@ module.exports = class CachePolicy {
         this._cacheHeuristic = obj.ch;
         this._immutableMinTtl =
             obj.imm !== undefined ? obj.imm : 24 * 3600 * 1000;
+        this._ignoreCargoCult = !!obj.icc;
         this._status = obj.st;
         this._resHeaders = obj.resh;
         this._rescc = obj.rescc;
@@ -20578,6 +20891,10 @@ module.exports = class CachePolicy {
         this._reqcc = obj.reqcc;
     }
 
+    /**
+     * Serializes the `CachePolicy` instance into a JSON-serializable object.
+     * @returns {Object} The serialized object.
+     */
     toObject() {
         return {
             v: 1,
@@ -20585,6 +20902,7 @@ module.exports = class CachePolicy {
             sh: this._isShared,
             ch: this._cacheHeuristic,
             imm: this._immutableMinTtl,
+            icc: this._ignoreCargoCult,
             st: this._status,
             resh: this._resHeaders,
             rescc: this._rescc,
@@ -20603,6 +20921,8 @@ module.exports = class CachePolicy {
      *
      * Hop by hop headers are always stripped.
      * Revalidation headers may be added or removed, depending on request.
+     * @param {HttpRequest} incomingReq - The incoming HTTP request.
+     * @returns {Record<string, string>} The headers for the revalidation request.
      */
     revalidationHeaders(incomingReq) {
         this._assertRequestHasHeaders(incomingReq);
@@ -20667,17 +20987,22 @@ module.exports = class CachePolicy {
      * Returns {policy, modified} where modified is a boolean indicating
      * whether the response body has been modified, and old cached body can't be used.
      *
-     * @return {Object} {policy: CachePolicy, modified: Boolean}
+     * @param {HttpRequest} request - The latest HTTP request asking for the cached entry.
+     * @param {HttpResponse} response - The latest revalidation HTTP response from the origin server.
+     * @returns {{policy: CachePolicy, modified: boolean, matches: boolean}} The updated policy and modification status.
+     * @throws {Error} If the response headers are missing.
      */
     revalidatedPolicy(request, response) {
         this._assertRequestHasHeaders(request);
-        if(this._useStaleIfError() && isErrorResponse(response)) {  // I consider the revalidation request unsuccessful
+
+        if (this._useStaleIfError() && isErrorResponse(response)) {
           return {
-            modified: false,
-            matches: false,
-            policy: this,
+              policy: this,
+              modified: false,
+              matches: true,
           };
         }
+
         if (!response || !response.headers) {
             throw Error('Response headers missing');
         }
@@ -20724,9 +21049,16 @@ module.exports = class CachePolicy {
             }
         }
 
+        const optionsCopy = {
+            shared: this._isShared,
+            cacheHeuristic: this._cacheHeuristic,
+            immutableMinTimeToLive: this._immutableMinTtl,
+            ignoreCargoCult: this._ignoreCargoCult,
+        };
+
         if (!matches) {
             return {
-                policy: new this.constructor(request, response),
+                policy: new this.constructor(request, response, optionsCopy),
                 // Client receiving 304 without body, even if it's invalid/mismatched has no option
                 // but to reuse a cached body. We don't have a good way to tell clients to do
                 // error recovery in such case.
@@ -20751,11 +21083,7 @@ module.exports = class CachePolicy {
             headers,
         });
         return {
-            policy: new this.constructor(request, newResponse, {
-                shared: this._isShared,
-                cacheHeuristic: this._cacheHeuristic,
-                immutableMinTimeToLive: this._immutableMinTtl,
-            }),
+            policy: new this.constructor(request, newResponse, optionsCopy),
             modified: false,
             matches: true,
         };
@@ -24325,9 +24653,7 @@ class AddressError extends Error {
     constructor(message, parseMessage) {
         super(message);
         this.name = 'AddressError';
-        if (parseMessage !== null) {
-            this.parseMessage = parseMessage;
-        }
+        this.parseMessage = parseMessage;
     }
 }
 exports.AddressError = AddressError;
@@ -24341,7 +24667,11 @@ exports.AddressError = AddressError;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCorrect = exports.isInSubnet = void 0;
+exports.isInSubnet = isInSubnet;
+exports.isCorrect = isCorrect;
+exports.numberToPaddedHex = numberToPaddedHex;
+exports.stringToPaddedHex = stringToPaddedHex;
+exports.testBit = testBit;
 function isInSubnet(address) {
     if (this.subnetMask < address.subnetMask) {
         return false;
@@ -24351,7 +24681,6 @@ function isInSubnet(address) {
     }
     return false;
 }
-exports.isInSubnet = isInSubnet;
 function isCorrect(defaultBits) {
     return function () {
         if (this.addressMinusSuffix !== this.correctForm()) {
@@ -24363,7 +24692,24 @@ function isCorrect(defaultBits) {
         return this.parsedSubnet === String(this.subnetMask);
     };
 }
-exports.isCorrect = isCorrect;
+function numberToPaddedHex(number) {
+    return number.toString(16).padStart(2, '0');
+}
+function stringToPaddedHex(numberString) {
+    return numberToPaddedHex(parseInt(numberString, 10));
+}
+/**
+ * @param binaryValue Binary representation of a value (e.g. `10`)
+ * @param position Byte position, where 0 is the least significant bit
+ */
+function testBit(binaryValue, position) {
+    const { length } = binaryValue;
+    if (position > length) {
+        return false;
+    }
+    const positionInString = length - position;
+    return binaryValue.substring(positionInString, positionInString + 1) === '1';
+}
 //# sourceMappingURL=common.js.map
 
 /***/ }),
@@ -24398,11 +24744,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.v6 = exports.AddressError = exports.Address6 = exports.Address4 = void 0;
-const ipv4_1 = __nccwpck_require__(17946);
+var ipv4_1 = __nccwpck_require__(17946);
 Object.defineProperty(exports, "Address4", ({ enumerable: true, get: function () { return ipv4_1.Address4; } }));
-const ipv6_1 = __nccwpck_require__(38096);
+var ipv6_1 = __nccwpck_require__(38096);
 Object.defineProperty(exports, "Address6", ({ enumerable: true, get: function () { return ipv6_1.Address6; } }));
-const address_error_1 = __nccwpck_require__(68850);
+var address_error_1 = __nccwpck_require__(68850);
 Object.defineProperty(exports, "AddressError", ({ enumerable: true, get: function () { return address_error_1.AddressError; } }));
 const helpers = __importStar(__nccwpck_require__(20339));
 exports.v6 = { helpers };
@@ -24444,8 +24790,6 @@ exports.Address4 = void 0;
 const common = __importStar(__nccwpck_require__(45864));
 const constants = __importStar(__nccwpck_require__(66437));
 const address_error_1 = __nccwpck_require__(68850);
-const jsbn_1 = __nccwpck_require__(95947);
-const sprintf_js_1 = __nccwpck_require__(72701);
 /**
  * Represents an IPv4 address
  * @class Address4
@@ -24566,7 +24910,7 @@ class Address4 {
      * @returns {String}
      */
     toHex() {
-        return this.parsedAddress.map((part) => (0, sprintf_js_1.sprintf)('%02x', parseInt(part, 10))).join(':');
+        return this.parsedAddress.map((part) => common.stringToPaddedHex(part)).join(':');
     }
     /**
      * Converts an IPv4 address object to an array of bytes
@@ -24587,28 +24931,27 @@ class Address4 {
         const output = [];
         let i;
         for (i = 0; i < constants.GROUPS; i += 2) {
-            const hex = (0, sprintf_js_1.sprintf)('%02x%02x', parseInt(this.parsedAddress[i], 10), parseInt(this.parsedAddress[i + 1], 10));
-            output.push((0, sprintf_js_1.sprintf)('%x', parseInt(hex, 16)));
+            output.push(`${common.stringToPaddedHex(this.parsedAddress[i])}${common.stringToPaddedHex(this.parsedAddress[i + 1])}`);
         }
         return output.join(':');
     }
     /**
-     * Returns the address as a BigInteger
+     * Returns the address as a `bigint`
      * @memberof Address4
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
-    bigInteger() {
-        return new jsbn_1.BigInteger(this.parsedAddress.map((n) => (0, sprintf_js_1.sprintf)('%02x', parseInt(n, 10))).join(''), 16);
+    bigInt() {
+        return BigInt(`0x${this.parsedAddress.map((n) => common.stringToPaddedHex(n)).join('')}`);
     }
     /**
      * Helper function getting start address.
      * @memberof Address4
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
     _startAddress() {
-        return new jsbn_1.BigInteger(this.mask() + '0'.repeat(constants.BITS - this.subnetMask), 2);
+        return BigInt(`0b${this.mask() + '0'.repeat(constants.BITS - this.subnetMask)}`);
     }
     /**
      * The first address in the range given by this address' subnet.
@@ -24618,7 +24961,7 @@ class Address4 {
      * @returns {Address4}
      */
     startAddress() {
-        return Address4.fromBigInteger(this._startAddress());
+        return Address4.fromBigInt(this._startAddress());
     }
     /**
      * The first host address in the range given by this address's subnet ie
@@ -24628,17 +24971,17 @@ class Address4 {
      * @returns {Address4}
      */
     startAddressExclusive() {
-        const adjust = new jsbn_1.BigInteger('1');
-        return Address4.fromBigInteger(this._startAddress().add(adjust));
+        const adjust = BigInt('1');
+        return Address4.fromBigInt(this._startAddress() + adjust);
     }
     /**
      * Helper function getting end address.
      * @memberof Address4
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
     _endAddress() {
-        return new jsbn_1.BigInteger(this.mask() + '1'.repeat(constants.BITS - this.subnetMask), 2);
+        return BigInt(`0b${this.mask() + '1'.repeat(constants.BITS - this.subnetMask)}`);
     }
     /**
      * The last address in the range given by this address' subnet
@@ -24648,7 +24991,7 @@ class Address4 {
      * @returns {Address4}
      */
     endAddress() {
-        return Address4.fromBigInteger(this._endAddress());
+        return Address4.fromBigInt(this._endAddress());
     }
     /**
      * The last host address in the range given by this address's subnet ie
@@ -24658,18 +25001,18 @@ class Address4 {
      * @returns {Address4}
      */
     endAddressExclusive() {
-        const adjust = new jsbn_1.BigInteger('1');
-        return Address4.fromBigInteger(this._endAddress().subtract(adjust));
+        const adjust = BigInt('1');
+        return Address4.fromBigInt(this._endAddress() - adjust);
     }
     /**
-     * Converts a BigInteger to a v4 address object
+     * Converts a BigInt to a v4 address object
      * @memberof Address4
      * @static
-     * @param {BigInteger} bigInteger - a BigInteger to convert
+     * @param {bigint} bigInt - a BigInt to convert
      * @returns {Address4}
      */
-    static fromBigInteger(bigInteger) {
-        return Address4.fromInteger(parseInt(bigInteger.toString(), 10));
+    static fromBigInt(bigInt) {
+        return Address4.fromHex(bigInt.toString(16));
     }
     /**
      * Returns the first n bits of the address, defaulting to the
@@ -24709,7 +25052,7 @@ class Address4 {
         if (options.omitSuffix) {
             return reversed;
         }
-        return (0, sprintf_js_1.sprintf)('%s.in-addr.arpa.', reversed);
+        return `${reversed}.in-addr.arpa.`;
     }
     /**
      * Returns true if the given address is a multicast address
@@ -24727,7 +25070,7 @@ class Address4 {
      * @returns {string}
      */
     binaryZeroPad() {
-        return this.bigInteger().toString(2).padStart(constants.BITS, '0');
+        return this.bigInt().toString(2).padStart(constants.BITS, '0');
     }
     /**
      * Groups an IPv4 address for inclusion at the end of an IPv6 address
@@ -24735,7 +25078,11 @@ class Address4 {
      */
     groupForV6() {
         const segments = this.parsedAddress;
-        return this.address.replace(constants.RE_ADDRESS, (0, sprintf_js_1.sprintf)('<span class="hover-group group-v4 group-6">%s</span>.<span class="hover-group group-v4 group-7">%s</span>', segments.slice(0, 2).join('.'), segments.slice(2, 4).join('.')));
+        return this.address.replace(constants.RE_ADDRESS, `<span class="hover-group group-v4 group-6">${segments
+            .slice(0, 2)
+            .join('.')}</span>.<span class="hover-group group-v4 group-7">${segments
+            .slice(2, 4)
+            .join('.')}</span>`);
     }
 }
 exports.Address4 = Address4;
@@ -24782,8 +25129,7 @@ const helpers = __importStar(__nccwpck_require__(20339));
 const ipv4_1 = __nccwpck_require__(17946);
 const regular_expressions_1 = __nccwpck_require__(72016);
 const address_error_1 = __nccwpck_require__(68850);
-const jsbn_1 = __nccwpck_require__(95947);
-const sprintf_js_1 = __nccwpck_require__(72701);
+const common_1 = __nccwpck_require__(45864);
 function assert(condition) {
     if (!condition) {
         throw new Error('Assertion failed.');
@@ -24819,7 +25165,7 @@ function compact(address, slice) {
     return s1.concat(['compact']).concat(s2);
 }
 function paddedHex(octet) {
-    return (0, sprintf_js_1.sprintf)('%04x', parseInt(octet, 16));
+    return parseInt(octet, 16).toString(16).padStart(4, '0');
 }
 function unsignByte(b) {
     // eslint-disable-next-line no-bitwise
@@ -24897,18 +25243,18 @@ class Address6 {
         }
     }
     /**
-     * Convert a BigInteger to a v6 address object
+     * Convert a BigInt to a v6 address object
      * @memberof Address6
      * @static
-     * @param {BigInteger} bigInteger - a BigInteger to convert
+     * @param {bigint} bigInt - a BigInt to convert
      * @returns {Address6}
      * @example
-     * var bigInteger = new BigInteger('1000000000000');
-     * var address = Address6.fromBigInteger(bigInteger);
+     * var bigInt = BigInt('1000000000000');
+     * var address = Address6.fromBigInt(bigInt);
      * address.correctForm(); // '::e8:d4a5:1000'
      */
-    static fromBigInteger(bigInteger) {
-        const hex = bigInteger.toString(16).padStart(32, '0');
+    static fromBigInt(bigInt) {
+        const hex = bigInt.toString(16).padStart(32, '0');
         const groups = [];
         let i;
         for (i = 0; i < constants6.GROUPS; i++) {
@@ -25028,7 +25374,7 @@ class Address6 {
      * @returns {String} the Microsoft UNC transcription of the address
      */
     microsoftTranscription() {
-        return (0, sprintf_js_1.sprintf)('%s.ipv6-literal.net', this.correctForm().replace(/:/g, '-'));
+        return `${this.correctForm().replace(/:/g, '-')}.ipv6-literal.net`;
     }
     /**
      * Return the first n bits of the address, defaulting to the subnet mask
@@ -25044,7 +25390,7 @@ class Address6 {
      * Return the number of possible subnets of a given size in the address
      * @memberof Address6
      * @instance
-     * @param {number} [size=128] - the subnet size
+     * @param {number} [subnetSize=128] - the subnet size
      * @returns {String}
      */
     // TODO: probably useful to have a numeric version of this too
@@ -25055,16 +25401,16 @@ class Address6 {
         if (subnetPowers < 0) {
             return '0';
         }
-        return addCommas(new jsbn_1.BigInteger('2', 10).pow(subnetPowers).toString(10));
+        return addCommas((BigInt('2') ** BigInt(subnetPowers)).toString(10));
     }
     /**
      * Helper function getting start address.
      * @memberof Address6
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
     _startAddress() {
-        return new jsbn_1.BigInteger(this.mask() + '0'.repeat(constants6.BITS - this.subnetMask), 2);
+        return BigInt(`0b${this.mask() + '0'.repeat(constants6.BITS - this.subnetMask)}`);
     }
     /**
      * The first address in the range given by this address' subnet
@@ -25074,7 +25420,7 @@ class Address6 {
      * @returns {Address6}
      */
     startAddress() {
-        return Address6.fromBigInteger(this._startAddress());
+        return Address6.fromBigInt(this._startAddress());
     }
     /**
      * The first host address in the range given by this address's subnet ie
@@ -25084,17 +25430,17 @@ class Address6 {
      * @returns {Address6}
      */
     startAddressExclusive() {
-        const adjust = new jsbn_1.BigInteger('1');
-        return Address6.fromBigInteger(this._startAddress().add(adjust));
+        const adjust = BigInt('1');
+        return Address6.fromBigInt(this._startAddress() + adjust);
     }
     /**
      * Helper function getting end address.
      * @memberof Address6
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
     _endAddress() {
-        return new jsbn_1.BigInteger(this.mask() + '1'.repeat(constants6.BITS - this.subnetMask), 2);
+        return BigInt(`0b${this.mask() + '1'.repeat(constants6.BITS - this.subnetMask)}`);
     }
     /**
      * The last address in the range given by this address' subnet
@@ -25104,7 +25450,7 @@ class Address6 {
      * @returns {Address6}
      */
     endAddress() {
-        return Address6.fromBigInteger(this._endAddress());
+        return Address6.fromBigInt(this._endAddress());
     }
     /**
      * The last host address in the range given by this address's subnet ie
@@ -25114,8 +25460,8 @@ class Address6 {
      * @returns {Address6}
      */
     endAddressExclusive() {
-        const adjust = new jsbn_1.BigInteger('1');
-        return Address6.fromBigInteger(this._endAddress().subtract(adjust));
+        const adjust = BigInt('1');
+        return Address6.fromBigInt(this._endAddress() - adjust);
     }
     /**
      * Return the scope of the address
@@ -25124,7 +25470,7 @@ class Address6 {
      * @returns {String}
      */
     getScope() {
-        let scope = constants6.SCOPES[this.getBits(12, 16).intValue()];
+        let scope = constants6.SCOPES[parseInt(this.getBits(12, 16).toString(10), 10)];
         if (this.getType() === 'Global unicast' && scope !== 'Link local') {
             scope = 'Global';
         }
@@ -25145,13 +25491,13 @@ class Address6 {
         return 'Global unicast';
     }
     /**
-     * Return the bits in the given range as a BigInteger
+     * Return the bits in the given range as a BigInt
      * @memberof Address6
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
     getBits(start, end) {
-        return new jsbn_1.BigInteger(this.getBitsBase2(start, end), 2);
+        return BigInt(`0b${this.getBitsBase2(start, end)}`);
     }
     /**
      * Return the bits in the given range as a base-2 string
@@ -25209,7 +25555,7 @@ class Address6 {
             if (options.omitSuffix) {
                 return reversed;
             }
-            return (0, sprintf_js_1.sprintf)('%s.ip6.arpa.', reversed);
+            return `${reversed}.ip6.arpa.`;
         }
         if (options.omitSuffix) {
             return '';
@@ -25258,7 +25604,7 @@ class Address6 {
         }
         let correct = groups.join(':');
         correct = correct.replace(/^compact$/, '::');
-        correct = correct.replace(/^compact|compact$/, ':');
+        correct = correct.replace(/(^compact)|(compact$)/, ':');
         correct = correct.replace(/compact/, '');
         return correct;
     }
@@ -25274,7 +25620,7 @@ class Address6 {
      * //  0000000000000000000000000000000000000000000000000001000000010001'
      */
     binaryZeroPad() {
-        return this.bigInteger().toString(2).padStart(constants6.BITS, '0');
+        return this.bigInt().toString(2).padStart(constants6.BITS, '0');
     }
     // TODO: Improve the semantics of this helper function
     parse4in6(address) {
@@ -25300,11 +25646,11 @@ class Address6 {
         address = this.parse4in6(address);
         const badCharacters = address.match(constants6.RE_BAD_CHARACTERS);
         if (badCharacters) {
-            throw new address_error_1.AddressError((0, sprintf_js_1.sprintf)('Bad character%s detected in address: %s', badCharacters.length > 1 ? 's' : '', badCharacters.join('')), address.replace(constants6.RE_BAD_CHARACTERS, '<span class="parse-error">$1</span>'));
+            throw new address_error_1.AddressError(`Bad character${badCharacters.length > 1 ? 's' : ''} detected in address: ${badCharacters.join('')}`, address.replace(constants6.RE_BAD_CHARACTERS, '<span class="parse-error">$1</span>'));
         }
         const badAddress = address.match(constants6.RE_BAD_ADDRESS);
         if (badAddress) {
-            throw new address_error_1.AddressError((0, sprintf_js_1.sprintf)('Address failed regex: %s', badAddress.join('')), address.replace(constants6.RE_BAD_ADDRESS, '<span class="parse-error">$1</span>'));
+            throw new address_error_1.AddressError(`Address failed regex: ${badAddress.join('')}`, address.replace(constants6.RE_BAD_ADDRESS, '<span class="parse-error">$1</span>'));
         }
         let groups = [];
         const halves = address.split('::');
@@ -25337,7 +25683,7 @@ class Address6 {
         else {
             throw new address_error_1.AddressError('Too many :: groups found');
         }
-        groups = groups.map((group) => (0, sprintf_js_1.sprintf)('%x', parseInt(group, 16)));
+        groups = groups.map((group) => parseInt(group, 16).toString(16));
         if (groups.length !== this.groups) {
             throw new address_error_1.AddressError('Incorrect number of groups found');
         }
@@ -25359,16 +25705,16 @@ class Address6 {
      * @returns {String}
      */
     decimal() {
-        return this.parsedAddress.map((n) => (0, sprintf_js_1.sprintf)('%05d', parseInt(n, 16))).join(':');
+        return this.parsedAddress.map((n) => parseInt(n, 16).toString(10).padStart(5, '0')).join(':');
     }
     /**
-     * Return the address as a BigInteger
+     * Return the address as a BigInt
      * @memberof Address6
      * @instance
-     * @returns {BigInteger}
+     * @returns {bigint}
      */
-    bigInteger() {
-        return new jsbn_1.BigInteger(this.parsedAddress.map(paddedHex).join(''), 16);
+    bigInt() {
+        return BigInt(`0x${this.parsedAddress.map(paddedHex).join('')}`);
     }
     /**
      * Return the last two groups of this address as an IPv4 address string
@@ -25381,7 +25727,7 @@ class Address6 {
      */
     to4() {
         const binary = this.binaryZeroPad().split('');
-        return ipv4_1.Address4.fromHex(new jsbn_1.BigInteger(binary.slice(96, 128).join(''), 2).toString(16));
+        return ipv4_1.Address4.fromHex(BigInt(`0b${binary.slice(96, 128).join('')}`).toString(16));
     }
     /**
      * Return the v4-in-v6 form of the address
@@ -25428,18 +25774,21 @@ class Address6 {
           public IPv4 address of the NAT with all bits inverted.
         */
         const prefix = this.getBitsBase16(0, 32);
-        const udpPort = this.getBits(80, 96).xor(new jsbn_1.BigInteger('ffff', 16)).toString();
+        const bitsForUdpPort = this.getBits(80, 96);
+        // eslint-disable-next-line no-bitwise
+        const udpPort = (bitsForUdpPort ^ BigInt('0xffff')).toString();
         const server4 = ipv4_1.Address4.fromHex(this.getBitsBase16(32, 64));
-        const client4 = ipv4_1.Address4.fromHex(this.getBits(96, 128).xor(new jsbn_1.BigInteger('ffffffff', 16)).toString(16));
-        const flags = this.getBits(64, 80);
+        const bitsForClient4 = this.getBits(96, 128);
+        // eslint-disable-next-line no-bitwise
+        const client4 = ipv4_1.Address4.fromHex((bitsForClient4 ^ BigInt('0xffffffff')).toString(16));
         const flagsBase2 = this.getBitsBase2(64, 80);
-        const coneNat = flags.testBit(15);
-        const reserved = flags.testBit(14);
-        const groupIndividual = flags.testBit(8);
-        const universalLocal = flags.testBit(9);
-        const nonce = new jsbn_1.BigInteger(flagsBase2.slice(2, 6) + flagsBase2.slice(8, 16), 2).toString(10);
+        const coneNat = (0, common_1.testBit)(flagsBase2, 15);
+        const reserved = (0, common_1.testBit)(flagsBase2, 14);
+        const groupIndividual = (0, common_1.testBit)(flagsBase2, 8);
+        const universalLocal = (0, common_1.testBit)(flagsBase2, 9);
+        const nonce = BigInt(`0b${flagsBase2.slice(2, 6) + flagsBase2.slice(8, 16)}`).toString(10);
         return {
-            prefix: (0, sprintf_js_1.sprintf)('%s:%s', prefix.slice(0, 4), prefix.slice(4, 8)),
+            prefix: `${prefix.slice(0, 4)}:${prefix.slice(4, 8)}`,
             server4: server4.address,
             client4: client4.address,
             flags: flagsBase2,
@@ -25467,7 +25816,7 @@ class Address6 {
         const prefix = this.getBitsBase16(0, 16);
         const gateway = ipv4_1.Address4.fromHex(this.getBitsBase16(16, 48));
         return {
-            prefix: (0, sprintf_js_1.sprintf)('%s', prefix.slice(0, 4)),
+            prefix: prefix.slice(0, 4),
             gateway: gateway.address,
         };
     }
@@ -25497,12 +25846,14 @@ class Address6 {
      * @returns {Array}
      */
     toByteArray() {
-        const byteArray = this.bigInteger().toByteArray();
-        // work around issue where `toByteArray` returns a leading 0 element
-        if (byteArray.length === 17 && byteArray[0] === 0) {
-            return byteArray.slice(1);
+        const valueWithoutPadding = this.bigInt().toString(16);
+        const leadingPad = '0'.repeat(valueWithoutPadding.length % 2);
+        const value = `${leadingPad}${valueWithoutPadding}`;
+        const bytes = [];
+        for (let i = 0, length = value.length; i < length; i += 2) {
+            bytes.push(parseInt(value.substring(i, i + 2), 16));
         }
-        return byteArray;
+        return bytes;
     }
     /**
      * Return an unsigned byte array
@@ -25529,14 +25880,14 @@ class Address6 {
      * @returns {Address6}
      */
     static fromUnsignedByteArray(bytes) {
-        const BYTE_MAX = new jsbn_1.BigInteger('256', 10);
-        let result = new jsbn_1.BigInteger('0', 10);
-        let multiplier = new jsbn_1.BigInteger('1', 10);
+        const BYTE_MAX = BigInt('256');
+        let result = BigInt('0');
+        let multiplier = BigInt('1');
         for (let i = bytes.length - 1; i >= 0; i--) {
-            result = result.add(multiplier.multiply(new jsbn_1.BigInteger(bytes[i].toString(10), 10)));
-            multiplier = multiplier.multiply(BYTE_MAX);
+            result += multiplier * BigInt(bytes[i].toString(10));
+            multiplier *= BYTE_MAX;
         }
-        return Address6.fromBigInteger(result);
+        return Address6.fromBigInt(result);
     }
     /**
      * Returns true if the address is in the canonical form, false otherwise
@@ -25616,9 +25967,9 @@ class Address6 {
             optionalPort = '';
         }
         else {
-            optionalPort = (0, sprintf_js_1.sprintf)(':%s', optionalPort);
+            optionalPort = `:${optionalPort}`;
         }
-        return (0, sprintf_js_1.sprintf)('http://[%s]%s/', this.correctForm(), optionalPort);
+        return `http://[${this.correctForm()}]${optionalPort}/`;
     }
     /**
      * @returns {String} a link suitable for conveying the address via a URL hash
@@ -25640,10 +25991,11 @@ class Address6 {
         if (options.v4) {
             formFunction = this.to4in6;
         }
+        const form = formFunction.call(this);
         if (options.className) {
-            return (0, sprintf_js_1.sprintf)('<a href="%1$s%2$s" class="%3$s">%2$s</a>', options.prefix, formFunction.call(this), options.className);
+            return `<a href="${options.prefix}${form}" class="${options.className}">${form}</a>`;
         }
-        return (0, sprintf_js_1.sprintf)('<a href="%1$s%2$s">%2$s</a>', options.prefix, formFunction.call(this));
+        return `<a href="${options.prefix}${form}">${form}</a>`;
     }
     /**
      * Groups an address
@@ -25667,9 +26019,9 @@ class Address6 {
         }
         const classes = ['hover-group'];
         for (let i = this.elisionBegin; i < this.elisionBegin + this.elidedGroups; i++) {
-            classes.push((0, sprintf_js_1.sprintf)('group-%d', i));
+            classes.push(`group-${i}`);
         }
-        output.push((0, sprintf_js_1.sprintf)('<span class="%s"></span>', classes.join(' ')));
+        output.push(`<span class="${classes.join(' ')}"></span>`);
         if (right.length) {
             output.push(...helpers.simpleGroup(right, this.elisionEnd));
         }
@@ -25840,38 +26192,37 @@ exports.RE_SUBNET_STRING = /\/\d{1,3}(?=%|$)/;
  * @static
  */
 exports.RE_ZONE_STRING = /%.*$/;
-exports.RE_URL = new RegExp(/^\[{0,1}([0-9a-f:]+)\]{0,1}/);
-exports.RE_URL_WITH_PORT = new RegExp(/\[([0-9a-f:]+)\]:([0-9]{1,5})/);
+exports.RE_URL = /^\[{0,1}([0-9a-f:]+)\]{0,1}/;
+exports.RE_URL_WITH_PORT = /\[([0-9a-f:]+)\]:([0-9]{1,5})/;
 //# sourceMappingURL=constants.js.map
 
 /***/ }),
 
 /***/ 20339:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.simpleGroup = exports.spanLeadingZeroes = exports.spanAll = exports.spanAllZeroes = void 0;
-const sprintf_js_1 = __nccwpck_require__(72701);
+exports.spanAllZeroes = spanAllZeroes;
+exports.spanAll = spanAll;
+exports.spanLeadingZeroes = spanLeadingZeroes;
+exports.simpleGroup = simpleGroup;
 /**
  * @returns {String} the string with all zeroes contained in a <span>
  */
 function spanAllZeroes(s) {
     return s.replace(/(0+)/g, '<span class="zero">$1</span>');
 }
-exports.spanAllZeroes = spanAllZeroes;
 /**
  * @returns {String} the string with each character contained in a <span>
  */
 function spanAll(s, offset = 0) {
     const letters = s.split('');
     return letters
-        .map((n, i) => (0, sprintf_js_1.sprintf)('<span class="digit value-%s position-%d">%s</span>', n, i + offset, spanAllZeroes(n)) // XXX Use #base-2 .value-0 instead?
-    )
+        .map((n, i) => `<span class="digit value-${n} position-${i + offset}">${spanAllZeroes(n)}</span>`)
         .join('');
 }
-exports.spanAll = spanAll;
 function spanLeadingZeroesSimple(group) {
     return group.replace(/^(0+)/, '<span class="zero">$1</span>');
 }
@@ -25882,7 +26233,6 @@ function spanLeadingZeroes(address) {
     const groups = address.split(':');
     return groups.map((g) => spanLeadingZeroesSimple(g)).join(':');
 }
-exports.spanLeadingZeroes = spanLeadingZeroes;
 /**
  * Groups an address
  * @returns {String} a grouped address
@@ -25893,10 +26243,9 @@ function simpleGroup(addressString, offset = 0) {
         if (/group-v4/.test(g)) {
             return g;
         }
-        return (0, sprintf_js_1.sprintf)('<span class="hover-group group-%d">%s</span>', i + offset, spanLeadingZeroesSimple(g));
+        return `<span class="hover-group group-${i + offset}">${spanLeadingZeroesSimple(g)}</span>`;
     });
 }
-exports.simpleGroup = simpleGroup;
 //# sourceMappingURL=helpers.js.map
 
 /***/ }),
@@ -25930,20 +26279,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.possibleElisions = exports.simpleRegularExpression = exports.ADDRESS_BOUNDARY = exports.padGroup = exports.groupPossibilities = void 0;
-const v6 = __importStar(__nccwpck_require__(75280));
-const sprintf_js_1 = __nccwpck_require__(72701);
-function groupPossibilities(possibilities) {
-    return (0, sprintf_js_1.sprintf)('(%s)', possibilities.join('|'));
-}
+exports.ADDRESS_BOUNDARY = void 0;
 exports.groupPossibilities = groupPossibilities;
+exports.padGroup = padGroup;
+exports.simpleRegularExpression = simpleRegularExpression;
+exports.possibleElisions = possibleElisions;
+const v6 = __importStar(__nccwpck_require__(75280));
+function groupPossibilities(possibilities) {
+    return `(${possibilities.join('|')})`;
+}
 function padGroup(group) {
     if (group.length < 4) {
-        return (0, sprintf_js_1.sprintf)('0{0,%d}%s', 4 - group.length, group);
+        return `0{0,${4 - group.length}}${group}`;
     }
     return group;
 }
-exports.padGroup = padGroup;
 exports.ADDRESS_BOUNDARY = '[^A-Fa-f0-9:]';
 function simpleRegularExpression(groups) {
     const zeroIndexes = [];
@@ -25968,7 +26318,6 @@ function simpleRegularExpression(groups) {
     possibilities.push(groups.map(padGroup).join(':'));
     return groupPossibilities(possibilities);
 }
-exports.simpleRegularExpression = simpleRegularExpression;
 function possibleElisions(elidedGroups, moreLeft, moreRight) {
     const left = moreLeft ? '' : ':';
     const right = moreRight ? '' : ':';
@@ -25986,259 +26335,20 @@ function possibleElisions(elidedGroups, moreLeft, moreRight) {
         possibilities.push(':');
     }
     // 4. elision from the left side
-    possibilities.push((0, sprintf_js_1.sprintf)('%s(:0{1,4}){1,%d}', left, elidedGroups - 1));
+    possibilities.push(`${left}(:0{1,4}){1,${elidedGroups - 1}}`);
     // 5. elision from the right side
-    possibilities.push((0, sprintf_js_1.sprintf)('(0{1,4}:){1,%d}%s', elidedGroups - 1, right));
+    possibilities.push(`(0{1,4}:){1,${elidedGroups - 1}}${right}`);
     // 6. no elision
-    possibilities.push((0, sprintf_js_1.sprintf)('(0{1,4}:){%d}0{1,4}', elidedGroups - 1));
+    possibilities.push(`(0{1,4}:){${elidedGroups - 1}}0{1,4}`);
     // 7. elision (including sloppy elision) from the middle
     for (let groups = 1; groups < elidedGroups - 1; groups++) {
         for (let position = 1; position < elidedGroups - groups; position++) {
-            possibilities.push((0, sprintf_js_1.sprintf)('(0{1,4}:){%d}:(0{1,4}:){%d}0{1,4}', position, elidedGroups - position - groups - 1));
+            possibilities.push(`(0{1,4}:){${position}}:(0{1,4}:){${elidedGroups - position - groups - 1}}0{1,4}`);
         }
     }
     return groupPossibilities(possibilities);
 }
-exports.possibleElisions = possibleElisions;
 //# sourceMappingURL=regular-expressions.js.map
-
-/***/ }),
-
-/***/ 72701:
-/***/ ((__unused_webpack_module, exports) => {
-
-/* global window, exports, define */
-
-!function() {
-    'use strict'
-
-    var re = {
-        not_string: /[^s]/,
-        not_bool: /[^t]/,
-        not_type: /[^T]/,
-        not_primitive: /[^v]/,
-        number: /[diefg]/,
-        numeric_arg: /[bcdiefguxX]/,
-        json: /[j]/,
-        not_json: /[^j]/,
-        text: /^[^\x25]+/,
-        modulo: /^\x25{2}/,
-        placeholder: /^\x25(?:([1-9]\d*)\$|\(([^)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijostTuvxX])/,
-        key: /^([a-z_][a-z_\d]*)/i,
-        key_access: /^\.([a-z_][a-z_\d]*)/i,
-        index_access: /^\[(\d+)\]/,
-        sign: /^[+-]/
-    }
-
-    function sprintf(key) {
-        // `arguments` is not an array, but should be fine for this call
-        return sprintf_format(sprintf_parse(key), arguments)
-    }
-
-    function vsprintf(fmt, argv) {
-        return sprintf.apply(null, [fmt].concat(argv || []))
-    }
-
-    function sprintf_format(parse_tree, argv) {
-        var cursor = 1, tree_length = parse_tree.length, arg, output = '', i, k, ph, pad, pad_character, pad_length, is_positive, sign
-        for (i = 0; i < tree_length; i++) {
-            if (typeof parse_tree[i] === 'string') {
-                output += parse_tree[i]
-            }
-            else if (typeof parse_tree[i] === 'object') {
-                ph = parse_tree[i] // convenience purposes only
-                if (ph.keys) { // keyword argument
-                    arg = argv[cursor]
-                    for (k = 0; k < ph.keys.length; k++) {
-                        if (arg == undefined) {
-                            throw new Error(sprintf('[sprintf] Cannot access property "%s" of undefined value "%s"', ph.keys[k], ph.keys[k-1]))
-                        }
-                        arg = arg[ph.keys[k]]
-                    }
-                }
-                else if (ph.param_no) { // positional argument (explicit)
-                    arg = argv[ph.param_no]
-                }
-                else { // positional argument (implicit)
-                    arg = argv[cursor++]
-                }
-
-                if (re.not_type.test(ph.type) && re.not_primitive.test(ph.type) && arg instanceof Function) {
-                    arg = arg()
-                }
-
-                if (re.numeric_arg.test(ph.type) && (typeof arg !== 'number' && isNaN(arg))) {
-                    throw new TypeError(sprintf('[sprintf] expecting number but found %T', arg))
-                }
-
-                if (re.number.test(ph.type)) {
-                    is_positive = arg >= 0
-                }
-
-                switch (ph.type) {
-                    case 'b':
-                        arg = parseInt(arg, 10).toString(2)
-                        break
-                    case 'c':
-                        arg = String.fromCharCode(parseInt(arg, 10))
-                        break
-                    case 'd':
-                    case 'i':
-                        arg = parseInt(arg, 10)
-                        break
-                    case 'j':
-                        arg = JSON.stringify(arg, null, ph.width ? parseInt(ph.width) : 0)
-                        break
-                    case 'e':
-                        arg = ph.precision ? parseFloat(arg).toExponential(ph.precision) : parseFloat(arg).toExponential()
-                        break
-                    case 'f':
-                        arg = ph.precision ? parseFloat(arg).toFixed(ph.precision) : parseFloat(arg)
-                        break
-                    case 'g':
-                        arg = ph.precision ? String(Number(arg.toPrecision(ph.precision))) : parseFloat(arg)
-                        break
-                    case 'o':
-                        arg = (parseInt(arg, 10) >>> 0).toString(8)
-                        break
-                    case 's':
-                        arg = String(arg)
-                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
-                        break
-                    case 't':
-                        arg = String(!!arg)
-                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
-                        break
-                    case 'T':
-                        arg = Object.prototype.toString.call(arg).slice(8, -1).toLowerCase()
-                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
-                        break
-                    case 'u':
-                        arg = parseInt(arg, 10) >>> 0
-                        break
-                    case 'v':
-                        arg = arg.valueOf()
-                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
-                        break
-                    case 'x':
-                        arg = (parseInt(arg, 10) >>> 0).toString(16)
-                        break
-                    case 'X':
-                        arg = (parseInt(arg, 10) >>> 0).toString(16).toUpperCase()
-                        break
-                }
-                if (re.json.test(ph.type)) {
-                    output += arg
-                }
-                else {
-                    if (re.number.test(ph.type) && (!is_positive || ph.sign)) {
-                        sign = is_positive ? '+' : '-'
-                        arg = arg.toString().replace(re.sign, '')
-                    }
-                    else {
-                        sign = ''
-                    }
-                    pad_character = ph.pad_char ? ph.pad_char === '0' ? '0' : ph.pad_char.charAt(1) : ' '
-                    pad_length = ph.width - (sign + arg).length
-                    pad = ph.width ? (pad_length > 0 ? pad_character.repeat(pad_length) : '') : ''
-                    output += ph.align ? sign + arg + pad : (pad_character === '0' ? sign + pad + arg : pad + sign + arg)
-                }
-            }
-        }
-        return output
-    }
-
-    var sprintf_cache = Object.create(null)
-
-    function sprintf_parse(fmt) {
-        if (sprintf_cache[fmt]) {
-            return sprintf_cache[fmt]
-        }
-
-        var _fmt = fmt, match, parse_tree = [], arg_names = 0
-        while (_fmt) {
-            if ((match = re.text.exec(_fmt)) !== null) {
-                parse_tree.push(match[0])
-            }
-            else if ((match = re.modulo.exec(_fmt)) !== null) {
-                parse_tree.push('%')
-            }
-            else if ((match = re.placeholder.exec(_fmt)) !== null) {
-                if (match[2]) {
-                    arg_names |= 1
-                    var field_list = [], replacement_field = match[2], field_match = []
-                    if ((field_match = re.key.exec(replacement_field)) !== null) {
-                        field_list.push(field_match[1])
-                        while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
-                            if ((field_match = re.key_access.exec(replacement_field)) !== null) {
-                                field_list.push(field_match[1])
-                            }
-                            else if ((field_match = re.index_access.exec(replacement_field)) !== null) {
-                                field_list.push(field_match[1])
-                            }
-                            else {
-                                throw new SyntaxError('[sprintf] failed to parse named argument key')
-                            }
-                        }
-                    }
-                    else {
-                        throw new SyntaxError('[sprintf] failed to parse named argument key')
-                    }
-                    match[2] = field_list
-                }
-                else {
-                    arg_names |= 2
-                }
-                if (arg_names === 3) {
-                    throw new Error('[sprintf] mixing positional and named placeholders is not (yet) supported')
-                }
-
-                parse_tree.push(
-                    {
-                        placeholder: match[0],
-                        param_no:    match[1],
-                        keys:        match[2],
-                        sign:        match[3],
-                        pad_char:    match[4],
-                        align:       match[5],
-                        width:       match[6],
-                        precision:   match[7],
-                        type:        match[8]
-                    }
-                )
-            }
-            else {
-                throw new SyntaxError('[sprintf] unexpected placeholder')
-            }
-            _fmt = _fmt.substring(match[0].length)
-        }
-        return sprintf_cache[fmt] = parse_tree
-    }
-
-    /**
-     * export to either browser or node.js
-     */
-    /* eslint-disable quote-props */
-    if (true) {
-        exports.sprintf = sprintf
-        exports.vsprintf = vsprintf
-    }
-    if (typeof window !== 'undefined') {
-        window['sprintf'] = sprintf
-        window['vsprintf'] = vsprintf
-
-        if (typeof define === 'function' && define['amd']) {
-            define(function() {
-                return {
-                    'sprintf': sprintf,
-                    'vsprintf': vsprintf
-                }
-            })
-        }
-    }
-    /* eslint-enable quote-props */
-}(); // eslint-disable-line
-
 
 /***/ }),
 
@@ -27134,9 +27244,6 @@ class LocalJWKSet {
             if (candidate && Array.isArray(jwk.key_ops)) {
                 candidate = jwk.key_ops.includes('verify');
             }
-            if (candidate && alg === 'EdDSA') {
-                candidate = jwk.crv === 'Ed25519' || jwk.crv === 'Ed448';
-            }
             if (candidate) {
                 switch (alg) {
                     case 'ES256':
@@ -27150,6 +27257,12 @@ class LocalJWKSet {
                         break;
                     case 'ES512':
                         candidate = jwk.crv === 'P-521';
+                        break;
+                    case 'Ed25519':
+                        candidate = jwk.crv === 'Ed25519';
+                        break;
+                    case 'EdDSA':
+                        candidate = jwk.crv === 'Ed25519' || jwk.crv === 'Ed448';
                         break;
                 }
             }
@@ -27223,7 +27336,7 @@ function isCloudflareWorkers() {
 let USER_AGENT;
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
     const NAME = 'jose';
-    const VERSION = 'v5.9.6';
+    const VERSION = 'v5.10.0';
     USER_AGENT = `${NAME}/${VERSION}`;
 }
 exports.jwksCache = Symbol();
@@ -28186,7 +28299,7 @@ async function importJWK(jwk, alg) {
             }
             return (0, base64url_js_1.decode)(jwk.k);
         case 'RSA':
-            if (jwk.oth !== undefined) {
+            if ('oth' in jwk && jwk.oth !== undefined) {
                 throw new errors_js_1.JOSENotSupported('RSA JWK "oth" (Other Primes Info) Parameter value is not supported');
             }
         case 'EC':
@@ -28534,6 +28647,11 @@ function checkSigCryptoKey(key, alg, ...usages) {
             if (key.algorithm.name !== 'Ed25519' && key.algorithm.name !== 'Ed448') {
                 throw unusable('Ed25519 or Ed448');
             }
+            break;
+        }
+        case 'Ed25519': {
+            if (!isAlgorithm(key.algorithm, 'Ed25519'))
+                throw unusable('Ed25519');
             break;
         }
         case 'ES256':
@@ -29684,6 +29802,7 @@ function dsaDigest(alg) {
         case 'RS512':
         case 'ES512':
             return 'sha512';
+        case 'Ed25519':
         case 'EdDSA':
             return undefined;
         default:
@@ -29984,6 +30103,8 @@ async function generateKeyPair(alg, options) {
             return generate('ec', { namedCurve: 'P-384' });
         case 'ES512':
             return generate('ec', { namedCurve: 'P-521' });
+        case 'Ed25519':
+            return generate('ed25519');
         case 'EdDSA': {
             switch (options?.crv) {
                 case undefined:
@@ -30298,6 +30419,11 @@ function keyForCrypto(alg, key) {
     }
     let options;
     switch (alg) {
+        case 'Ed25519':
+            if (asymmetricKeyType !== 'ed25519') {
+                throw new TypeError(`Invalid key for this operation, its asymmetricKeyType must be ed25519`);
+            }
+            break;
         case 'EdDSA':
             if (!['ed25519', 'ed448'].includes(asymmetricKeyType)) {
                 throw new TypeError('Invalid key for this operation, its asymmetricKeyType must be ed25519 or ed448');
@@ -30862,1369 +30988,6 @@ exports.JWSSignatureVerificationFailed = JWSSignatureVerificationFailed;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const runtime_js_1 = __nccwpck_require__(95527);
 exports["default"] = runtime_js_1.default;
-
-
-/***/ }),
-
-/***/ 95947:
-/***/ (function(module, exports) {
-
-(function(){
-
-    // Copyright (c) 2005  Tom Wu
-    // All Rights Reserved.
-    // See "LICENSE" for details.
-
-    // Basic JavaScript BN library - subset useful for RSA encryption.
-
-    // Bits per digit
-    var dbits;
-
-    // JavaScript engine analysis
-    var canary = 0xdeadbeefcafe;
-    var j_lm = ((canary&0xffffff)==0xefcafe);
-
-    // (public) Constructor
-    function BigInteger(a,b,c) {
-      if(a != null)
-        if("number" == typeof a) this.fromNumber(a,b,c);
-        else if(b == null && "string" != typeof a) this.fromString(a,256);
-        else this.fromString(a,b);
-    }
-
-    // return new, unset BigInteger
-    function nbi() { return new BigInteger(null); }
-
-    // am: Compute w_j += (x*this_i), propagate carries,
-    // c is initial carry, returns final carry.
-    // c < 3*dvalue, x < 2*dvalue, this_i < dvalue
-    // We need to select the fastest one that works in this environment.
-
-    // am1: use a single mult and divide to get the high bits,
-    // max digit bits should be 26 because
-    // max internal value = 2*dvalue^2-2*dvalue (< 2^53)
-    function am1(i,x,w,j,c,n) {
-      while(--n >= 0) {
-        var v = x*this[i++]+w[j]+c;
-        c = Math.floor(v/0x4000000);
-        w[j++] = v&0x3ffffff;
-      }
-      return c;
-    }
-    // am2 avoids a big mult-and-extract completely.
-    // Max digit bits should be <= 30 because we do bitwise ops
-    // on values up to 2*hdvalue^2-hdvalue-1 (< 2^31)
-    function am2(i,x,w,j,c,n) {
-      var xl = x&0x7fff, xh = x>>15;
-      while(--n >= 0) {
-        var l = this[i]&0x7fff;
-        var h = this[i++]>>15;
-        var m = xh*l+h*xl;
-        l = xl*l+((m&0x7fff)<<15)+w[j]+(c&0x3fffffff);
-        c = (l>>>30)+(m>>>15)+xh*h+(c>>>30);
-        w[j++] = l&0x3fffffff;
-      }
-      return c;
-    }
-    // Alternately, set max digit bits to 28 since some
-    // browsers slow down when dealing with 32-bit numbers.
-    function am3(i,x,w,j,c,n) {
-      var xl = x&0x3fff, xh = x>>14;
-      while(--n >= 0) {
-        var l = this[i]&0x3fff;
-        var h = this[i++]>>14;
-        var m = xh*l+h*xl;
-        l = xl*l+((m&0x3fff)<<14)+w[j]+c;
-        c = (l>>28)+(m>>14)+xh*h;
-        w[j++] = l&0xfffffff;
-      }
-      return c;
-    }
-    var inBrowser = typeof navigator !== "undefined";
-    if(inBrowser && j_lm && (navigator.appName == "Microsoft Internet Explorer")) {
-      BigInteger.prototype.am = am2;
-      dbits = 30;
-    }
-    else if(inBrowser && j_lm && (navigator.appName != "Netscape")) {
-      BigInteger.prototype.am = am1;
-      dbits = 26;
-    }
-    else { // Mozilla/Netscape seems to prefer am3
-      BigInteger.prototype.am = am3;
-      dbits = 28;
-    }
-
-    BigInteger.prototype.DB = dbits;
-    BigInteger.prototype.DM = ((1<<dbits)-1);
-    BigInteger.prototype.DV = (1<<dbits);
-
-    var BI_FP = 52;
-    BigInteger.prototype.FV = Math.pow(2,BI_FP);
-    BigInteger.prototype.F1 = BI_FP-dbits;
-    BigInteger.prototype.F2 = 2*dbits-BI_FP;
-
-    // Digit conversions
-    var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
-    var BI_RC = new Array();
-    var rr,vv;
-    rr = "0".charCodeAt(0);
-    for(vv = 0; vv <= 9; ++vv) BI_RC[rr++] = vv;
-    rr = "a".charCodeAt(0);
-    for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
-    rr = "A".charCodeAt(0);
-    for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
-
-    function int2char(n) { return BI_RM.charAt(n); }
-    function intAt(s,i) {
-      var c = BI_RC[s.charCodeAt(i)];
-      return (c==null)?-1:c;
-    }
-
-    // (protected) copy this to r
-    function bnpCopyTo(r) {
-      for(var i = this.t-1; i >= 0; --i) r[i] = this[i];
-      r.t = this.t;
-      r.s = this.s;
-    }
-
-    // (protected) set from integer value x, -DV <= x < DV
-    function bnpFromInt(x) {
-      this.t = 1;
-      this.s = (x<0)?-1:0;
-      if(x > 0) this[0] = x;
-      else if(x < -1) this[0] = x+this.DV;
-      else this.t = 0;
-    }
-
-    // return bigint initialized to value
-    function nbv(i) { var r = nbi(); r.fromInt(i); return r; }
-
-    // (protected) set from string and radix
-    function bnpFromString(s,b) {
-      var k;
-      if(b == 16) k = 4;
-      else if(b == 8) k = 3;
-      else if(b == 256) k = 8; // byte array
-      else if(b == 2) k = 1;
-      else if(b == 32) k = 5;
-      else if(b == 4) k = 2;
-      else { this.fromRadix(s,b); return; }
-      this.t = 0;
-      this.s = 0;
-      var i = s.length, mi = false, sh = 0;
-      while(--i >= 0) {
-        var x = (k==8)?s[i]&0xff:intAt(s,i);
-        if(x < 0) {
-          if(s.charAt(i) == "-") mi = true;
-          continue;
-        }
-        mi = false;
-        if(sh == 0)
-          this[this.t++] = x;
-        else if(sh+k > this.DB) {
-          this[this.t-1] |= (x&((1<<(this.DB-sh))-1))<<sh;
-          this[this.t++] = (x>>(this.DB-sh));
-        }
-        else
-          this[this.t-1] |= x<<sh;
-        sh += k;
-        if(sh >= this.DB) sh -= this.DB;
-      }
-      if(k == 8 && (s[0]&0x80) != 0) {
-        this.s = -1;
-        if(sh > 0) this[this.t-1] |= ((1<<(this.DB-sh))-1)<<sh;
-      }
-      this.clamp();
-      if(mi) BigInteger.ZERO.subTo(this,this);
-    }
-
-    // (protected) clamp off excess high words
-    function bnpClamp() {
-      var c = this.s&this.DM;
-      while(this.t > 0 && this[this.t-1] == c) --this.t;
-    }
-
-    // (public) return string representation in given radix
-    function bnToString(b) {
-      if(this.s < 0) return "-"+this.negate().toString(b);
-      var k;
-      if(b == 16) k = 4;
-      else if(b == 8) k = 3;
-      else if(b == 2) k = 1;
-      else if(b == 32) k = 5;
-      else if(b == 4) k = 2;
-      else return this.toRadix(b);
-      var km = (1<<k)-1, d, m = false, r = "", i = this.t;
-      var p = this.DB-(i*this.DB)%k;
-      if(i-- > 0) {
-        if(p < this.DB && (d = this[i]>>p) > 0) { m = true; r = int2char(d); }
-        while(i >= 0) {
-          if(p < k) {
-            d = (this[i]&((1<<p)-1))<<(k-p);
-            d |= this[--i]>>(p+=this.DB-k);
-          }
-          else {
-            d = (this[i]>>(p-=k))&km;
-            if(p <= 0) { p += this.DB; --i; }
-          }
-          if(d > 0) m = true;
-          if(m) r += int2char(d);
-        }
-      }
-      return m?r:"0";
-    }
-
-    // (public) -this
-    function bnNegate() { var r = nbi(); BigInteger.ZERO.subTo(this,r); return r; }
-
-    // (public) |this|
-    function bnAbs() { return (this.s<0)?this.negate():this; }
-
-    // (public) return + if this > a, - if this < a, 0 if equal
-    function bnCompareTo(a) {
-      var r = this.s-a.s;
-      if(r != 0) return r;
-      var i = this.t;
-      r = i-a.t;
-      if(r != 0) return (this.s<0)?-r:r;
-      while(--i >= 0) if((r=this[i]-a[i]) != 0) return r;
-      return 0;
-    }
-
-    // returns bit length of the integer x
-    function nbits(x) {
-      var r = 1, t;
-      if((t=x>>>16) != 0) { x = t; r += 16; }
-      if((t=x>>8) != 0) { x = t; r += 8; }
-      if((t=x>>4) != 0) { x = t; r += 4; }
-      if((t=x>>2) != 0) { x = t; r += 2; }
-      if((t=x>>1) != 0) { x = t; r += 1; }
-      return r;
-    }
-
-    // (public) return the number of bits in "this"
-    function bnBitLength() {
-      if(this.t <= 0) return 0;
-      return this.DB*(this.t-1)+nbits(this[this.t-1]^(this.s&this.DM));
-    }
-
-    // (protected) r = this << n*DB
-    function bnpDLShiftTo(n,r) {
-      var i;
-      for(i = this.t-1; i >= 0; --i) r[i+n] = this[i];
-      for(i = n-1; i >= 0; --i) r[i] = 0;
-      r.t = this.t+n;
-      r.s = this.s;
-    }
-
-    // (protected) r = this >> n*DB
-    function bnpDRShiftTo(n,r) {
-      for(var i = n; i < this.t; ++i) r[i-n] = this[i];
-      r.t = Math.max(this.t-n,0);
-      r.s = this.s;
-    }
-
-    // (protected) r = this << n
-    function bnpLShiftTo(n,r) {
-      var bs = n%this.DB;
-      var cbs = this.DB-bs;
-      var bm = (1<<cbs)-1;
-      var ds = Math.floor(n/this.DB), c = (this.s<<bs)&this.DM, i;
-      for(i = this.t-1; i >= 0; --i) {
-        r[i+ds+1] = (this[i]>>cbs)|c;
-        c = (this[i]&bm)<<bs;
-      }
-      for(i = ds-1; i >= 0; --i) r[i] = 0;
-      r[ds] = c;
-      r.t = this.t+ds+1;
-      r.s = this.s;
-      r.clamp();
-    }
-
-    // (protected) r = this >> n
-    function bnpRShiftTo(n,r) {
-      r.s = this.s;
-      var ds = Math.floor(n/this.DB);
-      if(ds >= this.t) { r.t = 0; return; }
-      var bs = n%this.DB;
-      var cbs = this.DB-bs;
-      var bm = (1<<bs)-1;
-      r[0] = this[ds]>>bs;
-      for(var i = ds+1; i < this.t; ++i) {
-        r[i-ds-1] |= (this[i]&bm)<<cbs;
-        r[i-ds] = this[i]>>bs;
-      }
-      if(bs > 0) r[this.t-ds-1] |= (this.s&bm)<<cbs;
-      r.t = this.t-ds;
-      r.clamp();
-    }
-
-    // (protected) r = this - a
-    function bnpSubTo(a,r) {
-      var i = 0, c = 0, m = Math.min(a.t,this.t);
-      while(i < m) {
-        c += this[i]-a[i];
-        r[i++] = c&this.DM;
-        c >>= this.DB;
-      }
-      if(a.t < this.t) {
-        c -= a.s;
-        while(i < this.t) {
-          c += this[i];
-          r[i++] = c&this.DM;
-          c >>= this.DB;
-        }
-        c += this.s;
-      }
-      else {
-        c += this.s;
-        while(i < a.t) {
-          c -= a[i];
-          r[i++] = c&this.DM;
-          c >>= this.DB;
-        }
-        c -= a.s;
-      }
-      r.s = (c<0)?-1:0;
-      if(c < -1) r[i++] = this.DV+c;
-      else if(c > 0) r[i++] = c;
-      r.t = i;
-      r.clamp();
-    }
-
-    // (protected) r = this * a, r != this,a (HAC 14.12)
-    // "this" should be the larger one if appropriate.
-    function bnpMultiplyTo(a,r) {
-      var x = this.abs(), y = a.abs();
-      var i = x.t;
-      r.t = i+y.t;
-      while(--i >= 0) r[i] = 0;
-      for(i = 0; i < y.t; ++i) r[i+x.t] = x.am(0,y[i],r,i,0,x.t);
-      r.s = 0;
-      r.clamp();
-      if(this.s != a.s) BigInteger.ZERO.subTo(r,r);
-    }
-
-    // (protected) r = this^2, r != this (HAC 14.16)
-    function bnpSquareTo(r) {
-      var x = this.abs();
-      var i = r.t = 2*x.t;
-      while(--i >= 0) r[i] = 0;
-      for(i = 0; i < x.t-1; ++i) {
-        var c = x.am(i,x[i],r,2*i,0,1);
-        if((r[i+x.t]+=x.am(i+1,2*x[i],r,2*i+1,c,x.t-i-1)) >= x.DV) {
-          r[i+x.t] -= x.DV;
-          r[i+x.t+1] = 1;
-        }
-      }
-      if(r.t > 0) r[r.t-1] += x.am(i,x[i],r,2*i,0,1);
-      r.s = 0;
-      r.clamp();
-    }
-
-    // (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
-    // r != q, this != m.  q or r may be null.
-    function bnpDivRemTo(m,q,r) {
-      var pm = m.abs();
-      if(pm.t <= 0) return;
-      var pt = this.abs();
-      if(pt.t < pm.t) {
-        if(q != null) q.fromInt(0);
-        if(r != null) this.copyTo(r);
-        return;
-      }
-      if(r == null) r = nbi();
-      var y = nbi(), ts = this.s, ms = m.s;
-      var nsh = this.DB-nbits(pm[pm.t-1]);   // normalize modulus
-      if(nsh > 0) { pm.lShiftTo(nsh,y); pt.lShiftTo(nsh,r); }
-      else { pm.copyTo(y); pt.copyTo(r); }
-      var ys = y.t;
-      var y0 = y[ys-1];
-      if(y0 == 0) return;
-      var yt = y0*(1<<this.F1)+((ys>1)?y[ys-2]>>this.F2:0);
-      var d1 = this.FV/yt, d2 = (1<<this.F1)/yt, e = 1<<this.F2;
-      var i = r.t, j = i-ys, t = (q==null)?nbi():q;
-      y.dlShiftTo(j,t);
-      if(r.compareTo(t) >= 0) {
-        r[r.t++] = 1;
-        r.subTo(t,r);
-      }
-      BigInteger.ONE.dlShiftTo(ys,t);
-      t.subTo(y,y);  // "negative" y so we can replace sub with am later
-      while(y.t < ys) y[y.t++] = 0;
-      while(--j >= 0) {
-        // Estimate quotient digit
-        var qd = (r[--i]==y0)?this.DM:Math.floor(r[i]*d1+(r[i-1]+e)*d2);
-        if((r[i]+=y.am(0,qd,r,j,0,ys)) < qd) {   // Try it out
-          y.dlShiftTo(j,t);
-          r.subTo(t,r);
-          while(r[i] < --qd) r.subTo(t,r);
-        }
-      }
-      if(q != null) {
-        r.drShiftTo(ys,q);
-        if(ts != ms) BigInteger.ZERO.subTo(q,q);
-      }
-      r.t = ys;
-      r.clamp();
-      if(nsh > 0) r.rShiftTo(nsh,r); // Denormalize remainder
-      if(ts < 0) BigInteger.ZERO.subTo(r,r);
-    }
-
-    // (public) this mod a
-    function bnMod(a) {
-      var r = nbi();
-      this.abs().divRemTo(a,null,r);
-      if(this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r,r);
-      return r;
-    }
-
-    // Modular reduction using "classic" algorithm
-    function Classic(m) { this.m = m; }
-    function cConvert(x) {
-      if(x.s < 0 || x.compareTo(this.m) >= 0) return x.mod(this.m);
-      else return x;
-    }
-    function cRevert(x) { return x; }
-    function cReduce(x) { x.divRemTo(this.m,null,x); }
-    function cMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
-    function cSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-
-    Classic.prototype.convert = cConvert;
-    Classic.prototype.revert = cRevert;
-    Classic.prototype.reduce = cReduce;
-    Classic.prototype.mulTo = cMulTo;
-    Classic.prototype.sqrTo = cSqrTo;
-
-    // (protected) return "-1/this % 2^DB"; useful for Mont. reduction
-    // justification:
-    //         xy == 1 (mod m)
-    //         xy =  1+km
-    //   xy(2-xy) = (1+km)(1-km)
-    // x[y(2-xy)] = 1-k^2m^2
-    // x[y(2-xy)] == 1 (mod m^2)
-    // if y is 1/x mod m, then y(2-xy) is 1/x mod m^2
-    // should reduce x and y(2-xy) by m^2 at each step to keep size bounded.
-    // JS multiply "overflows" differently from C/C++, so care is needed here.
-    function bnpInvDigit() {
-      if(this.t < 1) return 0;
-      var x = this[0];
-      if((x&1) == 0) return 0;
-      var y = x&3;       // y == 1/x mod 2^2
-      y = (y*(2-(x&0xf)*y))&0xf; // y == 1/x mod 2^4
-      y = (y*(2-(x&0xff)*y))&0xff;   // y == 1/x mod 2^8
-      y = (y*(2-(((x&0xffff)*y)&0xffff)))&0xffff;    // y == 1/x mod 2^16
-      // last step - calculate inverse mod DV directly;
-      // assumes 16 < DB <= 32 and assumes ability to handle 48-bit ints
-      y = (y*(2-x*y%this.DV))%this.DV;       // y == 1/x mod 2^dbits
-      // we really want the negative inverse, and -DV < y < DV
-      return (y>0)?this.DV-y:-y;
-    }
-
-    // Montgomery reduction
-    function Montgomery(m) {
-      this.m = m;
-      this.mp = m.invDigit();
-      this.mpl = this.mp&0x7fff;
-      this.mph = this.mp>>15;
-      this.um = (1<<(m.DB-15))-1;
-      this.mt2 = 2*m.t;
-    }
-
-    // xR mod m
-    function montConvert(x) {
-      var r = nbi();
-      x.abs().dlShiftTo(this.m.t,r);
-      r.divRemTo(this.m,null,r);
-      if(x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r,r);
-      return r;
-    }
-
-    // x/R mod m
-    function montRevert(x) {
-      var r = nbi();
-      x.copyTo(r);
-      this.reduce(r);
-      return r;
-    }
-
-    // x = x/R mod m (HAC 14.32)
-    function montReduce(x) {
-      while(x.t <= this.mt2) // pad x so am has enough room later
-        x[x.t++] = 0;
-      for(var i = 0; i < this.m.t; ++i) {
-        // faster way of calculating u0 = x[i]*mp mod DV
-        var j = x[i]&0x7fff;
-        var u0 = (j*this.mpl+(((j*this.mph+(x[i]>>15)*this.mpl)&this.um)<<15))&x.DM;
-        // use am to combine the multiply-shift-add into one call
-        j = i+this.m.t;
-        x[j] += this.m.am(0,u0,x,i,0,this.m.t);
-        // propagate carry
-        while(x[j] >= x.DV) { x[j] -= x.DV; x[++j]++; }
-      }
-      x.clamp();
-      x.drShiftTo(this.m.t,x);
-      if(x.compareTo(this.m) >= 0) x.subTo(this.m,x);
-    }
-
-    // r = "x^2/R mod m"; x != r
-    function montSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-
-    // r = "xy/R mod m"; x,y != r
-    function montMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
-
-    Montgomery.prototype.convert = montConvert;
-    Montgomery.prototype.revert = montRevert;
-    Montgomery.prototype.reduce = montReduce;
-    Montgomery.prototype.mulTo = montMulTo;
-    Montgomery.prototype.sqrTo = montSqrTo;
-
-    // (protected) true iff this is even
-    function bnpIsEven() { return ((this.t>0)?(this[0]&1):this.s) == 0; }
-
-    // (protected) this^e, e < 2^32, doing sqr and mul with "r" (HAC 14.79)
-    function bnpExp(e,z) {
-      if(e > 0xffffffff || e < 1) return BigInteger.ONE;
-      var r = nbi(), r2 = nbi(), g = z.convert(this), i = nbits(e)-1;
-      g.copyTo(r);
-      while(--i >= 0) {
-        z.sqrTo(r,r2);
-        if((e&(1<<i)) > 0) z.mulTo(r2,g,r);
-        else { var t = r; r = r2; r2 = t; }
-      }
-      return z.revert(r);
-    }
-
-    // (public) this^e % m, 0 <= e < 2^32
-    function bnModPowInt(e,m) {
-      var z;
-      if(e < 256 || m.isEven()) z = new Classic(m); else z = new Montgomery(m);
-      return this.exp(e,z);
-    }
-
-    // protected
-    BigInteger.prototype.copyTo = bnpCopyTo;
-    BigInteger.prototype.fromInt = bnpFromInt;
-    BigInteger.prototype.fromString = bnpFromString;
-    BigInteger.prototype.clamp = bnpClamp;
-    BigInteger.prototype.dlShiftTo = bnpDLShiftTo;
-    BigInteger.prototype.drShiftTo = bnpDRShiftTo;
-    BigInteger.prototype.lShiftTo = bnpLShiftTo;
-    BigInteger.prototype.rShiftTo = bnpRShiftTo;
-    BigInteger.prototype.subTo = bnpSubTo;
-    BigInteger.prototype.multiplyTo = bnpMultiplyTo;
-    BigInteger.prototype.squareTo = bnpSquareTo;
-    BigInteger.prototype.divRemTo = bnpDivRemTo;
-    BigInteger.prototype.invDigit = bnpInvDigit;
-    BigInteger.prototype.isEven = bnpIsEven;
-    BigInteger.prototype.exp = bnpExp;
-
-    // public
-    BigInteger.prototype.toString = bnToString;
-    BigInteger.prototype.negate = bnNegate;
-    BigInteger.prototype.abs = bnAbs;
-    BigInteger.prototype.compareTo = bnCompareTo;
-    BigInteger.prototype.bitLength = bnBitLength;
-    BigInteger.prototype.mod = bnMod;
-    BigInteger.prototype.modPowInt = bnModPowInt;
-
-    // "constants"
-    BigInteger.ZERO = nbv(0);
-    BigInteger.ONE = nbv(1);
-
-    // Copyright (c) 2005-2009  Tom Wu
-    // All Rights Reserved.
-    // See "LICENSE" for details.
-
-    // Extended JavaScript BN functions, required for RSA private ops.
-
-    // Version 1.1: new BigInteger("0", 10) returns "proper" zero
-    // Version 1.2: square() API, isProbablePrime fix
-
-    // (public)
-    function bnClone() { var r = nbi(); this.copyTo(r); return r; }
-
-    // (public) return value as integer
-    function bnIntValue() {
-      if(this.s < 0) {
-        if(this.t == 1) return this[0]-this.DV;
-        else if(this.t == 0) return -1;
-      }
-      else if(this.t == 1) return this[0];
-      else if(this.t == 0) return 0;
-      // assumes 16 < DB < 32
-      return ((this[1]&((1<<(32-this.DB))-1))<<this.DB)|this[0];
-    }
-
-    // (public) return value as byte
-    function bnByteValue() { return (this.t==0)?this.s:(this[0]<<24)>>24; }
-
-    // (public) return value as short (assumes DB>=16)
-    function bnShortValue() { return (this.t==0)?this.s:(this[0]<<16)>>16; }
-
-    // (protected) return x s.t. r^x < DV
-    function bnpChunkSize(r) { return Math.floor(Math.LN2*this.DB/Math.log(r)); }
-
-    // (public) 0 if this == 0, 1 if this > 0
-    function bnSigNum() {
-      if(this.s < 0) return -1;
-      else if(this.t <= 0 || (this.t == 1 && this[0] <= 0)) return 0;
-      else return 1;
-    }
-
-    // (protected) convert to radix string
-    function bnpToRadix(b) {
-      if(b == null) b = 10;
-      if(this.signum() == 0 || b < 2 || b > 36) return "0";
-      var cs = this.chunkSize(b);
-      var a = Math.pow(b,cs);
-      var d = nbv(a), y = nbi(), z = nbi(), r = "";
-      this.divRemTo(d,y,z);
-      while(y.signum() > 0) {
-        r = (a+z.intValue()).toString(b).substr(1) + r;
-        y.divRemTo(d,y,z);
-      }
-      return z.intValue().toString(b) + r;
-    }
-
-    // (protected) convert from radix string
-    function bnpFromRadix(s,b) {
-      this.fromInt(0);
-      if(b == null) b = 10;
-      var cs = this.chunkSize(b);
-      var d = Math.pow(b,cs), mi = false, j = 0, w = 0;
-      for(var i = 0; i < s.length; ++i) {
-        var x = intAt(s,i);
-        if(x < 0) {
-          if(s.charAt(i) == "-" && this.signum() == 0) mi = true;
-          continue;
-        }
-        w = b*w+x;
-        if(++j >= cs) {
-          this.dMultiply(d);
-          this.dAddOffset(w,0);
-          j = 0;
-          w = 0;
-        }
-      }
-      if(j > 0) {
-        this.dMultiply(Math.pow(b,j));
-        this.dAddOffset(w,0);
-      }
-      if(mi) BigInteger.ZERO.subTo(this,this);
-    }
-
-    // (protected) alternate constructor
-    function bnpFromNumber(a,b,c) {
-      if("number" == typeof b) {
-        // new BigInteger(int,int,RNG)
-        if(a < 2) this.fromInt(1);
-        else {
-          this.fromNumber(a,c);
-          if(!this.testBit(a-1))    // force MSB set
-            this.bitwiseTo(BigInteger.ONE.shiftLeft(a-1),op_or,this);
-          if(this.isEven()) this.dAddOffset(1,0); // force odd
-          while(!this.isProbablePrime(b)) {
-            this.dAddOffset(2,0);
-            if(this.bitLength() > a) this.subTo(BigInteger.ONE.shiftLeft(a-1),this);
-          }
-        }
-      }
-      else {
-        // new BigInteger(int,RNG)
-        var x = new Array(), t = a&7;
-        x.length = (a>>3)+1;
-        b.nextBytes(x);
-        if(t > 0) x[0] &= ((1<<t)-1); else x[0] = 0;
-        this.fromString(x,256);
-      }
-    }
-
-    // (public) convert to bigendian byte array
-    function bnToByteArray() {
-      var i = this.t, r = new Array();
-      r[0] = this.s;
-      var p = this.DB-(i*this.DB)%8, d, k = 0;
-      if(i-- > 0) {
-        if(p < this.DB && (d = this[i]>>p) != (this.s&this.DM)>>p)
-          r[k++] = d|(this.s<<(this.DB-p));
-        while(i >= 0) {
-          if(p < 8) {
-            d = (this[i]&((1<<p)-1))<<(8-p);
-            d |= this[--i]>>(p+=this.DB-8);
-          }
-          else {
-            d = (this[i]>>(p-=8))&0xff;
-            if(p <= 0) { p += this.DB; --i; }
-          }
-          if((d&0x80) != 0) d |= -256;
-          if(k == 0 && (this.s&0x80) != (d&0x80)) ++k;
-          if(k > 0 || d != this.s) r[k++] = d;
-        }
-      }
-      return r;
-    }
-
-    function bnEquals(a) { return(this.compareTo(a)==0); }
-    function bnMin(a) { return(this.compareTo(a)<0)?this:a; }
-    function bnMax(a) { return(this.compareTo(a)>0)?this:a; }
-
-    // (protected) r = this op a (bitwise)
-    function bnpBitwiseTo(a,op,r) {
-      var i, f, m = Math.min(a.t,this.t);
-      for(i = 0; i < m; ++i) r[i] = op(this[i],a[i]);
-      if(a.t < this.t) {
-        f = a.s&this.DM;
-        for(i = m; i < this.t; ++i) r[i] = op(this[i],f);
-        r.t = this.t;
-      }
-      else {
-        f = this.s&this.DM;
-        for(i = m; i < a.t; ++i) r[i] = op(f,a[i]);
-        r.t = a.t;
-      }
-      r.s = op(this.s,a.s);
-      r.clamp();
-    }
-
-    // (public) this & a
-    function op_and(x,y) { return x&y; }
-    function bnAnd(a) { var r = nbi(); this.bitwiseTo(a,op_and,r); return r; }
-
-    // (public) this | a
-    function op_or(x,y) { return x|y; }
-    function bnOr(a) { var r = nbi(); this.bitwiseTo(a,op_or,r); return r; }
-
-    // (public) this ^ a
-    function op_xor(x,y) { return x^y; }
-    function bnXor(a) { var r = nbi(); this.bitwiseTo(a,op_xor,r); return r; }
-
-    // (public) this & ~a
-    function op_andnot(x,y) { return x&~y; }
-    function bnAndNot(a) { var r = nbi(); this.bitwiseTo(a,op_andnot,r); return r; }
-
-    // (public) ~this
-    function bnNot() {
-      var r = nbi();
-      for(var i = 0; i < this.t; ++i) r[i] = this.DM&~this[i];
-      r.t = this.t;
-      r.s = ~this.s;
-      return r;
-    }
-
-    // (public) this << n
-    function bnShiftLeft(n) {
-      var r = nbi();
-      if(n < 0) this.rShiftTo(-n,r); else this.lShiftTo(n,r);
-      return r;
-    }
-
-    // (public) this >> n
-    function bnShiftRight(n) {
-      var r = nbi();
-      if(n < 0) this.lShiftTo(-n,r); else this.rShiftTo(n,r);
-      return r;
-    }
-
-    // return index of lowest 1-bit in x, x < 2^31
-    function lbit(x) {
-      if(x == 0) return -1;
-      var r = 0;
-      if((x&0xffff) == 0) { x >>= 16; r += 16; }
-      if((x&0xff) == 0) { x >>= 8; r += 8; }
-      if((x&0xf) == 0) { x >>= 4; r += 4; }
-      if((x&3) == 0) { x >>= 2; r += 2; }
-      if((x&1) == 0) ++r;
-      return r;
-    }
-
-    // (public) returns index of lowest 1-bit (or -1 if none)
-    function bnGetLowestSetBit() {
-      for(var i = 0; i < this.t; ++i)
-        if(this[i] != 0) return i*this.DB+lbit(this[i]);
-      if(this.s < 0) return this.t*this.DB;
-      return -1;
-    }
-
-    // return number of 1 bits in x
-    function cbit(x) {
-      var r = 0;
-      while(x != 0) { x &= x-1; ++r; }
-      return r;
-    }
-
-    // (public) return number of set bits
-    function bnBitCount() {
-      var r = 0, x = this.s&this.DM;
-      for(var i = 0; i < this.t; ++i) r += cbit(this[i]^x);
-      return r;
-    }
-
-    // (public) true iff nth bit is set
-    function bnTestBit(n) {
-      var j = Math.floor(n/this.DB);
-      if(j >= this.t) return(this.s!=0);
-      return((this[j]&(1<<(n%this.DB)))!=0);
-    }
-
-    // (protected) this op (1<<n)
-    function bnpChangeBit(n,op) {
-      var r = BigInteger.ONE.shiftLeft(n);
-      this.bitwiseTo(r,op,r);
-      return r;
-    }
-
-    // (public) this | (1<<n)
-    function bnSetBit(n) { return this.changeBit(n,op_or); }
-
-    // (public) this & ~(1<<n)
-    function bnClearBit(n) { return this.changeBit(n,op_andnot); }
-
-    // (public) this ^ (1<<n)
-    function bnFlipBit(n) { return this.changeBit(n,op_xor); }
-
-    // (protected) r = this + a
-    function bnpAddTo(a,r) {
-      var i = 0, c = 0, m = Math.min(a.t,this.t);
-      while(i < m) {
-        c += this[i]+a[i];
-        r[i++] = c&this.DM;
-        c >>= this.DB;
-      }
-      if(a.t < this.t) {
-        c += a.s;
-        while(i < this.t) {
-          c += this[i];
-          r[i++] = c&this.DM;
-          c >>= this.DB;
-        }
-        c += this.s;
-      }
-      else {
-        c += this.s;
-        while(i < a.t) {
-          c += a[i];
-          r[i++] = c&this.DM;
-          c >>= this.DB;
-        }
-        c += a.s;
-      }
-      r.s = (c<0)?-1:0;
-      if(c > 0) r[i++] = c;
-      else if(c < -1) r[i++] = this.DV+c;
-      r.t = i;
-      r.clamp();
-    }
-
-    // (public) this + a
-    function bnAdd(a) { var r = nbi(); this.addTo(a,r); return r; }
-
-    // (public) this - a
-    function bnSubtract(a) { var r = nbi(); this.subTo(a,r); return r; }
-
-    // (public) this * a
-    function bnMultiply(a) { var r = nbi(); this.multiplyTo(a,r); return r; }
-
-    // (public) this^2
-    function bnSquare() { var r = nbi(); this.squareTo(r); return r; }
-
-    // (public) this / a
-    function bnDivide(a) { var r = nbi(); this.divRemTo(a,r,null); return r; }
-
-    // (public) this % a
-    function bnRemainder(a) { var r = nbi(); this.divRemTo(a,null,r); return r; }
-
-    // (public) [this/a,this%a]
-    function bnDivideAndRemainder(a) {
-      var q = nbi(), r = nbi();
-      this.divRemTo(a,q,r);
-      return new Array(q,r);
-    }
-
-    // (protected) this *= n, this >= 0, 1 < n < DV
-    function bnpDMultiply(n) {
-      this[this.t] = this.am(0,n-1,this,0,0,this.t);
-      ++this.t;
-      this.clamp();
-    }
-
-    // (protected) this += n << w words, this >= 0
-    function bnpDAddOffset(n,w) {
-      if(n == 0) return;
-      while(this.t <= w) this[this.t++] = 0;
-      this[w] += n;
-      while(this[w] >= this.DV) {
-        this[w] -= this.DV;
-        if(++w >= this.t) this[this.t++] = 0;
-        ++this[w];
-      }
-    }
-
-    // A "null" reducer
-    function NullExp() {}
-    function nNop(x) { return x; }
-    function nMulTo(x,y,r) { x.multiplyTo(y,r); }
-    function nSqrTo(x,r) { x.squareTo(r); }
-
-    NullExp.prototype.convert = nNop;
-    NullExp.prototype.revert = nNop;
-    NullExp.prototype.mulTo = nMulTo;
-    NullExp.prototype.sqrTo = nSqrTo;
-
-    // (public) this^e
-    function bnPow(e) { return this.exp(e,new NullExp()); }
-
-    // (protected) r = lower n words of "this * a", a.t <= n
-    // "this" should be the larger one if appropriate.
-    function bnpMultiplyLowerTo(a,n,r) {
-      var i = Math.min(this.t+a.t,n);
-      r.s = 0; // assumes a,this >= 0
-      r.t = i;
-      while(i > 0) r[--i] = 0;
-      var j;
-      for(j = r.t-this.t; i < j; ++i) r[i+this.t] = this.am(0,a[i],r,i,0,this.t);
-      for(j = Math.min(a.t,n); i < j; ++i) this.am(0,a[i],r,i,0,n-i);
-      r.clamp();
-    }
-
-    // (protected) r = "this * a" without lower n words, n > 0
-    // "this" should be the larger one if appropriate.
-    function bnpMultiplyUpperTo(a,n,r) {
-      --n;
-      var i = r.t = this.t+a.t-n;
-      r.s = 0; // assumes a,this >= 0
-      while(--i >= 0) r[i] = 0;
-      for(i = Math.max(n-this.t,0); i < a.t; ++i)
-        r[this.t+i-n] = this.am(n-i,a[i],r,0,0,this.t+i-n);
-      r.clamp();
-      r.drShiftTo(1,r);
-    }
-
-    // Barrett modular reduction
-    function Barrett(m) {
-      // setup Barrett
-      this.r2 = nbi();
-      this.q3 = nbi();
-      BigInteger.ONE.dlShiftTo(2*m.t,this.r2);
-      this.mu = this.r2.divide(m);
-      this.m = m;
-    }
-
-    function barrettConvert(x) {
-      if(x.s < 0 || x.t > 2*this.m.t) return x.mod(this.m);
-      else if(x.compareTo(this.m) < 0) return x;
-      else { var r = nbi(); x.copyTo(r); this.reduce(r); return r; }
-    }
-
-    function barrettRevert(x) { return x; }
-
-    // x = x mod m (HAC 14.42)
-    function barrettReduce(x) {
-      x.drShiftTo(this.m.t-1,this.r2);
-      if(x.t > this.m.t+1) { x.t = this.m.t+1; x.clamp(); }
-      this.mu.multiplyUpperTo(this.r2,this.m.t+1,this.q3);
-      this.m.multiplyLowerTo(this.q3,this.m.t+1,this.r2);
-      while(x.compareTo(this.r2) < 0) x.dAddOffset(1,this.m.t+1);
-      x.subTo(this.r2,x);
-      while(x.compareTo(this.m) >= 0) x.subTo(this.m,x);
-    }
-
-    // r = x^2 mod m; x != r
-    function barrettSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-
-    // r = x*y mod m; x,y != r
-    function barrettMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
-
-    Barrett.prototype.convert = barrettConvert;
-    Barrett.prototype.revert = barrettRevert;
-    Barrett.prototype.reduce = barrettReduce;
-    Barrett.prototype.mulTo = barrettMulTo;
-    Barrett.prototype.sqrTo = barrettSqrTo;
-
-    // (public) this^e % m (HAC 14.85)
-    function bnModPow(e,m) {
-      var i = e.bitLength(), k, r = nbv(1), z;
-      if(i <= 0) return r;
-      else if(i < 18) k = 1;
-      else if(i < 48) k = 3;
-      else if(i < 144) k = 4;
-      else if(i < 768) k = 5;
-      else k = 6;
-      if(i < 8)
-        z = new Classic(m);
-      else if(m.isEven())
-        z = new Barrett(m);
-      else
-        z = new Montgomery(m);
-
-      // precomputation
-      var g = new Array(), n = 3, k1 = k-1, km = (1<<k)-1;
-      g[1] = z.convert(this);
-      if(k > 1) {
-        var g2 = nbi();
-        z.sqrTo(g[1],g2);
-        while(n <= km) {
-          g[n] = nbi();
-          z.mulTo(g2,g[n-2],g[n]);
-          n += 2;
-        }
-      }
-
-      var j = e.t-1, w, is1 = true, r2 = nbi(), t;
-      i = nbits(e[j])-1;
-      while(j >= 0) {
-        if(i >= k1) w = (e[j]>>(i-k1))&km;
-        else {
-          w = (e[j]&((1<<(i+1))-1))<<(k1-i);
-          if(j > 0) w |= e[j-1]>>(this.DB+i-k1);
-        }
-
-        n = k;
-        while((w&1) == 0) { w >>= 1; --n; }
-        if((i -= n) < 0) { i += this.DB; --j; }
-        if(is1) {    // ret == 1, don't bother squaring or multiplying it
-          g[w].copyTo(r);
-          is1 = false;
-        }
-        else {
-          while(n > 1) { z.sqrTo(r,r2); z.sqrTo(r2,r); n -= 2; }
-          if(n > 0) z.sqrTo(r,r2); else { t = r; r = r2; r2 = t; }
-          z.mulTo(r2,g[w],r);
-        }
-
-        while(j >= 0 && (e[j]&(1<<i)) == 0) {
-          z.sqrTo(r,r2); t = r; r = r2; r2 = t;
-          if(--i < 0) { i = this.DB-1; --j; }
-        }
-      }
-      return z.revert(r);
-    }
-
-    // (public) gcd(this,a) (HAC 14.54)
-    function bnGCD(a) {
-      var x = (this.s<0)?this.negate():this.clone();
-      var y = (a.s<0)?a.negate():a.clone();
-      if(x.compareTo(y) < 0) { var t = x; x = y; y = t; }
-      var i = x.getLowestSetBit(), g = y.getLowestSetBit();
-      if(g < 0) return x;
-      if(i < g) g = i;
-      if(g > 0) {
-        x.rShiftTo(g,x);
-        y.rShiftTo(g,y);
-      }
-      while(x.signum() > 0) {
-        if((i = x.getLowestSetBit()) > 0) x.rShiftTo(i,x);
-        if((i = y.getLowestSetBit()) > 0) y.rShiftTo(i,y);
-        if(x.compareTo(y) >= 0) {
-          x.subTo(y,x);
-          x.rShiftTo(1,x);
-        }
-        else {
-          y.subTo(x,y);
-          y.rShiftTo(1,y);
-        }
-      }
-      if(g > 0) y.lShiftTo(g,y);
-      return y;
-    }
-
-    // (protected) this % n, n < 2^26
-    function bnpModInt(n) {
-      if(n <= 0) return 0;
-      var d = this.DV%n, r = (this.s<0)?n-1:0;
-      if(this.t > 0)
-        if(d == 0) r = this[0]%n;
-        else for(var i = this.t-1; i >= 0; --i) r = (d*r+this[i])%n;
-      return r;
-    }
-
-    // (public) 1/this % m (HAC 14.61)
-    function bnModInverse(m) {
-      var ac = m.isEven();
-      if((this.isEven() && ac) || m.signum() == 0) return BigInteger.ZERO;
-      var u = m.clone(), v = this.clone();
-      var a = nbv(1), b = nbv(0), c = nbv(0), d = nbv(1);
-      while(u.signum() != 0) {
-        while(u.isEven()) {
-          u.rShiftTo(1,u);
-          if(ac) {
-            if(!a.isEven() || !b.isEven()) { a.addTo(this,a); b.subTo(m,b); }
-            a.rShiftTo(1,a);
-          }
-          else if(!b.isEven()) b.subTo(m,b);
-          b.rShiftTo(1,b);
-        }
-        while(v.isEven()) {
-          v.rShiftTo(1,v);
-          if(ac) {
-            if(!c.isEven() || !d.isEven()) { c.addTo(this,c); d.subTo(m,d); }
-            c.rShiftTo(1,c);
-          }
-          else if(!d.isEven()) d.subTo(m,d);
-          d.rShiftTo(1,d);
-        }
-        if(u.compareTo(v) >= 0) {
-          u.subTo(v,u);
-          if(ac) a.subTo(c,a);
-          b.subTo(d,b);
-        }
-        else {
-          v.subTo(u,v);
-          if(ac) c.subTo(a,c);
-          d.subTo(b,d);
-        }
-      }
-      if(v.compareTo(BigInteger.ONE) != 0) return BigInteger.ZERO;
-      if(d.compareTo(m) >= 0) return d.subtract(m);
-      if(d.signum() < 0) d.addTo(m,d); else return d;
-      if(d.signum() < 0) return d.add(m); else return d;
-    }
-
-    var lowprimes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997];
-    var lplim = (1<<26)/lowprimes[lowprimes.length-1];
-
-    // (public) test primality with certainty >= 1-.5^t
-    function bnIsProbablePrime(t) {
-      var i, x = this.abs();
-      if(x.t == 1 && x[0] <= lowprimes[lowprimes.length-1]) {
-        for(i = 0; i < lowprimes.length; ++i)
-          if(x[0] == lowprimes[i]) return true;
-        return false;
-      }
-      if(x.isEven()) return false;
-      i = 1;
-      while(i < lowprimes.length) {
-        var m = lowprimes[i], j = i+1;
-        while(j < lowprimes.length && m < lplim) m *= lowprimes[j++];
-        m = x.modInt(m);
-        while(i < j) if(m%lowprimes[i++] == 0) return false;
-      }
-      return x.millerRabin(t);
-    }
-
-    // (protected) true if probably prime (HAC 4.24, Miller-Rabin)
-    function bnpMillerRabin(t) {
-      var n1 = this.subtract(BigInteger.ONE);
-      var k = n1.getLowestSetBit();
-      if(k <= 0) return false;
-      var r = n1.shiftRight(k);
-      t = (t+1)>>1;
-      if(t > lowprimes.length) t = lowprimes.length;
-      var a = nbi();
-      for(var i = 0; i < t; ++i) {
-        //Pick bases at random, instead of starting at 2
-        a.fromInt(lowprimes[Math.floor(Math.random()*lowprimes.length)]);
-        var y = a.modPow(r,this);
-        if(y.compareTo(BigInteger.ONE) != 0 && y.compareTo(n1) != 0) {
-          var j = 1;
-          while(j++ < k && y.compareTo(n1) != 0) {
-            y = y.modPowInt(2,this);
-            if(y.compareTo(BigInteger.ONE) == 0) return false;
-          }
-          if(y.compareTo(n1) != 0) return false;
-        }
-      }
-      return true;
-    }
-
-    // protected
-    BigInteger.prototype.chunkSize = bnpChunkSize;
-    BigInteger.prototype.toRadix = bnpToRadix;
-    BigInteger.prototype.fromRadix = bnpFromRadix;
-    BigInteger.prototype.fromNumber = bnpFromNumber;
-    BigInteger.prototype.bitwiseTo = bnpBitwiseTo;
-    BigInteger.prototype.changeBit = bnpChangeBit;
-    BigInteger.prototype.addTo = bnpAddTo;
-    BigInteger.prototype.dMultiply = bnpDMultiply;
-    BigInteger.prototype.dAddOffset = bnpDAddOffset;
-    BigInteger.prototype.multiplyLowerTo = bnpMultiplyLowerTo;
-    BigInteger.prototype.multiplyUpperTo = bnpMultiplyUpperTo;
-    BigInteger.prototype.modInt = bnpModInt;
-    BigInteger.prototype.millerRabin = bnpMillerRabin;
-
-    // public
-    BigInteger.prototype.clone = bnClone;
-    BigInteger.prototype.intValue = bnIntValue;
-    BigInteger.prototype.byteValue = bnByteValue;
-    BigInteger.prototype.shortValue = bnShortValue;
-    BigInteger.prototype.signum = bnSigNum;
-    BigInteger.prototype.toByteArray = bnToByteArray;
-    BigInteger.prototype.equals = bnEquals;
-    BigInteger.prototype.min = bnMin;
-    BigInteger.prototype.max = bnMax;
-    BigInteger.prototype.and = bnAnd;
-    BigInteger.prototype.or = bnOr;
-    BigInteger.prototype.xor = bnXor;
-    BigInteger.prototype.andNot = bnAndNot;
-    BigInteger.prototype.not = bnNot;
-    BigInteger.prototype.shiftLeft = bnShiftLeft;
-    BigInteger.prototype.shiftRight = bnShiftRight;
-    BigInteger.prototype.getLowestSetBit = bnGetLowestSetBit;
-    BigInteger.prototype.bitCount = bnBitCount;
-    BigInteger.prototype.testBit = bnTestBit;
-    BigInteger.prototype.setBit = bnSetBit;
-    BigInteger.prototype.clearBit = bnClearBit;
-    BigInteger.prototype.flipBit = bnFlipBit;
-    BigInteger.prototype.add = bnAdd;
-    BigInteger.prototype.subtract = bnSubtract;
-    BigInteger.prototype.multiply = bnMultiply;
-    BigInteger.prototype.divide = bnDivide;
-    BigInteger.prototype.remainder = bnRemainder;
-    BigInteger.prototype.divideAndRemainder = bnDivideAndRemainder;
-    BigInteger.prototype.modPow = bnModPow;
-    BigInteger.prototype.modInverse = bnModInverse;
-    BigInteger.prototype.pow = bnPow;
-    BigInteger.prototype.gcd = bnGCD;
-    BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
-
-    // JSBN-specific extension
-    BigInteger.prototype.square = bnSquare;
-
-    // Expose the Barrett function
-    BigInteger.prototype.Barrett = Barrett
-
-    // BigInteger interfaces not implemented in jsbn:
-
-    // BigInteger(int signum, byte[] magnitude)
-    // double doubleValue()
-    // float floatValue()
-    // int hashCode()
-    // long longValue()
-    // static BigInteger valueOf(long val)
-
-    // Random number generator - requires a PRNG backend, e.g. prng4.js
-
-    // For best results, put code like
-    // <body onClick='rng_seed_time();' onKeyPress='rng_seed_time();'>
-    // in your main HTML document.
-
-    var rng_state;
-    var rng_pool;
-    var rng_pptr;
-
-    // Mix in a 32-bit integer into the pool
-    function rng_seed_int(x) {
-      rng_pool[rng_pptr++] ^= x & 255;
-      rng_pool[rng_pptr++] ^= (x >> 8) & 255;
-      rng_pool[rng_pptr++] ^= (x >> 16) & 255;
-      rng_pool[rng_pptr++] ^= (x >> 24) & 255;
-      if(rng_pptr >= rng_psize) rng_pptr -= rng_psize;
-    }
-
-    // Mix in the current time (w/milliseconds) into the pool
-    function rng_seed_time() {
-      rng_seed_int(new Date().getTime());
-    }
-
-    // Initialize the pool with junk if needed.
-    if(rng_pool == null) {
-      rng_pool = new Array();
-      rng_pptr = 0;
-      var t;
-      if(typeof window !== "undefined" && window.crypto) {
-        if (window.crypto.getRandomValues) {
-          // Use webcrypto if available
-          var ua = new Uint8Array(32);
-          window.crypto.getRandomValues(ua);
-          for(t = 0; t < 32; ++t)
-            rng_pool[rng_pptr++] = ua[t];
-        }
-        else if(navigator.appName == "Netscape" && navigator.appVersion < "5") {
-          // Extract entropy (256 bits) from NS4 RNG if available
-          var z = window.crypto.random(32);
-          for(t = 0; t < z.length; ++t)
-            rng_pool[rng_pptr++] = z.charCodeAt(t) & 255;
-        }
-      }
-      while(rng_pptr < rng_psize) {  // extract some randomness from Math.random()
-        t = Math.floor(65536 * Math.random());
-        rng_pool[rng_pptr++] = t >>> 8;
-        rng_pool[rng_pptr++] = t & 255;
-      }
-      rng_pptr = 0;
-      rng_seed_time();
-      //rng_seed_int(window.screenX);
-      //rng_seed_int(window.screenY);
-    }
-
-    function rng_get_byte() {
-      if(rng_state == null) {
-        rng_seed_time();
-        rng_state = prng_newstate();
-        rng_state.init(rng_pool);
-        for(rng_pptr = 0; rng_pptr < rng_pool.length; ++rng_pptr)
-          rng_pool[rng_pptr] = 0;
-        rng_pptr = 0;
-        //rng_pool = null;
-      }
-      // TODO: allow reseeding after first request
-      return rng_state.next();
-    }
-
-    function rng_get_bytes(ba) {
-      var i;
-      for(i = 0; i < ba.length; ++i) ba[i] = rng_get_byte();
-    }
-
-    function SecureRandom() {}
-
-    SecureRandom.prototype.nextBytes = rng_get_bytes;
-
-    // prng4.js - uses Arcfour as a PRNG
-
-    function Arcfour() {
-      this.i = 0;
-      this.j = 0;
-      this.S = new Array();
-    }
-
-    // Initialize arcfour context from key, an array of ints, each from [0..255]
-    function ARC4init(key) {
-      var i, j, t;
-      for(i = 0; i < 256; ++i)
-        this.S[i] = i;
-      j = 0;
-      for(i = 0; i < 256; ++i) {
-        j = (j + this.S[i] + key[i % key.length]) & 255;
-        t = this.S[i];
-        this.S[i] = this.S[j];
-        this.S[j] = t;
-      }
-      this.i = 0;
-      this.j = 0;
-    }
-
-    function ARC4next() {
-      var t;
-      this.i = (this.i + 1) & 255;
-      this.j = (this.j + this.S[this.i]) & 255;
-      t = this.S[this.i];
-      this.S[this.i] = this.S[this.j];
-      this.S[this.j] = t;
-      return this.S[(t + this.S[this.i]) & 255];
-    }
-
-    Arcfour.prototype.init = ARC4init;
-    Arcfour.prototype.next = ARC4next;
-
-    // Plug in your RNG constructor here
-    function prng_newstate() {
-      return new Arcfour();
-    }
-
-    // Pool size must be a multiple of 4 and greater than 32.
-    // An array of bytes the size of the pool will be passed to init()
-    var rng_psize = 256;
-
-    if (true) {
-        exports = module.exports = {
-            default: BigInteger,
-            BigInteger: BigInteger,
-            SecureRandom: SecureRandom,
-        };
-    } else {}
-
-}).call(this);
 
 
 /***/ }),
@@ -34606,8 +33369,7 @@ const fetch = async (url, opts) => {
       if (codings === 'deflate' || codings === 'x-deflate') {
         // handle the infamous raw deflate response from old servers
         // a hack for old IIS and Apache servers
-        const raw = res.pipe(new Minipass())
-        raw.once('data', chunk => {
+        res.once('data', chunk => {
           // see http://stackoverflow.com/questions/37519828
           const decoder = (chunk[0] & 0x0F) === 0x08
             ? new zlib.Inflate()
@@ -39465,6 +38227,7 @@ const isSatisfiable = (comparators, options) => {
 // already replaced the hyphen ranges
 // turn into a set of JUST comparators.
 const parseComparator = (comp, options) => {
+  comp = comp.replace(re[t.BUILD], '')
   debug('comp', comp, options)
   comp = replaceCarets(comp, options)
   debug('caret', comp)
@@ -39885,11 +38648,25 @@ class SemVer {
       other = new SemVer(other, this.options)
     }
 
-    return (
-      compareIdentifiers(this.major, other.major) ||
-      compareIdentifiers(this.minor, other.minor) ||
-      compareIdentifiers(this.patch, other.patch)
-    )
+    if (this.major < other.major) {
+      return -1
+    }
+    if (this.major > other.major) {
+      return 1
+    }
+    if (this.minor < other.minor) {
+      return -1
+    }
+    if (this.minor > other.minor) {
+      return 1
+    }
+    if (this.patch < other.patch) {
+      return -1
+    }
+    if (this.patch > other.patch) {
+      return 1
+    }
+    return 0
   }
 
   comparePre (other) {
@@ -40790,6 +39567,10 @@ module.exports = debug
 
 const numeric = /^[0-9]+$/
 const compareIdentifiers = (a, b) => {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a === b ? 0 : a < b ? -1 : 1
+  }
+
   const anum = numeric.test(a)
   const bnum = numeric.test(b)
 
@@ -43141,9 +41922,21 @@ const socks_1 = __nccwpck_require__(42474);
 const agent_base_1 = __nccwpck_require__(98894);
 const debug_1 = __importDefault(__nccwpck_require__(2830));
 const dns = __importStar(__nccwpck_require__(72250));
+const net = __importStar(__nccwpck_require__(69278));
 const tls = __importStar(__nccwpck_require__(64756));
 const url_1 = __nccwpck_require__(87016);
 const debug = (0, debug_1.default)('socks-proxy-agent');
+const setServernameFromNonIpHost = (options) => {
+    if (options.servername === undefined &&
+        options.host &&
+        !net.isIP(options.host)) {
+        return {
+            ...options,
+            servername: options.host,
+        };
+    }
+    return options;
+};
 function parseSocksURL(url) {
     let lookup = false;
     let type = 5;
@@ -43259,11 +42052,9 @@ class SocksProxyAgent extends agent_base_1.Agent {
             // The proxy is connecting to a TLS server, so upgrade
             // this socket connection to a TLS connection.
             debug('Upgrading socket connection to TLS');
-            const servername = opts.servername || opts.host;
             const tlsSocket = tls.connect({
-                ...omit(opts, 'host', 'path', 'port'),
+                ...omit(setServernameFromNonIpHost(opts), 'host', 'path', 'port'),
                 socket,
-                servername,
             });
             tlsSocket.once('error', (error) => {
                 debug('Socket TLS error', error.message);
@@ -44321,6 +43112,7 @@ function validateCustomProxyAuth(proxy, options) {
 function isValidSocksRemoteHost(remoteHost) {
     return (remoteHost &&
         typeof remoteHost.host === 'string' &&
+        Buffer.byteLength(remoteHost.host) < 256 &&
         typeof remoteHost.port === 'number' &&
         remoteHost.port >= 0 &&
         remoteHost.port <= 65535);
@@ -44347,7 +43139,7 @@ function isValidTimeoutValue(value) {
 function ipv4ToInt32(ip) {
     const address = new ip_address_1.Address4(ip);
     // Convert the IPv4 address parts to an integer
-    return address.toArray().reduce((acc, part) => (acc << 8) + part, 0);
+    return address.toArray().reduce((acc, part) => (acc << 8) + part, 0) >>> 0;
 }
 exports.ipv4ToInt32 = ipv4ToInt32;
 function int32ToIpv4(int32) {
@@ -77351,32 +76143,72 @@ exports.constants = Object.freeze(Object.assign(Object.create(null), {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BrotliDecompress = exports.BrotliCompress = exports.Brotli = exports.Unzip = exports.InflateRaw = exports.DeflateRaw = exports.Gunzip = exports.Gzip = exports.Inflate = exports.Deflate = exports.Zlib = exports.ZlibError = exports.constants = void 0;
+exports.ZstdDecompress = exports.ZstdCompress = exports.BrotliDecompress = exports.BrotliCompress = exports.Unzip = exports.InflateRaw = exports.DeflateRaw = exports.Gunzip = exports.Gzip = exports.Inflate = exports.Deflate = exports.Zlib = exports.ZlibError = exports.constants = void 0;
 const assert_1 = __importDefault(__nccwpck_require__(42613));
 const buffer_1 = __nccwpck_require__(20181);
 const minipass_1 = __nccwpck_require__(78275);
-const zlib_1 = __importDefault(__nccwpck_require__(43106));
+const realZlib = __importStar(__nccwpck_require__(43106));
 const constants_js_1 = __nccwpck_require__(5474);
 var constants_js_2 = __nccwpck_require__(5474);
 Object.defineProperty(exports, "constants", ({ enumerable: true, get: function () { return constants_js_2.constants; } }));
 const OriginalBufferConcat = buffer_1.Buffer.concat;
+const desc = Object.getOwnPropertyDescriptor(buffer_1.Buffer, 'concat');
+const noop = (args) => args;
+const passthroughBufferConcat = desc?.writable === true || desc?.set !== undefined
+    ? (makeNoOp) => {
+        buffer_1.Buffer.concat = makeNoOp ? noop : OriginalBufferConcat;
+    }
+    : (_) => { };
 const _superWrite = Symbol('_superWrite');
 class ZlibError extends Error {
     code;
     errno;
-    constructor(err) {
-        super('zlib: ' + err.message);
+    constructor(err, origin) {
+        super('zlib: ' + err.message, { cause: err });
         this.code = err.code;
         this.errno = err.errno;
         /* c8 ignore next */
         if (!this.code)
             this.code = 'ZLIB_ERROR';
         this.message = 'zlib: ' + err.message;
-        Error.captureStackTrace(this, this.constructor);
+        Error.captureStackTrace(this, origin ?? this.constructor);
     }
     get name() {
         return 'ZlibError';
@@ -77417,15 +76249,19 @@ class ZlibBase extends minipass_1.Minipass {
         this.#finishFlushFlag = opts.finishFlush ?? 0;
         this.#fullFlushFlag = opts.fullFlushFlag ?? 0;
         /* c8 ignore stop */
+        //@ts-ignore
+        if (typeof realZlib[mode] !== 'function') {
+            throw new TypeError('Compression method not supported: ' + mode);
+        }
         // this will throw if any options are invalid for the class selected
         try {
             // @types/node doesn't know that it exports the classes, but they're there
             //@ts-ignore
-            this.#handle = new zlib_1.default[mode](opts);
+            this.#handle = new realZlib[mode](opts);
         }
         catch (er) {
             // make sure that all errors get decorated properly
-            throw new ZlibError(er);
+            throw new ZlibError(er, this.constructor);
         }
         this.#onError = err => {
             // no sense raising multiple errors, since we abort on the first one.
@@ -77511,7 +76347,7 @@ class ZlibBase extends minipass_1.Minipass {
         this.#handle.close = () => { };
         // It also calls `Buffer.concat()` at the end, which may be convenient
         // for some, but which we are not interested in as it slows us down.
-        buffer_1.Buffer.concat = args => args;
+        passthroughBufferConcat(true);
         let result = undefined;
         try {
             const flushFlag = typeof chunk[_flushFlag] === 'number'
@@ -77519,13 +76355,13 @@ class ZlibBase extends minipass_1.Minipass {
                 : this.#flushFlag;
             result = this.#handle._processChunk(chunk, flushFlag);
             // if we don't throw, reset it back how it was
-            buffer_1.Buffer.concat = OriginalBufferConcat;
+            passthroughBufferConcat(false);
         }
         catch (err) {
             // or if we do, put Buffer.concat() back before we emit error
             // Error events call into user code, which may call Buffer.concat()
-            buffer_1.Buffer.concat = OriginalBufferConcat;
-            this.#onError(new ZlibError(err));
+            passthroughBufferConcat(false);
+            this.#onError(new ZlibError(err, this.write));
         }
         finally {
             if (this.#handle) {
@@ -77544,7 +76380,7 @@ class ZlibBase extends minipass_1.Minipass {
             }
         }
         if (this.#handle)
-            this.#handle.on('error', er => this.#onError(new ZlibError(er)));
+            this.#handle.on('error', er => this.#onError(new ZlibError(er, this.write)));
         let writeReturn;
         if (result) {
             if (Array.isArray(result) && result.length > 0) {
@@ -77688,7 +76524,6 @@ class Brotli extends ZlibBase {
         super(opts, mode);
     }
 }
-exports.Brotli = Brotli;
 class BrotliCompress extends Brotli {
     constructor(opts) {
         super(opts, 'BrotliCompress');
@@ -77701,6 +76536,27 @@ class BrotliDecompress extends Brotli {
     }
 }
 exports.BrotliDecompress = BrotliDecompress;
+class Zstd extends ZlibBase {
+    constructor(opts, mode) {
+        opts = opts || {};
+        opts.flush = opts.flush || constants_js_1.constants.ZSTD_e_continue;
+        opts.finishFlush = opts.finishFlush || constants_js_1.constants.ZSTD_e_end;
+        opts.fullFlushFlag = constants_js_1.constants.ZSTD_e_flush;
+        super(opts, mode);
+    }
+}
+class ZstdCompress extends Zstd {
+    constructor(opts) {
+        super(opts, 'ZstdCompress');
+    }
+}
+exports.ZstdCompress = ZstdCompress;
+class ZstdDecompress extends Zstd {
+    constructor(opts) {
+        super(opts, 'ZstdDecompress');
+    }
+}
+exports.ZstdDecompress = ZstdDecompress;
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -81283,7 +80139,7 @@ exports.LRUCache = LRUCache;
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"3.0.0"};
+module.exports = {"rE":"3.1.0"};
 
 /***/ }),
 
@@ -81371,7 +80227,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"make-fetch-happen","version":
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"rE":"4.0.0"};
+module.exports = {"rE":"4.0.1"};
 
 /***/ })
 
