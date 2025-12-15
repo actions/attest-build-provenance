@@ -1,6 +1,106 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 33354:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createStorageRecord = createStorageRecord;
+const github = __importStar(__nccwpck_require__(93228));
+const plugin_retry_1 = __nccwpck_require__(33450);
+const CREATE_STORAGE_RECORD_REQUEST = 'POST /orgs/{owner}/artifacts/metadata/storage-record';
+const DEFAULT_RETRY_COUNT = 5;
+/**
+ * Writes a storage record on behalf of an artifact that has been attested
+ * @param artifactOptions - parameters for the storage record API request.
+ * @param packageRegistryOptions - parameters for the package registry API request.
+ * @param token - GitHub token used to authenticate the request.
+ * @param retryAttempts - The number of retries to attempt if the request fails.
+ * @param headers - Additional headers to include in the request.
+ *
+ * @returns The ID of the storage record.
+ * @throws Error if the storage record fails to persist.
+ */
+function createStorageRecord(artifactOptions, packageRegistryOptions, token, retryAttempts, headers) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const retries = retryAttempts !== null && retryAttempts !== void 0 ? retryAttempts : DEFAULT_RETRY_COUNT;
+        const octokit = github.getOctokit(token, { retry: { retries } }, plugin_retry_1.retry);
+        try {
+            const response = yield octokit.request(CREATE_STORAGE_RECORD_REQUEST, Object.assign({ owner: github.context.repo.owner, headers }, buildRequestParams(artifactOptions, packageRegistryOptions)));
+            const data = typeof response.data == 'string'
+                ? JSON.parse(response.data)
+                : response.data;
+            return data === null || data === void 0 ? void 0 : data.storage_records.map((r) => r.id);
+        }
+        catch (err) {
+            const message = err instanceof Error ? err.message : err;
+            throw new Error(`Failed to persist storage record: ${message}`);
+        }
+    });
+}
+function buildRequestParams(artifactOptions, packageRegistryOptions) {
+    const { registryUrl, artifactUrl } = packageRegistryOptions, rest = __rest(packageRegistryOptions, ["registryUrl", "artifactUrl"]);
+    return Object.assign(Object.assign(Object.assign({}, artifactOptions), { registry_url: registryUrl, artifact_url: artifactUrl }), rest);
+}
+//# sourceMappingURL=artifactMetadata.js.map
+
+/***/ }),
+
 /***/ 17492:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -184,7 +284,9 @@ function buildGitHubEndpoints() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.buildSLSAProvenancePredicate = exports.attestProvenance = exports.attest = void 0;
+exports.buildSLSAProvenancePredicate = exports.attestProvenance = exports.attest = exports.createStorageRecord = void 0;
+var artifactMetadata_1 = __nccwpck_require__(33354);
+Object.defineProperty(exports, "createStorageRecord", ({ enumerable: true, get: function () { return artifactMetadata_1.createStorageRecord; } }));
 var attest_1 = __nccwpck_require__(17492);
 Object.defineProperty(exports, "attest", ({ enumerable: true, get: function () { return attest_1.attest; } }));
 var provenance_1 = __nccwpck_require__(13042);
