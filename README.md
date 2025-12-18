@@ -46,11 +46,15 @@ attest:
    permissions:
      id-token: write
      attestations: write
+     artifact-metadata: write
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
    necessary to request a Sigstore signing certificate. The `attestations`
    permission is necessary to persist the attestation.
+   The `artifact-metadata` permission is required to generate artifact
+   metadata storage records. If this permission is not included, the action
+   will continue without creating the record.
 
 1. Add the following to your workflow after your artifact has been built:
 
