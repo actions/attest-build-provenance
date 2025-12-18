@@ -1,7 +1,7 @@
 {
   "name": "actions/attest-build-provenance",
   "description": "Generate signed build provenance attestations",
-  "version": "2.0.0",
+  "version": "3.1.0",
   "author": "",
   "private": true,
   "homepage": "https://github.com/actions/attest-build-provenance",
@@ -70,7 +70,7 @@
     ]
   },
   "dependencies": {
-    "@actions/attest": "^2.1.0",
+    "@actions/attest": "^3.1.0",
     "@actions/core": "^1.11.1"
   },
   "devDependencies": {
