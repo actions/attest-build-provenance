@@ -46,11 +46,15 @@ attest:
    permissions:
      id-token: write
      attestations: write
+     artifact-metadata: write
    ```
 
    The `id-token` permission gives the action the ability to mint the OIDC token
    necessary to request a Sigstore signing certificate. The `attestations`
    permission is necessary to persist the attestation.
+   The `artifact-metadata` permission is required to generate artifact
+   metadata storage records. If this permission is not included, the action
+   will continue without creating the record.
 
 1. Add the following to your workflow after your artifact has been built:
 
@@ -94,6 +98,12 @@ See [action.yml](action.yml)
     # "subject-name" parameter specify the fully-qualified image name and that
     # the "subject-digest" parameter be specified. Defaults to false.
     push-to-registry:
+
+    # Whether to create a storage record for the artifact.
+    # Requires that push-to-registry is set to true.
+    # Requires that the "subject-name" parameter specify the fully-qualified
+    # image name. Defaults to true.
+    create-storage-record:
 
     # Whether to attach a list of generated attestations to the workflow run
     # summary page. Defaults to true.
@@ -242,6 +252,10 @@ the specific image being attested is identified by the supplied digest.
 
 Attestation bundles are stored in the OCI registry according to the [Cosign
 Bundle Specification][10].
+
+If the `push-to-registry` option is set to true, the Action will also
+emit an Artifact Metadata Storage Record. If you do not want to emit a
+storage record, set `create-storage-record` to `false`.
 
 > **NOTE**: When pushing to Docker Hub, please use "index.docker.io" as the
 > registry portion of the image name.
