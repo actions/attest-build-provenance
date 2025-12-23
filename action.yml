@@ -36,6 +36,12 @@ inputs:
       and that the "subject-digest" parameter be specified. Defaults to false.
     default: false
     required: false
+  create-storage-record:
+    description: >
+      Whether to create a storage record for the artifact.
+      Requires that push-to-registry is set to true. Defaults to true.
+    default: true
+    required: false
   show-summary:
     description: >
       Whether to attach a list of generated attestations to the workflow run
@@ -64,7 +70,7 @@ runs:
   steps:
     - uses: actions/attest-build-provenance/predicate@864457a58d4733d7f1574bd8821fa24e02cf7538 # predicate@2.0.0
       id: generate-build-provenance-predicate
-    - uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1 # v3.0.0
+    - uses: actions/attest@7667f588f2f73a90cea6c7ac70e78266c4f76616 # v3.1.0
       id: attest
       env:
         NODE_OPTIONS: "--max-http-header-size=32768"
@@ -76,5 +82,6 @@ runs:
         predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
         predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
         push-to-registry: ${{ inputs.push-to-registry }}
+        create-storage-record: ${{ inputs.create-storage-record }}
         show-summary: ${{ inputs.show-summary }}
         github-token: ${{ inputs.github-token }}
