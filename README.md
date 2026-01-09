@@ -306,7 +306,7 @@ If the `push-to-registry` option is set to true, the Action will also
 emit an [Artifact Metadata Storage Record](https://docs.github.com/en/rest/orgs/artifact-metadata?apiVersion=2022-11-28#create-artifact-metadata-storage-record).
 Storage records enrich artifact metadata by capturing storage
 related details, such as which registry an image is hosted on
-and whether its still active on that registry.
+and whether it's marked as active.
 
 If you do not want to emit a storage record, set `create-storage-record` to `false`.
 
