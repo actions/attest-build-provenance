@@ -310,6 +310,13 @@ and whether its still active on that registry.
 
 If you do not want to emit a storage record, set `create-storage-record` to `false`.
 
+> **NOTE**: Storage records can only be created for artifacts
+> built from organization owned repositories.
+
+All artifacts with storage records are available for view by navigating to
+the `Linked Artifacts` page in your organization by navigating to
+`https://github.com/orgs/<myorg>/artifacts`
+
 ### Integration with `actions/upload-artifact`
 
 If you'd like to create an attestation for an archive created with the
