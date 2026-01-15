@@ -311,7 +311,7 @@ and whether it's marked as active.
 If you do not want to emit a storage record, set `create-storage-record` to `false`.
 
 > **NOTE**: Storage records can only be created for artifacts
-> built from organization owned repositories.
+> built from [organization-owned](https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/about-organizations) repositories.
 
 Artifacts associated with a storage record can be viewed by navigating to
 the `Linked Artifacts` page in your organization:
