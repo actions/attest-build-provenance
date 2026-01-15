@@ -314,7 +314,9 @@ If you do not want to emit a storage record, set `create-storage-record` to `fal
 > built from organization owned repositories.
 
 Artifacts associated with a storage record can be viewed by navigating to
-the `Linked Artifacts` page in your organization: `https://github.com/orgs/YOUR_ORG/artifacts` (replace `YOUR_ORG` with your organization name).
+the `Linked Artifacts` page in your organization:
+`https://github.com/orgs/YOUR_ORG/artifacts`
+(replace `YOUR_ORG` with your organization name).
 
 ### Integration with `actions/upload-artifact`
 
