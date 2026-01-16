@@ -253,10 +253,6 @@ the specific image being attested is identified by the supplied digest.
 Attestation bundles are stored in the OCI registry according to the [Cosign
 Bundle Specification][10].
 
-If the `push-to-registry` option is set to true, the Action will also
-emit an Artifact Metadata Storage Record. If you do not want to emit a
-storage record, set `create-storage-record` to `false`.
-
 > **NOTE**: When pushing to Docker Hub, please use "index.docker.io" as the
 > registry portion of the image name.
 
@@ -303,6 +299,25 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 ```
+
+#### Artifact Metadata Storage Records
+
+If the `push-to-registry` option is set to true, the Action will also
+emit an [Artifact Metadata Storage Record](https://docs.github.com/en/rest/orgs/artifact-metadata?apiVersion=2022-11-28#create-artifact-metadata-storage-record).
+Storage records enrich artifact metadata by capturing storage
+related details, such as which registry an image is hosted on
+and whether it's marked as active.
+
+If you do not want to emit a storage record, set `create-storage-record` to `false`.
+
+> **NOTE**: Storage records can only be created for artifacts
+> built from [organization-owned](https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/about-organizations)
+> repositories.
+
+Artifacts associated with a storage record can be viewed by navigating to
+the `Linked Artifacts` page in your organization:
+`https://github.com/orgs/YOUR_ORG/artifacts`
+(replace `YOUR_ORG` with your organization name).
 
 ### Integration with `actions/upload-artifact`
 
