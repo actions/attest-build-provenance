@@ -70,7 +70,7 @@ runs:
   steps:
     - uses: actions/attest-build-provenance/predicate@864457a58d4733d7f1574bd8821fa24e02cf7538 # predicate@2.0.0
       id: generate-build-provenance-predicate
-    - uses: actions/attest@7667f588f2f73a90cea6c7ac70e78266c4f76616 # v3.1.0
+    - uses: actions/attest@e59cbc1ad1ac2d59339667419eb8cdde6eb61e3d # v3.2.0
       id: attest
       env:
         NODE_OPTIONS: "--max-http-header-size=32768"
