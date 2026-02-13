@@ -24,6 +24,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "postinstall": "node scripts/postinstall.js",
     "bundle": "npm run format:write && npm run package",
     "ci-test": "jest",
     "format:write": "prettier --write **/*.ts",
@@ -57,8 +58,12 @@
       "/dist/"
     ],
     "transform": {
-      "^.+\\.ts$": "ts-jest"
+      "^.+\\.ts$": "ts-jest",
+      "node_modules/@actions/.+\\.js$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!@actions/)"
+    ],
     "coverageReporters": [
       "json-summary",
       "text",
@@ -71,7 +76,7 @@
   },
   "dependencies": {
     "@actions/attest": "^2.2.1",
-    "@actions/core": "^2.0.3"
+    "@actions/core": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
