@@ -7,7 +7,7 @@ export default tseslint.config(
   // Ignore non-project files
   {
     name: 'ignore',
-    ignores: ['.github', 'dist', 'coverage', '**/*.json', 'jest.setup.js', 'eslint.config.mjs']
+    ignores: ['.github', 'dist', 'coverage', '**/*.json', 'jest.setup.js', 'eslint.config.mjs', 'scripts']
   },
   // Use recommended rules from ESLint, TypeScript, and other plugins
   eslint.configs.recommended,
