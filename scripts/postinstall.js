@@ -57,4 +57,3 @@ const packageFiles = findPackageJsonFiles(nodeModulesDir)
 for (const pkgPath of packageFiles) {
   patchPackage(pkgPath)
 }
-
