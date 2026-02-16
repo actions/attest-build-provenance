@@ -70,7 +70,7 @@
     ]
   },
   "dependencies": {
-    "@actions/attest": "^2.2.1",
+    "@actions/attest": "^3.0.0",
     "@actions/core": "^2.0.3"
   },
   "devDependencies": {
