@@ -1,17 +1,17 @@
-name: 'Attest Build Provenance'
-description: 'Generate provenance attestations for build artifacts'
-author: 'GitHub'
+name: "Attest Build Provenance"
+description: "Generate provenance attestations for build artifacts"
+author: "GitHub"
 branding:
-  color: 'blue'
-  icon: 'lock'
+  color: "blue"
+  icon: "lock"
 
 inputs:
   subject-path:
     description: >
       Path to the artifact serving as the subject of the attestation. Must
       specify exactly one of "subject-path", "subject-digest", or
-      "subject-checksums". May contain a glob pattern or list of paths
-      (total subject count cannot exceed 1024).
+      "subject-checksums". May contain a glob pattern or list of paths (total
+      subject count cannot exceed 1024).
     required: false
   subject-digest:
     description: >
@@ -29,6 +29,23 @@ inputs:
       attestation. Must specify exactly one of "subject-path", "subject-digest",
       or "subject-checksums".
     required: false
+  predicate-type:
+    description: >
+      URI identifying the type of the predicate. Required when using "predicate"
+      or "predicate-path" for custom attestations.
+    required: false
+  predicate:
+    description: >
+      String containing the value for the attestation predicate. String length
+      cannot exceed 16MB. Must supply exactly one of "predicate-path" or
+      "predicate" when creating custom attestations.
+    required: false
+  predicate-path:
+    description: >
+      Path to the file which contains the content for the attestation predicate.
+      File size cannot exceed 16MB. Must supply exactly one of "predicate-path"
+      or "predicate" when creating custom attestations.
+    required: false
   push-to-registry:
     description: >
       Whether to push the provenance statement to the image registry. Requires
@@ -38,8 +55,8 @@ inputs:
     required: false
   create-storage-record:
     description: >
-      Whether to create a storage record for the artifact.
-      Requires that push-to-registry is set to true. Defaults to true.
+      Whether to create a storage record for the artifact. Requires that
+      push-to-registry is set to true. Defaults to true.
     default: true
     required: false
   show-summary:
@@ -56,31 +73,34 @@ inputs:
 
 outputs:
   bundle-path:
-    description: 'The path to the file containing the attestation bundle.'
+    description: "The path to the file containing the attestation bundle."
     value: ${{ steps.attest.outputs.bundle-path }}
   attestation-id:
-    description: 'The ID of the attestation.'
+    description: "The ID of the attestation."
     value: ${{ steps.attest.outputs.attestation-id }}
   attestation-url:
-    description: 'The URL for the attestation summary.'
+    description: "The URL for the attestation summary."
     value: ${{ steps.attest.outputs.attestation-url }}
+  storage-record-ids:
+    description: "GitHub IDs for the storage records"
+    value: ${{ steps.attest.outputs.storage-record-ids }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-    - uses: actions/attest-build-provenance/predicate@864457a58d4733d7f1574bd8821fa24e02cf7538 # predicate@2.0.0
-      id: generate-build-provenance-predicate
-    - uses: actions/attest@e59cbc1ad1ac2d59339667419eb8cdde6eb61e3d # v3.2.0
+    - name: Attest
       id: attest
       env:
         NODE_OPTIONS: "--max-http-header-size=32768"
+      uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
       with:
         subject-path: ${{ inputs.subject-path }}
-        subject-digest: ${{ inputs.subject-digest }}
         subject-name: ${{ inputs.subject-name }}
+        subject-digest: ${{ inputs.subject-digest }}
         subject-checksums: ${{ inputs.subject-checksums }}
-        predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
-        predicate: ${{ steps.generate-build-provenance-predicate.outputs.predicate }}
+        predicate-type: ${{ inputs.predicate-type }}
+        predicate: ${{ inputs.predicate }}
+        predicate-path: ${{ inputs.predicate-path }}
         push-to-registry: ${{ inputs.push-to-registry }}
         create-storage-record: ${{ inputs.create-storage-record }}
         show-summary: ${{ inputs.show-summary }}
