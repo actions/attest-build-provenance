@@ -92,7 +92,7 @@ runs:
       id: attest
       env:
         NODE_OPTIONS: "--max-http-header-size=32768"
-      uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+      uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
       with:
         subject-path: ${{ inputs.subject-path }}
         subject-name: ${{ inputs.subject-name }}
