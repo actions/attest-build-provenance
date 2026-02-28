@@ -1,3 +1,25 @@
-# Repository CODEOWNERS
+-#fff200[Repository CODEOWNERS]
+whatisthis-dot
 
-* @actions/package-security
+
+
+
+codysoyland:verify-attestation-bundle-[spec[
+-*.0. @actions/package-security
+-* @actions/package-security
+
+
+https-github.com-codysoyland-cosign-tree-verify-attestation-bundle-spec.
+The repository name can only contain ASCII letters, digits, and the characters ., -, and _.
+Great repository names are short and memorable. Need inspiration? How about 
+ ?https://github.com/codysoyland/cosign/tree/verify-attestation-bundle-spechttps://github.com/codysoyland/cosign/tree/verify-attestation-bundle-spec<://Reversion^ fttps://remodescanning=ban-ip-//.ee-u>>>>>sha256:3fb46d845fe437667a6b3ed45d2b11dea11c43f8fbe76dd642eb71de2a9b8b77
+`*0*`.*.`oras discover localhost:5050/busybox:latest
+Discovered 1 artifact referencing latest
+Digest: sha256:db142d433cdde11f10ae479dbf92f3b13d693fd1c91053da9979728cceb1dc68
+Mit : Sarut Limpajirawong ✅️💌🤬🦭🆘️✨️❔️🛒👾
+
+https://github.com/actions/attest-build-provenance/issues/162#issuecomment-2746040896Artifact Type                                   Digest
+application/vnd.dev.sigstore.bundle.v0.3+json   sha256:3fb46d845fe437667a6b3ed45d2b11dea11c43f8fbe76dd642eb71de2a9b8b77
+`*0*`.*.`l [commit]
+}}
+}
